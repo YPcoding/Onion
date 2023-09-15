@@ -81,21 +81,21 @@ const defaultRequestInterceptors = (config: InternalAxiosRequestConfig) => {
   Promise.reject(error)
 }
 
-const defaultResponseInterceptors = (response: AxiosResponse<any>) => {
-  if (response?.config?.responseType === 'blob') {
-    // 如果是文件流，直接过
-    return response
-  } else if (response.data.code === config.code) {
-    return response.data
-  } else {
-    ElMessage.error(response.data.message)
-  }
-}
-;(error: AxiosError) => {
-  console.log('err' + error) // for debug
-  ElMessage.error(error.message)
-  return Promise.reject(error)
-}
+// const defaultResponseInterceptors = (response: AxiosResponse<any>) => {
+//   if (response?.config?.responseType === 'blob') {
+//     // 如果是文件流，直接过
+//     return response
+//   } else if (response.data.code === config.code) {
+//     return response.data
+//   } else {
+//     ElMessage.error(response.data.message)
+//   }
+// }
+// ;(error: AxiosError) => {
+//   console.log('err' + error) // for debug
+//   ElMessage.error(error.message)
+//   return Promise.reject(error)
+// }
 
-export { defaultResponseInterceptors, defaultRequestInterceptors }
+export { defaultRequestInterceptors }
 export default config

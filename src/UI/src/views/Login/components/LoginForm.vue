@@ -214,7 +214,7 @@ const signIn = async () => {
       try {
         const res = await loginApi(formData)
 
-        if (res) {
+        if (res.code === 0) {
           setStorage(appStore.getUserInfo, res.data)
           // 是否使用动态路由
           if (appStore.getDynamicRouter) {

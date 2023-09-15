@@ -1,5 +1,5 @@
 import axios from 'axios'
-import config, { defaultRequestInterceptors, defaultResponseInterceptors } from './config'
+import config, { defaultRequestInterceptors } from './config'
 
 import { AxiosInstance, InternalAxiosRequestConfig, RequestConfig, AxiosResponse } from './types'
 
@@ -33,7 +33,7 @@ axiosInstance.interceptors.response.use(
 )
 
 axiosInstance.interceptors.request.use(requestInterceptors || defaultRequestInterceptors)
-axiosInstance.interceptors.response.use(responseInterceptors || defaultResponseInterceptors)
+axiosInstance.interceptors.response.use(responseInterceptors)
 
 const service = {
   request: (config: RequestConfig) => {
