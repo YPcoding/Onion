@@ -36,7 +36,6 @@
     <Folder Include="Common\Security\" />
     <Folder Include="Constants\" />
     <Folder Include="Features\Users\Caching\" />
-    <Folder Include="Features\新文件夹\" />
     <Folder Include="Resources\" />
     <Folder Include="Services\" />
   </ItemGroup>

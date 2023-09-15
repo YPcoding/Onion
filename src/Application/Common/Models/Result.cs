@@ -1,4 +1,6 @@
-﻿namespace Application.Common.Models;
+﻿using AngleSharp.Dom;
+
+namespace Application.Common.Models;
 
 /// <summary>
 /// 返回结果
@@ -11,6 +13,7 @@ public class Result : IResult
     }
     internal Result(bool succeeded, IEnumerable<string> errors)
     {
+        Code = succeeded == true ? 0 : 1;
         Succeeded = succeeded;
         Errors = errors.ToArray();
     }
@@ -29,6 +32,8 @@ public class Result : IResult
     /// 错误信息
     /// </summary>
     public string ErrorMessage => string.Join(", ", Errors ?? new string[] { });
+
+    public int Code { get; init; }
 
     public static Result Success()
     {

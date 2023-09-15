@@ -85,7 +85,7 @@ public static class DependencyInjection
         Type[] allTypes = allAssemblies.SelectMany(x => x.GetTypes()).ToArray();
 
         maps.AddRange(allTypes.Where(x => x.GetCustomAttribute<MapAttribute>() != null)
-            .Select(x => (x, x.GetCustomAttribute<MapAttribute>().TargetTypes)));
+            .Select(x => (x, x.GetCustomAttribute<MapAttribute>()!.TargetTypes)));
 
         var configuration = new MapperConfiguration(cfg =>
         {

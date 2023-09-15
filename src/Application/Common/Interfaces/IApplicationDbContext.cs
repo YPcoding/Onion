@@ -8,5 +8,5 @@ public  interface IApplicationDbContext
     DbSet<User> Users { get; set; }
     DbSet<AuditTrail> AuditTrails { get; set; }
     DbSet<Logger> Loggers { get; set; }
-    Task<int> SaveChangesAsync(CancellationToken cancellationToken);
+    Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

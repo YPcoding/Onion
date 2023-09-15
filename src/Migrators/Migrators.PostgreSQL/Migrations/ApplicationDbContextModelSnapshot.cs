@@ -122,8 +122,8 @@ namespace Migrators.PostgreSQL.Migrations
                         .HasColumnType("character varying(20)");
 
                     b.Property<string>("PasswordHash")
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("PhoneNumber")
                         .HasMaxLength(20)

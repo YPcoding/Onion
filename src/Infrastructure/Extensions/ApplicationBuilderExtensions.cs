@@ -28,6 +28,13 @@ public static class ApplicationBuilderExtensions
             c.RoutePrefix = ""; // serve the UI at root
             c.SwaggerEndpoint("/v1/api-docs", "V1 Docs");
         });
+        app.UseCors(builder =>
+        {
+            builder.SetIsOriginAllowed(_ => true)
+                  .AllowCredentials()
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapControllers();

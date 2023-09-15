@@ -4,3 +4,4 @@ global using Application;
 global using Application.Common.Interfaces;
 global using Infrastructure;
 global using Infrastructure.Extensions;
+global using Application.Common.Models;

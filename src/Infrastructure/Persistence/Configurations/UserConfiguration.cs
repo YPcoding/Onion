@@ -13,7 +13,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(t => t.Email).HasMaxLength(50);
         builder.Property(t => t.NormalizedEmail).HasMaxLength(50);
         builder.Property(t => t.EmailConfirmed).HasMaxLength(1);
-        builder.Property(t => t.PasswordHash).HasMaxLength(20);
+        builder.Property(t => t.PasswordHash).HasMaxLength(100);
         builder.Property(t => t.SecurityStamp).HasMaxLength(36);
         builder.Property(t => t.PhoneNumber).HasMaxLength(20);
         builder.Property(t => t.PhoneNumberConfirmed).HasMaxLength(1);

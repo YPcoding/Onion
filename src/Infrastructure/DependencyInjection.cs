@@ -6,6 +6,9 @@ using Infrastructure.Persistence.Interceptors;
 using Infrastructure.Common.Helper;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Mvc.Controllers;
+using Domain.Services;
+using Domain.Repositories;
+using Infrastructure.Repositories;
 
 namespace Infrastructure;
 
@@ -14,9 +17,12 @@ public static class DependencyInjection
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services,
         IConfiguration configuration)
     {
+        services.AddScoped<UserDomainService>();
+        services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
         services.AddScoped<ISaveChangesInterceptor, DispatchDomainEventsInterceptor>();
         services.Configure<DatabaseSettings>(configuration.GetSection(DatabaseSettings.Key));
+        services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.Key));
         services.AddSingleton(s => s.GetRequiredService<IOptions<DatabaseSettings>>().Value);
         services.AddDbContext<ApplicationDbContext>((p, m) =>
         {

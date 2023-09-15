@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+﻿using Masuit.Tools.Security;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Entities.Identity
@@ -88,5 +89,33 @@ namespace Domain.Entities.Identity
         /// 是否活跃
         /// </summary>
         public bool IsLive { get; set; } = false;
+
+        /// <summary>
+        /// 创建密码
+        /// </summary>
+        /// <param name="password">密码</param>
+        public string CreatePassword(string password) 
+        {
+            return password.MDString3("Onion");
+        }
+
+        /// <summary>
+        /// 更改密码
+        /// </summary>
+        /// <param name="password"></param>
+        public void ChangePassword(string password) 
+        {
+            PasswordHash = CreatePassword(password);
+        }
+
+        /// <summary>
+        /// 密码比较
+        /// </summary>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        public bool CompareWithOldPassword (string password) 
+        {
+            return PasswordHash == CreatePassword(password);
+        }
     }
 }
