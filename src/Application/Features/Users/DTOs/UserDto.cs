@@ -99,5 +99,10 @@ namespace Application.Features.Users.DTOs
         /// 是否活跃
         /// </summary>
         public bool IsLive { get; set; } = false;
+
+        /// <summary>
+        /// 创建时间
+        /// </summary>
+        public DateTime? Created { get; set; }
     }
 }

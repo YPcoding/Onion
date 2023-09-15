@@ -6,15 +6,17 @@ import {
   InternalAxiosRequestConfig
 } from './types'
 import { ElMessage } from 'element-plus'
+import { useStorage } from '@/hooks/web/useStorage'
 import qs from 'qs'
 
+const { getStorage } = useStorage()
 const config: AxiosConfig = {
   /**
    * api请求基础路径
    */
   baseUrl: {
     // 开发环境接口前缀
-    base: '',
+    base: 'https://localhost:7251',
 
     // 打包开发环境接口前缀
     dev: '',
@@ -74,6 +76,7 @@ const defaultRequestInterceptors = (config: InternalAxiosRequestConfig) => {
     config.params = {}
     config.url = url
   }
+  config.headers.Authorization = 'Bearer ' + getStorage('token')
   return config
 }
 ;(error: AxiosError) => {
@@ -81,21 +84,22 @@ const defaultRequestInterceptors = (config: InternalAxiosRequestConfig) => {
   Promise.reject(error)
 }
 
-// const defaultResponseInterceptors = (response: AxiosResponse<any>) => {
-//   if (response?.config?.responseType === 'blob') {
-//     // 如果是文件流，直接过
-//     return response
-//   } else if (response.data.code === config.code) {
-//     return response.data
-//   } else {
-//     ElMessage.error(response.data.message)
-//   }
-// }
-// ;(error: AxiosError) => {
-//   console.log('err' + error) // for debug
-//   ElMessage.error(error.message)
-//   return Promise.reject(error)
-// }
+const defaultResponseInterceptors = (response) => {
+  if (response?.config?.responseType === 'blob') {
+    // 如果是文件流，直接过
+    return response
+  } else if (response.succeeded === true) {
+    console.log(response)
+    return response
+  } else {
+    ElMessage.error(response.errorMessage)
+  }
+}
+;(error: AxiosError) => {
+  console.log('err' + error) // for debug
+  ElMessage.error(error.message)
+  return Promise.reject(error)
+}
 
-export { defaultRequestInterceptors }
+export { defaultRequestInterceptors, defaultResponseInterceptors }
 export default config

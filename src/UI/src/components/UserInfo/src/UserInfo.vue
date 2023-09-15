@@ -35,13 +35,17 @@ const loginOut = () => {
     type: 'warning'
   })
     .then(async () => {
-      const res = await loginOutApi().catch(() => {})
-      if (res) {
-        clear()
-        tagsViewStore.delAllViews()
-        resetRouter() // 重置静态路由表
-        replace('/login')
-      }
+      // const res = await loginOutApi().catch(() => {})
+      // if (res) {
+      //   clear()
+      //   tagsViewStore.delAllViews()
+      //   resetRouter() // 重置静态路由表
+      //   replace('/login')
+      // }
+      clear()
+      tagsViewStore.delAllViews()
+      resetRouter() // 重置静态路由表
+      replace('/login')
     })
     .catch(() => {})
 }

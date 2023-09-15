@@ -19,7 +19,7 @@ public class UserController : ApiControllerBase
     /// <returns></returns>
     [HttpPost("PaginationQuery")]
 
-    public async Task<PaginatedData<UserDto>> PaginationQuery(UsersWithPaginationQuery query)
+    public async Task<Result<PaginatedData<UserDto>>> PaginationQuery(UsersWithPaginationQuery query)
     {
         return await Mediator.Send(query);
     }

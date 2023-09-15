@@ -6,7 +6,7 @@ interface RoleParams {
 }
 
 export const loginApi = (data: UserType): Promise<IResponse<UserType>> => {
-  return request.post({ url: 'https://localhost:7251/api/Auth/LoginByUserNameAndPassword', data })
+  return request.post({ url: '/api/Auth/LoginByUserNameAndPassword', data })
 }
 
 export const loginOutApi = (): Promise<IResponse> => {

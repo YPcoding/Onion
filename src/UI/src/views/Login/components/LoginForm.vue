@@ -214,8 +214,8 @@ const signIn = async () => {
       try {
         const res = await loginApi(formData)
 
-        if (res.code === 0) {
-          setStorage(appStore.getUserInfo, res.data)
+        if (res.succeeded === true) {
+          setStorage('token', res.data)
           // 是否使用动态路由
           if (appStore.getDynamicRouter) {
             getRole()
