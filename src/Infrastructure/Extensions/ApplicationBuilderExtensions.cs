@@ -37,7 +37,8 @@ public static class ApplicationBuilderExtensions
         });
         app.UseEndpoints(endpoints =>
         {
-            endpoints.MapControllers();
+            endpoints.MapControllers()
+            .RequireAuthorization();
             endpoints.MapSwagger("{documentName}/api-docs");
         });
         return app;

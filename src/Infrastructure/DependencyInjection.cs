@@ -9,6 +9,10 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Domain.Services;
 using Domain.Repositories;
 using Infrastructure.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Management;
+using System.Text;
 
 namespace Infrastructure;
 
@@ -35,6 +39,23 @@ public static class DependencyInjection
             provider.GetRequiredService<IDbContextFactory<ApplicationDbContext>>().CreateDbContext());
 
         services.AddServices();
+        services.AddAuthorization();
+        services.AddAuthentication();
+        JwtSettings jwtSettings = configuration.GetSection("JwtSettings").Get<JwtSettings>()!;
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(x =>
+            {
+                x.TokenValidationParameters = new()
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtSettings.Issuer,
+                    ValidAudience = jwtSettings.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecurityKey))
+                };
+            });
         services.AddControllers().AddNewtonsoftJson(options =>
         {
             options.SerializerSettings.DateFormatString = "yyyy-MM-dd HH:mm:ss.fff";
@@ -53,7 +74,7 @@ public static class DependencyInjection
             c.CustomOperationIds(apiDesc =>
             {
                 var controllerAction = apiDesc.ActionDescriptor as ControllerActionDescriptor;
-                return controllerAction.ControllerName + "-" + controllerAction.ActionName;
+                return controllerAction!.ControllerName + "-" + controllerAction.ActionName;
             });
             c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "Application.xml"), true);
             c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "Domain.xml"), true);
