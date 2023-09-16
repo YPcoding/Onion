@@ -8,9 +8,9 @@ namespace Application.Features.Users.Commands.Delete;
 public class DeleteUserCommand : IRequest<Result<bool>>
 {
     /// <summary>
-    /// 主键
+    /// 删除数据的唯一标识
     /// </summary>
-    [Required]
+    [Required(ErrorMessage = "删除数据的唯一标识是必填的")]
     public List<long> Ids { get; set; }
 }
 

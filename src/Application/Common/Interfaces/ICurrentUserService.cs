@@ -2,6 +2,13 @@
 
 public interface ICurrentUserService : IScopedDependency
 {
-    string? UserId { get; set; }
-    string? UserName { get; set; }
+    public string? UserId { get; }
+    public string? Email { get; }
+    public string? UserName { get; }
+    public string? TenantId { get; }
+    public string? DisplayName { get; }
+    public string? SuperiorId { get; }
+    public string? SuperiorName { get; }
+    public string? ProfilePictureDataUrl { get; }
+    public string[]? AssignRoles { get; }
 }

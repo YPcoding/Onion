@@ -10,13 +10,13 @@ public partial class PaginationFilter : BaseFilter
     /// <summary>
     /// 页码
     /// </summary>
-    [Required]
+    [Required(ErrorMessage = "页码是必填的")]
     public int PageNumber { get; set; } = 1;
 
     /// <summary>
-    /// 每页尺寸
+    /// 每页大小
     /// </summary>
-    [Required]
+    [Required(ErrorMessage = "每页大小是必填的")]
     public int PageSize { get; set; } = 15;
 
     /// <summary>

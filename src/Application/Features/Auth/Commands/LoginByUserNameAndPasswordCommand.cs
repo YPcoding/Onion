@@ -13,13 +13,13 @@ public class LoginByUserNameAndPasswordCommand : IRequest<Result<string>>
     /// <summary>
     /// 用户名
     /// </summary>
-    [Required]
+    [Required(ErrorMessage = "用户名是必填的")]
     public string UserName { get; set; }
 
     /// <summary>
     /// 密码
     /// </summary>
-    [Required]
+    [Required(ErrorMessage = "密码是必填的")]
     public string Password { get; set; }
 }
 

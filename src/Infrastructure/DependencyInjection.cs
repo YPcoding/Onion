@@ -11,8 +11,12 @@ using Domain.Repositories;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using System.Management;
 using System.Text;
+using Infrastructure.Auth;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Mvc;
+using Masuit.Tools;
+using FluentValidation;
 
 namespace Infrastructure;
 
@@ -37,31 +41,46 @@ public static class DependencyInjection
         services.AddScoped<IDbContextFactory<ApplicationDbContext>, ContextFactory<ApplicationDbContext>>();
         services.AddTransient<IApplicationDbContext>(provider =>
             provider.GetRequiredService<IDbContextFactory<ApplicationDbContext>>().CreateDbContext());
-
+        services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         services.AddServices();
         services.AddAuthorization();
-        services.AddAuthentication();
         JwtSettings jwtSettings = configuration.GetSection("JwtSettings").Get<JwtSettings>()!;
-        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(x =>
+        services.AddAuthentication(options =>
+        {
+            options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = nameof(ResponseAuthenticationHandler); //401
+            options.DefaultForbidScheme = nameof(ResponseAuthenticationHandler);    //403
+        }).AddJwtBearer(x =>
+        {
+            x.TokenValidationParameters = new()
             {
-                x.TokenValidationParameters = new()
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = jwtSettings.Issuer,
-                    ValidAudience = jwtSettings.Audience,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecurityKey))
-                };
-            });
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = jwtSettings.Issuer,
+                ValidAudience = jwtSettings.Audience,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecurityKey))
+            };
+        }).AddScheme<AuthenticationSchemeOptions, ResponseAuthenticationHandler>(nameof(ResponseAuthenticationHandler), o => { }); ;
         services.AddControllers().AddNewtonsoftJson(options =>
         {
             options.SerializerSettings.DateFormatString = "yyyy-MM-dd HH:mm:ss.fff";
             options.SerializerSettings.ContractResolver = new CustomContractResolver();
         });
         services.AddEndpointsApiExplorer();
+        services.Configure<ApiBehaviorOptions>(options => //请求参数校验
+        {
+            options.InvalidModelStateResponseFactory = actionContext =>
+            {
+                var errors = actionContext.ModelState
+                   .Where(e => e.Value?.Errors.Count > 0)
+                   .Select(e => e.Value?.Errors.First().ErrorMessage)
+                   .ToList();
+
+                throw new ValidationException(errors?.Join("|"));
+            };
+        });
         #region Swagger文档
         services.AddSwaggerGen(c =>
         {
