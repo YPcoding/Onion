@@ -33,6 +33,9 @@ public class Result : IResult
     /// </summary>
     public string ErrorMessage => string.Join(", ", Errors ?? new string[] { });
 
+    /// <summary>
+    /// 状态码 0成功 1失败
+    /// </summary>
     public int Code { get; init; }
 
     public static Result Success()

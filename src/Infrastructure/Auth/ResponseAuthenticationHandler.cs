@@ -34,10 +34,10 @@ public class ResponseAuthenticationHandler : AuthenticationHandler<Authenticatio
         await Response.WriteAsync(JsonConvert.SerializeObject(
             new 
             {
-                Code = StatusCodes.Status401Unauthorized,
-                Succeeded = false,
-                Errors = new string[] { "未授权" },
-                ErrorMessage = "未授权"
+                code = StatusCodes.Status401Unauthorized,
+                succeeded = false,
+                errors = new string[] { "未授权" },
+                errorMessage = "未授权"
             },
             new JsonSerializerSettings()
             {
@@ -52,10 +52,10 @@ public class ResponseAuthenticationHandler : AuthenticationHandler<Authenticatio
         await Response.WriteAsync(JsonConvert.SerializeObject(
             new
             {
-                Code = StatusCodes.Status403Forbidden,
-                Succeeded = false,
-                Errors = new string[] { "禁止访问" },
-                ErrorMessage = "禁止访问"
+                code = StatusCodes.Status403Forbidden,
+                succeeded = false,
+                errors = new string[] { "禁止访问" },
+                errorMessage = "禁止访问"
             },
             new JsonSerializerSettings()
             {

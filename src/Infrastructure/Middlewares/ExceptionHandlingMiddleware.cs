@@ -1,4 +1,6 @@
-﻿namespace Infrastructure.Middlewares;
+﻿using System.Text.Json;
+
+namespace Infrastructure.Middlewares;
 
 internal class ExceptionHandlingMiddleware : IMiddleware
 {
@@ -50,7 +52,11 @@ internal class ExceptionHandlingMiddleware : IMiddleware
                     break;
             }
             _logger.LogError(exception, $"{exception}. Request failed with Status Code {response.StatusCode}");
-            await response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(responseModel));
+            JsonSerializerOptions options = new(JsonSerializerDefaults.Web)
+            {
+                WriteIndented = true
+            };
+            await response.WriteAsync(JsonSerializer.Serialize(responseModel, options));
         }
     }
 }
