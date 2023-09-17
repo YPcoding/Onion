@@ -1,6 +1,8 @@
 ﻿global using System.Linq.Dynamic.Core;
-global using Microsoft.EntityFrameworkCore;
 global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Logging;
+global using Microsoft.EntityFrameworkCore;
+global using Microsoft.Extensions.Caching.Memory;
 global using Masuit.Tools.Security;
 global using AutoMapper;
 global using MediatR;
@@ -10,5 +12,6 @@ global using Application.Common.ExceptionHandlers;
 global using Application.Common.Models;
 global using Application.Common.Mappings;
 global using Application.Common.Interfaces;
+global using Application.Common.Interfaces.Caching;
 global using Domain.Entities.Identity;
 global using Domain.Events;

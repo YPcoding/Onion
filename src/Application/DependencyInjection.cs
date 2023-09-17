@@ -2,6 +2,7 @@
 using Application.Common.PublishStrategies;
 using MediatR.Pipeline;
 using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Application;
 
@@ -17,8 +18,10 @@ public static class DependencyInjection
             config.AddOpenBehavior(typeof(RequestExceptionProcessorBehavior<,>));
             config.AddOpenBehavior(typeof(ValidationBehaviour<,>));
             config.AddOpenBehavior(typeof(AuthorizationBehaviour<,>));
+            config.AddOpenBehavior(typeof(MemoryCacheBehaviour<,>));
+            config.AddOpenBehavior(typeof(CacheInvalidationBehaviour<,>));
         });
-
+        services.AddLazyCache();
         return services;
     }
 }

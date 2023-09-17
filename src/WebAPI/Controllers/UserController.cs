@@ -3,6 +3,7 @@ using Application.Features.Users.Commands.Delete;
 using Application.Features.Users.Commands.Update;
 using Application.Features.Users.DTOs;
 using Application.Features.Users.Queries.Pagination;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers;
@@ -17,6 +18,7 @@ public class UserController : ApiControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpPost("PaginationQuery")]
+    [AllowAnonymous]
 
     public async Task<Result<PaginatedData<UserDto>>> PaginationQuery(UsersWithPaginationQuery query)
     {
@@ -27,7 +29,8 @@ public class UserController : ApiControllerBase
     /// 创建用户
     /// </summary>
     /// <returns></returns>
-    [HttpPost("Add")]
+    [HttpPost("Adda")]
+    [AllowAnonymous]
 
     public async Task<Result<long>> Add(AddUserCommand command)
     {
@@ -39,7 +42,7 @@ public class UserController : ApiControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpPut("Update")]
-
+    [AllowAnonymous]
     public async Task<Result<long>> Update(UpdateUserCommand command)
     {
         return await Mediator.Send(command);
@@ -50,6 +53,7 @@ public class UserController : ApiControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpDelete("Delete")]
+    [AllowAnonymous]
 
     public async Task<Result<bool>> Delete(DeleteUserCommand command)
     {

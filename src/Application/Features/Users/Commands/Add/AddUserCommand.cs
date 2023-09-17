@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
+using Application.Features.Users.Caching;
 
 namespace Application.Features.Users.Commands.AddEdit;
 
@@ -6,7 +8,7 @@ namespace Application.Features.Users.Commands.AddEdit;
 /// 添加用户
 /// </summary>
 [Map(typeof(User))]
-public class AddUserCommand : IRequest<Result<long>>
+public class AddUserCommand : ICacheInvalidatorRequest<Result<long>>
 {
     /// <summary>
     /// 用户名
@@ -29,6 +31,15 @@ public class AddUserCommand : IRequest<Result<long>>
     /// 手机号码
     /// </summary>
     public string? PhoneNumber { get; set; }
+
+    /// <summary>
+    /// 缓存Key值
+    /// </summary>
+    [JsonIgnore]
+    public string CacheKey => UserCacheKey.GetAllCacheKey;
+
+    [JsonIgnore]
+    public CancellationTokenSource? SharedExpiryTokenSource => UserCacheKey.SharedExpiryTokenSource();
 }
 
 /// <summary>

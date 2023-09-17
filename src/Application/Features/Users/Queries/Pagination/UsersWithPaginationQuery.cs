@@ -1,7 +1,9 @@
 ﻿using Application.Common.Extensions;
 using Application.Common.Models;
+using Application.Features.Users.Caching;
 using Application.Features.Users.DTOs;
 using Application.Features.Users.Specifications;
+using Microsoft.Extensions.Caching.Memory;
 using System.Text.Json.Serialization;
 
 namespace Application.Features.Users.Queries.Pagination;
@@ -9,7 +11,7 @@ namespace Application.Features.Users.Queries.Pagination;
 /// <summary>
 /// 用户分页查询
 /// </summary>
-public class UsersWithPaginationQuery : UserAdvancedFilter, IRequest<Result<PaginatedData<UserDto>>>
+public class UsersWithPaginationQuery : UserAdvancedFilter, ICacheableRequest<Result<PaginatedData<UserDto>>>
 {
     public override string ToString()
     {
@@ -18,6 +20,10 @@ public class UsersWithPaginationQuery : UserAdvancedFilter, IRequest<Result<Pagi
     }
     [JsonIgnore]
     public UserAdvancedSpecification Specification => new UserAdvancedSpecification(this);
+    public string CacheKey => UserCacheKey.GetPaginationCacheKey($"{this}");
+
+    [JsonIgnore]
+    public MemoryCacheEntryOptions? Options => UserCacheKey.MemoryCacheEntryOptions;
 }
 public class UsersWithPaginationQueryHandler :
 IRequestHandler<UsersWithPaginationQuery, Result<PaginatedData<UserDto>>>
