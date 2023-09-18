@@ -1,7 +1,9 @@
 ﻿using Masuit.Tools;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
 using System.Reflection;
 using System.Xml;
+using static System.Net.WebRequestMethods;
 
 namespace Application.Common.Helper;
 
@@ -17,6 +19,7 @@ public class WebApiDocHelper
     {
         public string ActionName { get; set; }
         public string Route { get; set; }
+        public string HttpMethods { get; set; }
         public string Description { get; set; }
     }
 
@@ -58,6 +61,7 @@ public class WebApiDocHelper
                     {
                         ActionName = method.Name,
                         Route = GetRouteFromAttributes(actionAttributes),
+                        HttpMethods = GetHttpMethodsFromAttributes(actionAttributes),
                         Description = GetDescriptionFromXmlDocumentation(controllerType, method)
                     };
 
@@ -82,10 +86,33 @@ public class WebApiDocHelper
     public static string GetRouteFromAttributes(List<Attribute> attributes)
     {
         var routeAttribute = attributes.FirstOrDefault();
+
         if (routeAttribute != null)
         {
             return routeAttribute.GetType()?.GetProperty("Template")?.GetValue(routeAttribute)?.ToString()!;
         }
+        return string.Empty;
+    }
+    public static string GetHttpMethodsFromAttributes(List<Attribute> attributes)
+    {
+        var httpMethodsAttribute = attributes.FirstOrDefault();
+
+        if (httpMethodsAttribute != null)
+        {
+            // 尝试查找动作方法上的 HTTP 请求方法特性
+            var httpMethodAttributes = attributes.OfType<HttpMethodAttribute>();
+
+            if (httpMethodAttributes.Any())
+            {
+                // 使用逗号分隔多个 HTTP 请求方法
+                var httpMethodsList = httpMethodAttributes.SelectMany(a => a.HttpMethods).Distinct().ToList();
+                var httpMethods = string.Join(",", httpMethodsList);
+                return httpMethods;
+            }
+
+            return string.Empty;
+        }
+
         return string.Empty;
     }
 

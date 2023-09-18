@@ -1,4 +1,5 @@
-﻿using Domain.Entities.Identity;
+﻿using Domain.Entities;
+using Domain.Entities.Identity;
 using Domain.Entities.Logger;
 using Infrastructure.Persistence.Extensions;
 using System.Reflection;
@@ -16,6 +17,10 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<User> Users { get ; set ; }
     public DbSet<AuditTrail> AuditTrails { get; set; }
     public DbSet<Logger> Loggers { get; set; }
+    public DbSet<Role> Roles { get; set; }
+    public DbSet<UserRole> UserRoles { get; set; }
+    public DbSet<Permission> Permissions { get; set; }
+    public DbSet<RolePermission> RolePermissions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

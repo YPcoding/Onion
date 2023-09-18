@@ -29,8 +29,7 @@ public class UserController : ApiControllerBase
     /// 创建用户
     /// </summary>
     /// <returns></returns>
-    [HttpPost("Adda")]
-    [AllowAnonymous]
+    [HttpPost("Add")]
 
     public async Task<Result<long>> Add(AddUserCommand command)
     {
@@ -42,7 +41,6 @@ public class UserController : ApiControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpPut("Update")]
-    [AllowAnonymous]
     public async Task<Result<long>> Update(UpdateUserCommand command)
     {
         return await Mediator.Send(command);
@@ -53,7 +51,6 @@ public class UserController : ApiControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpDelete("Delete")]
-    [AllowAnonymous]
 
     public async Task<Result<bool>> Delete(DeleteUserCommand command)
     {

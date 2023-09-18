@@ -1,5 +1,4 @@
 ﻿using Masuit.Tools.Security;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Entities.Identity

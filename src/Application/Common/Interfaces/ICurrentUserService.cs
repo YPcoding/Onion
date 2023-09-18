@@ -3,6 +3,7 @@
 public interface ICurrentUserService : IScopedDependency
 {
     public string? UserId { get; }
+    public long CurrentUserId { get; }
     public string? Email { get; }
     public string? UserName { get; }
     public string? TenantId { get; }

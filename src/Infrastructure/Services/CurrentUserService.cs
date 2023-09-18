@@ -33,4 +33,17 @@ public class CurrentUserService : ICurrentUserService
             return str.Split(',', StringSplitOptions.RemoveEmptyEntries);
         }
     }
+
+    public long CurrentUserId
+    {
+        get
+        {
+            long userId;
+            if (long.TryParse(UserId, out userId))
+            {
+                return userId;
+            }
+            return 0;
+        }
+    }
 }
