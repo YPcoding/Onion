@@ -14,6 +14,7 @@ global using Application.Common.ExceptionHandlers;
 global using Application.Common.Interfaces;
 global using Application.Common.Models;
 global using Application.ExceptionHandlers;
+global using Common.Interfaces;
 global using Domain.Common;
 global using Domain.Entities.Audit;
 

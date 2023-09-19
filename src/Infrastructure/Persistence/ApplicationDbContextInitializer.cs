@@ -136,13 +136,7 @@ public class ApplicationDbContextInitializer
             }
             if (permissions.Any())
             {
-                var administratorPermissions = permissions;
-                var userPermissions = permissions.Where(x => x.HttpMethods?.ToUpper() == "GET");
-                _context.Permissions.AddRange(administratorPermissions);
-                if (userPermissions.Any())
-                {
-                    _context.Permissions.AddRange(userPermissions);
-                }
+                _context.Permissions.AddRange(permissions);
                 await _context.SaveChangesAsync();
                 _logger.LogInformation($"成功添加权限数据");
             }
@@ -153,7 +147,7 @@ public class ApplicationDbContextInitializer
         var administratorRolePermissions = await _context.RolePermissions.Where(x => x.RoleId == administratorRoleId).ToListAsync();
         var userRolePermissions = await _context.RolePermissions.Where(x => x.RoleId == userRoleId).ToListAsync();
         var notHaveAdministratorPermissions = permissions.Where(x => !administratorRolePermissions.Select(x => x.PermissionId).Contains(x.Id)).ToList();
-        var notHaveUserPermissions = permissions.Where(x => !userRolePermissions.Select(x => x.PermissionId).Contains(x.Id)).ToList();
+        var notHaveUserPermissions = permissions.Where(x => !userRolePermissions.Select(x => x.PermissionId).Contains(x.Id) && x.HttpMethods == "GET").ToList();
         if (notHaveAdministratorPermissions.Any())
         {
             var items = new List<RolePermission>();

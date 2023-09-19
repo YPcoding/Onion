@@ -2,7 +2,7 @@
 
 namespace Domain.Services;
 
-public class UserDomainService
+public class UserDomainService : IScopedDependency
 {
     private readonly IUserRepository _repository;
 

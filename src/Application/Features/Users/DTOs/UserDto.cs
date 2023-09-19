@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+﻿using Application.Features.Roles.DTOs;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Application.Features.Users.DTOs
@@ -29,6 +30,11 @@ namespace Application.Features.Users.DTOs
         /// 用户名
         /// </summary>
         public string UserName { get; set; }
+
+        /// <summary>
+        /// 角色
+        /// </summary>
+        public List<RoleDto> Roles { get; set; }
 
         /// <summary>
         /// 标准化用户名

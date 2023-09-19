@@ -3,7 +3,7 @@
 /// <summary>
 /// 用户仓储
 /// </summary>
-public interface IUserRepository
+public interface IUserRepository : IScopedDependency
 {
     /// <summary>
     /// 根据Id获取用户

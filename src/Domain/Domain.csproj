@@ -26,4 +26,8 @@
 		<Folder Include="ValueObjects\" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\Commons\Common\Common.csproj" />
+	</ItemGroup>
+
 </Project>

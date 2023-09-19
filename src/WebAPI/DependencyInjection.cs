@@ -37,21 +37,27 @@ public static class DependencyInjection
         {
             if (typeof(IScopedDependency).IsAssignableFrom(implementType))
             {
-                var interfaceType = interfaceTypes.FirstOrDefault(x => x.IsAssignableFrom(implementType));
-                if (interfaceType != null)
+                var interfaceType = interfaceTypes.FirstOrDefault(x => x.IsAssignableFrom(implementType));               
+                if (interfaceType != null)//继承接口的注入
                     services.AddScoped(interfaceType, implementType);
+                else //无继承接口的注入
+                    services.AddScoped(implementType);
             }
             else if (typeof(ISingletonDependency).IsAssignableFrom(implementType))
             {
                 var interfaceType = interfaceTypes.FirstOrDefault(x => x.IsAssignableFrom(implementType));
-                if (interfaceType != null)
+                if (interfaceType != null)//继承接口的注入
                     services.AddSingleton(interfaceType, implementType);
+                else//无继承接口的注入
+                    services.AddSingleton(implementType);
             }
             else
             {
-                var interfaceType = interfaceTypes.FirstOrDefault(x => x.IsAssignableFrom(implementType));
-                if (interfaceType != null)
+                var interfaceType = interfaceTypes.FirstOrDefault(x => x.IsAssignableFrom(implementType));                
+                if (interfaceType != null)//继承接口的注入
                     services.AddTransient(interfaceType, implementType);
+                else//无继承接口的注入
+                    services.AddTransient(implementType);
             }
         }
         #endregion

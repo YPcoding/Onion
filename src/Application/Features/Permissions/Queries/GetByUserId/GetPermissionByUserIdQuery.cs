@@ -1,13 +1,14 @@
 ﻿using Application.Features.Permissions.Caching;
 using Application.Features.Permissions.DTOs;
-using AutoMapper.QueryableExtensions;
+using Domain.Entities;
+using Domain.Services;
 
 namespace Application.Features.Permissions.Queries.GetByUserId;
 
 /// <summary>
 /// 获取用户权限
 /// </summary>
-public class GetPermissionByUserIdQuery : ICacheableRequest<List<PermissionDto>>
+public class GetPermissionByUserIdQuery : ICacheableRequest<Result<IEnumerable<PermissionDto>>>
 {
     /// <summary>
     /// 用户唯一标识
@@ -20,36 +21,27 @@ public class GetPermissionByUserIdQuery : ICacheableRequest<List<PermissionDto>>
 }
 
 public class GetPermissionByUserIdQueryHandler :
-     IRequestHandler<GetPermissionByUserIdQuery, List<PermissionDto>>
+     IRequestHandler<GetPermissionByUserIdQuery, Result<IEnumerable<PermissionDto>>>
 {
+    private readonly PermissionDomainService _permissionService;
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
 
     public GetPermissionByUserIdQueryHandler(
         IApplicationDbContext context,
         IMapper mapper
-        )
+,
+        PermissionDomainService permissionService)
     {
         _context = context;
         _mapper = mapper;
+        _permissionService = permissionService;
     }
 
-    public async Task<List<PermissionDto>> Handle(GetPermissionByUserIdQuery request, CancellationToken cancellationToken)
+    public async Task<Result<IEnumerable<PermissionDto>>> Handle(GetPermissionByUserIdQuery request, CancellationToken cancellationToken)
     {
-        var userRoles = await _context.UserRoles
-            .Where(x => x.UserId == request.UserId)
-            .ToListAsync(cancellationToken);
-        if (!userRoles.Any()) return new List<PermissionDto>();
-
-        var rolePermissions = await _context.RolePermissions
-            .Where(x => userRoles.Select(s => s.RoleId).Contains(x.RoleId))
-            .ToListAsync(cancellationToken);
-        if (!rolePermissions.Any()) return new List<PermissionDto>();
-
-        var data = await _context.Permissions
-            .Where(x => rolePermissions.Select(s => s.PermissionId).Contains(x.Id))
-            .ProjectTo<PermissionDto>(_mapper.ConfigurationProvider)
-            .ToListAsync(cancellationToken) ?? new List<PermissionDto>();
-        return data;
+        var permissions =await _permissionService.GetPermissionsByUserIdAsync(request.UserId);
+        return await Result<IEnumerable<PermissionDto>>
+            .SuccessAsync(_mapper.Map(permissions, new List<PermissionDto>()));
     }
 }

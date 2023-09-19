@@ -47,7 +47,7 @@ public class GetPermissionByIdQueryHandler :
     {
         var permission = await _context.Permissions
             .ProjectTo<PermissionDto>(_mapper.ConfigurationProvider)
-            .FirstOrDefaultAsync(x => x.Id == request.PermissionId, cancellationToken);
+            .SingleOrDefaultAsync(x => x.Id == request.PermissionId, cancellationToken);
         return await Result<PermissionDto>.SuccessAsync(permission!);
     }
 }

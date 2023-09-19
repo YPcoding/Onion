@@ -22,18 +22,8 @@ namespace Infrastructure.Repositories
         /// <returns>用户权限</returns>
         public async Task<List<Permission>> GetPermissionsByUserIdAsync(long userId)
         {
-            var userRoles = await _dbContext.UserRoles
-                .Where(x => x.UserId == userId)
-                .ToListAsync();
-            if (!userRoles.Any()) return new List<Permission>();
-
-            var rolePermissions = await _dbContext.RolePermissions
-                .Where(x => userRoles.Select(s => s.RoleId).Contains(x.RoleId))
-                .ToListAsync();
-            if (!rolePermissions.Any()) return new List<Permission>();
-
             var userPermissions = await _dbContext.Permissions
-                .Where(x => rolePermissions.Select(s => s.PermissionId).Contains(x.Id))
+                .Where(p => p.RolePermissions.Any(rp => rp.Role.UserRoles.Any(ur => ur.UserId == userId)))
                 .ToListAsync() ?? new List<Permission>();
 
             return userPermissions;

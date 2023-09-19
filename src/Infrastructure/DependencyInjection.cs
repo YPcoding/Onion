@@ -27,10 +27,6 @@ public static class DependencyInjection
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services,
         IConfiguration configuration)
     {
-        services.AddScoped<UserDomainService>();
-        services.AddScoped<PermissionDomainService>();
-        services.AddScoped<IUserRepository, UserRepository>();
-        services.AddScoped<IPermissionRepository, PermissionRepository>();
         services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
         services.AddScoped<ISaveChangesInterceptor, DispatchDomainEventsInterceptor>();
         services.Configure<DatabaseSettings>(configuration.GetSection(DatabaseSettings.Key));
@@ -70,9 +66,6 @@ public static class DependencyInjection
         }).AddScheme<AuthenticationSchemeOptions, ResponseAuthenticationHandler>(nameof(ResponseAuthenticationHandler), o => { }); ;
         services.AddControllers().AddNewtonsoftJson(options =>
         {
-            //忽略Json序列化自引用问题（不起作用）
-            //options.SerializerSettings.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
-            //options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Serialize;
             //格式化时间格式
             options.SerializerSettings.DateFormatString = "yyyy-MM-dd HH:mm:ss.fff";
             //解决long类型数据精度丢失问题

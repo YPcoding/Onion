@@ -5,7 +5,7 @@ namespace Domain.Repositories;
 /// <summary>
 /// 权限仓储
 /// </summary>
-public interface IPermissionRepository
+public interface IPermissionRepository : IScopedDependency
 {
     /// <summary>
     /// 通过用户唯一标识获取用户权限

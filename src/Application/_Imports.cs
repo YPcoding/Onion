@@ -16,3 +16,4 @@ global using Application.Common.Interfaces;
 global using Application.Common.Interfaces.Caching;
 global using Domain.Entities.Identity;
 global using Domain.Events;
+global using Common.Interfaces;

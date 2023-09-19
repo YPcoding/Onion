@@ -3,9 +3,9 @@ import { ContentWrap } from '@/components/ContentWrap'
 import { useI18n } from '@/hooks/web/useI18n'
 import { Table } from '@/components/Table'
 import { ref, unref, nextTick, watch, reactive } from 'vue'
-import { ElButton, ElTree, ElInput, ElDivider } from 'element-plus'
-import { getDepartmentApi, getUserByIdApi, saveUserApi, deleteUserByIdApi } from '@/api/department'
-import type { DepartmentItem, DepartmentUserItem } from '@/api/department/types'
+import { ElButton, ElTree } from 'element-plus'
+import { getDepartmentApi, getUserByIdApi, saveUserApi, deleteUserByIdApi, getUserPaginationQueryApi } from '@/api/user'
+import type { DepartmentItem, DepartmentUserItem } from '@/api/user/types'
 import { useTable } from '@/hooks/web/useTable'
 import { Search } from '@/components/Search'
 import Write from './components/Write.vue'
@@ -17,23 +17,19 @@ const { t } = useI18n()
 
 const { tableRegister, tableState, tableMethods } = useTable({
   fetchDataApi: async () => {
-    const { pageSize, currentPage } = tableState
-    const res = await getUserByIdApi({
-      id: unref(currentNodeKey),
-      pageIndex: unref(currentPage),
-      pageSize: unref(pageSize),
-      ...unref(searchParams)
-    })
-    return {
-      list: res.data.list || [],
-      total: res.data.total || 0
+    var query = {
+      pageNumber:1,
+      pageSize:2
     }
-  },
-  fetchDelApi: async () => {
-    const res = await deleteUserByIdApi(unref(ids))
-    return !!res
+    const res = await getUserPaginationQueryApi(query)
+    console.log(res)
+    return {
+      list: res.data.data.items || [],
+      total: res.data.data.totalPages
+    }
   }
 })
+
 const { total, loading, dataList, pageSize, currentPage } = tableState
 const { getList, getElTableExpose, delList } = tableMethods
 
@@ -76,36 +72,6 @@ const crudSchemas = reactive<CrudSchema[]>([
   {
     field: 'account',
     label: t('userDemo.account')
-  },
-  {
-    field: 'department.id',
-    label: t('userDemo.department'),
-    detail: {
-      slots: {
-        default: (data: DepartmentUserItem) => {
-          return <>{data.department.departmentName}</>
-        }
-      }
-    },
-    search: {
-      hidden: true
-    },
-    form: {
-      component: 'TreeSelect',
-      componentProps: {
-        nodeKey: 'id',
-        props: {
-          label: 'departmentName'
-        }
-      },
-      optionApi: async () => {
-        const res = await getDepartmentApi()
-        return res.data.list
-      }
-    },
-    table: {
-      type: 'index'
-    }
   },
   {
     field: 'role',
@@ -201,18 +167,6 @@ watch(
   }
 )
 
-const currentChange = (data: DepartmentItem) => {
-  if (data.children) return
-  currentNodeKey.value = data.id
-  currentPage.value = 1
-  getList()
-}
-
-const filterNode = (value: string, data: DepartmentItem) => {
-  if (!value) return true
-  return data.departmentName.includes(value)
-}
-
 const dialogVisible = ref(false)
 const dialogTitle = ref('')
 
@@ -275,7 +229,7 @@ const save = async () => {
 
 <template>
   <div class="flex w-100% h-100%">
-    <ContentWrap class="flex-1">
+    <!-- <ContentWrap class="flex-1">
       <div class="flex justify-center items-center">
         <div class="flex-1">{{ t('userDemo.departmentList') }}</div>
         <ElInput
@@ -298,7 +252,7 @@ const save = async () => {
         :filter-node-method="filterNode"
         @current-change="currentChange"
       />
-    </ContentWrap>
+    </ContentWrap> -->
     <ContentWrap class="flex-[3] ml-20px">
       <Search
         :schema="allSchemas.searchSchema"

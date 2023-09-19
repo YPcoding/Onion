@@ -80,7 +80,8 @@ public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRe
     /// <returns>返回授权结果</returns>
     private bool IsAuthorized(List<Permission> permissions, string apiPath)
     {
-        return permissions.Any(x => apiPath.StartsWith(x.Path ?? throw new ForbiddenAccessException("您无权访问此资源")));
+        return permissions.Any(x => apiPath.StartsWith(x.Path ?? 
+            throw new ForbiddenAccessException("您无权访问此资源")));
     }
 
     /// <summary>
@@ -92,6 +93,7 @@ public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRe
     {
         return AppDomain.CurrentDomain.GetAssemblies()
             .SelectMany(a => a.GetTypes())
-            .FirstOrDefault(t => typeof(ControllerBase).IsAssignableFrom(t) && string.Equals(t.Name, $"{controllerName}Controller", StringComparison.OrdinalIgnoreCase))!;
+            .FirstOrDefault(t => typeof(ControllerBase).IsAssignableFrom(t) 
+            && string.Equals(t.Name, $"{controllerName}Controller", StringComparison.OrdinalIgnoreCase))!;
     }
 }

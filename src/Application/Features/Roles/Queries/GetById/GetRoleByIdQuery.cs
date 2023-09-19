@@ -51,7 +51,7 @@ public class GetRoleByIdQueryHandler : IRequestHandler<GetRoleByIdQuery, Result<
     {
         var role = await _context.Roles.ApplySpecification(new RoleByIdSpec(request.RoleId))
                      .ProjectTo<RoleDto>(_mapper.ConfigurationProvider)
-                     .FirstAsync(cancellationToken) ?? throw new NotFoundException($"角色唯一标识: [{request.RoleId}] 未找到");
-        return  await Result<RoleDto>.SuccessAsync(role); ;
+                     .SingleOrDefaultAsync(cancellationToken) ?? throw new NotFoundException($"角色唯一标识: [{request.RoleId}] 未找到");
+        return  await Result<RoleDto>.SuccessAsync(role);
     }
 }

@@ -3,7 +3,7 @@ using Domain.Repositories;
 
 namespace Domain.Services;
 
-public class PermissionDomainService
+public class PermissionDomainService : IScopedDependency
 {
     private readonly IPermissionRepository _repository;
 
@@ -13,7 +13,7 @@ public class PermissionDomainService
         _repository = repository;
     }
 
-    public async Task<List<Permission>> GetPermissionsByUserIdAsync(long userId) 
+    public async Task<List<Permission>> GetPermissionsByUserIdAsync(long userId)
     {
         return await _repository.GetPermissionsByUserIdAsync(userId);
     }

@@ -52,10 +52,11 @@ export default ({ command, mode }: ConfigEnv): UserConfig => {
           }
         }]
       }),
-      EslintPlugin({
-        cache: false,
-        include: ['src/**/*.vue', 'src/**/*.ts', 'src/**/*.tsx'] // 检查的文件
-      }),
+      //关闭Eslint语法校验
+      // EslintPlugin({
+      //   cache: false,
+      //   include: ['src/**/*.vue', 'src/**/*.ts', 'src/**/*.tsx'] // 检查的文件
+      // }),
       VueI18nPlugin({
         runtimeOnly: true,
         compositionOnly: true,

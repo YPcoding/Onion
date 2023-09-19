@@ -51,7 +51,7 @@ public class GetUserByIdQueryHandler :IRequestHandler<GetUserByIdQuery, Result<U
     {
         var user = await _context.Users.ApplySpecification(new UserByIdSpec(request.UserId))
                      .ProjectTo<UserDto>(_mapper.ConfigurationProvider)
-                     .FirstAsync(cancellationToken) ?? throw new NotFoundException($"用户唯一标识: [{request.UserId}] 未找到");
+                     .SingleOrDefaultAsync(cancellationToken) ?? throw new NotFoundException($"用户唯一标识: [{request.UserId}] 未找到");
         return await Result<UserDto>.SuccessAsync(user);
     }
 }

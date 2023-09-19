@@ -1,5 +1,5 @@
 import request from '@/config/axios'
-import { DepartmentListResponse, DepartmentUserParams, DepartmentUserResponse } from './types'
+import { DepartmentListResponse, DepartmentUserParams, DepartmentUserResponse, UserQueryType, UserPaginationQueryResponse } from './types'
 
 export const getDepartmentApi = () => {
   return request.get<DepartmentListResponse>({ url: '/department/list' })
@@ -27,4 +27,9 @@ export const deleteDepartmentApi = (ids: string[] | number[]) => {
 
 export const getDepartmentTableApi = (params: any) => {
   return request.get({ url: '/department/table/list', params })
+}
+
+
+export const getUserPaginationQueryApi = (data: UserQueryType): Promise<IResponse<UserPaginationQueryResponse>> =>  {
+  return request.post({ url: '/api/User/PaginationQuery', data })
 }
