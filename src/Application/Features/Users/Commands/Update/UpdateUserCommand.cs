@@ -1,4 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Application.Features.Users.Caching;
+using Domain.Entities;
+using Masuit.Tools;
+using Masuit.Tools.Systems;
+using System.ComponentModel.DataAnnotations;
 
 namespace Application.Features.Users.Commands.Update;
 
@@ -6,13 +10,13 @@ namespace Application.Features.Users.Commands.Update;
 /// 修改用户
 /// </summary>
 [Map(typeof(User))]
-public class UpdateUserCommand : IRequest<Result<long>>
+public class UpdateUserCommand : ICacheInvalidatorRequest<Result<long>>
 {
     /// <summary>
-    /// 主键
+    /// 唯一标识
     /// </summary>
-    [Required]
-    public long Id { get; set; }
+    [Required(ErrorMessage = "唯一标识必填的")]
+    public long UserId { get; set; }
 
     /// <summary>
     /// 邮箱
@@ -25,10 +29,29 @@ public class UpdateUserCommand : IRequest<Result<long>>
     public string? PhoneNumber { get; set; }
 
     /// <summary>
+    /// 头像图片
+    /// </summary>
+    public string? ProfilePictureDataUrl { get; set; }
+
+    /// <summary>
+    /// 角色唯一标识
+    /// </summary>
+    public List<long>? RoleIds { get; set; }
+
+    /// <summary>
     /// 并发标记
     /// </summary>
-    [Required]
+    [Required(ErrorMessage = "并发标记必填的")]
     public string ConcurrencyStamp { get; set; }
+
+    /// <summary>
+    /// 缓存Key值
+    /// </summary>
+    [JsonIgnore]
+    public string CacheKey => UserCacheKey.GetAllCacheKey;
+
+    [JsonIgnore]
+    public CancellationTokenSource? SharedExpiryTokenSource => UserCacheKey.SharedExpiryTokenSource();
 }
 
 /// <summary>
@@ -56,16 +79,31 @@ public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, Resul
     /// <exception cref="NotFoundException">未找到的异常处理</exception>
     public async Task<Result<long>> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
     {
-        var item = await _context.Users
-        .SingleOrDefaultAsync(x => x.Id == request.Id && x.ConcurrencyStamp == request.ConcurrencyStamp, cancellationToken) ??
-                     throw new NotFoundException($"数据【{request.Id}-{request.ConcurrencyStamp}】未找到");
+        var user = await _context.Users.SingleOrDefaultAsync(x => x.Id == request.UserId
+            && x.ConcurrencyStamp == request.ConcurrencyStamp, cancellationToken)
+            ?? throw new NotFoundException($"数据【{request.UserId}-{request.ConcurrencyStamp}】未找到");
 
-        item = _mapper.Map(request, item);
-        item.AddDomainEvent(new UpdatedEvent<User>(item));
-        _context.Users.Update(item);
+        var userRoles = await _context.UserRoles.Where(x => x.UserId == request.UserId).ToListAsync(cancellationToken);
+        if (userRoles.Any())
+        {
+            _context.UserRoles.RemoveRange(userRoles);
+        }
+
+        request?.RoleIds?.Distinct()?.ForEach(roleId =>
+        {
+            user.UserRoles.Add(new UserRole
+            {
+                Id = SnowFlake.GetInstance().GetLongId(),
+                RoleId = roleId
+            });
+        });
+
+        user = _mapper.Map(request, user);
+        user.AddDomainEvent(new UpdatedEvent<User>(user));
+        _context.Users.Update(user);
         var isSuccess = await _context.SaveChangesAsync(cancellationToken) > 0;
         return await Result<long>.SuccessOrFailureAsync(
-            request.Id,
+            request!.UserId,
             isSuccess,
             new string[] { "操作失败" });
     }

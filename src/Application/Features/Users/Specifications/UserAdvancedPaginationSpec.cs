@@ -3,9 +3,9 @@ using Masuit.Tools;
 
 namespace Application.Features.Users.Specifications;
 
-public class UserAdvancedSpecification : Specification<User>
+public class UserAdvancedPaginationSpec : Specification<User>
 {
-    public UserAdvancedSpecification(UserAdvancedFilter filter)
+    public UserAdvancedPaginationSpec(UserAdvancedFilter filter)
     {
         Query.Where(x => x.UserName == filter.UserName, !filter.UserName.IsNullOrEmpty())
              .Where(x => x.Email == filter.Email, !filter.Email.IsNullOrEmpty())

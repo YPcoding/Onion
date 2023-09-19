@@ -37,6 +37,7 @@
   <ItemGroup>
     <Folder Include="Common\Security\" />
     <Folder Include="Constants\" />
+    <Folder Include="Features\Roles\EventHandlers\" />
     <Folder Include="Resources\" />
     <Folder Include="Services\" />
   </ItemGroup>

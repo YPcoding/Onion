@@ -10,14 +10,20 @@ namespace Application.Features.Users.DTOs
     public class UserDto
     {
         /// <summary>
-        /// 主键
+        /// 唯一标识
         /// </summary>
         public long Id { get; set; }
 
         /// <summary>
-        /// 用户组件
+        /// 用户唯一标识
         /// </summary>
-        public long UserId { get; set; }
+        public long UserId 
+        { 
+            get 
+            { 
+                return Id; 
+            } 
+        }
 
         /// <summary>
         /// 用户名

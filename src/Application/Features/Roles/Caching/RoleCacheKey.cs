@@ -1,19 +1,19 @@
 ﻿using Microsoft.Extensions.Primitives;
 
-namespace Application.Features.Users.Caching;
+namespace Application.Features.Roles.Caching;
 
-public static class UserCacheKey
+public static class RoleCacheKey
 {
-    public const string GetAllCacheKey = "all-Users";
+    public const string GetAllCacheKey = "all-Roles";
     private static readonly TimeSpan RefreshInterval = TimeSpan.FromHours(1);
     private static CancellationTokenSource _tokenSource;
 
     public static string GetByIdCacheKey(long id)
     {
-        return $"GetUserById,{id}";
+        return $"GetRoleById,{id}";
     }
 
-    static UserCacheKey()
+    static RoleCacheKey()
     {
         _tokenSource = new CancellationTokenSource(RefreshInterval);
     }
@@ -23,7 +23,7 @@ public static class UserCacheKey
 
     public static string GetPaginationCacheKey(string parameters)
     {
-        return $"UsersWithPaginationQuery,{parameters}";
+        return $"RolesWithPaginationQuery,{parameters}";
     }
 
     public static CancellationTokenSource SharedExpiryTokenSource()

@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using System.Reflection;
 using System.Xml;
-using static System.Net.WebRequestMethods;
 
 namespace Application.Common.Helper;
 
@@ -12,6 +11,7 @@ public class WebApiDocHelper
     public class ControllerInfo
     {
         public string ControllerName { get; set; }
+        public string ControllerDescription { get; set; }
         public List<ActionInfo> Actions { get; set; }
     }
 
@@ -64,7 +64,7 @@ public class WebApiDocHelper
                         HttpMethods = GetHttpMethodsFromAttributes(actionAttributes),
                         Description = GetDescriptionFromXmlDocumentation(controllerType, method)
                     };
-
+                    controllerInfo.ControllerDescription = GetDescriptionFromXmlDocumentation(controllerType);
                     controllerInfo.Actions.Add(actionInfo);
                 }
             }
@@ -143,6 +143,33 @@ public class WebApiDocHelper
             }
 
             var summaryNode = xmlDoc.SelectSingleNode($"/doc/members/member[@name='{memberName}{parameter}']/summary");
+
+            if (summaryNode != null)
+            {
+                return summaryNode.InnerText.Trim();
+            }
+        }
+
+        return "";
+    }
+
+    /// <summary>
+    /// 获取注释
+    /// </summary>
+    /// <param name="controllerType"></param>
+    /// <returns></returns>
+    public static string GetDescriptionFromXmlDocumentation(Type controllerType)
+    {
+        string xmlCommentsFile = Path.Combine(AppContext.BaseDirectory, $"{controllerType.Assembly.GetName().Name}.xml");
+        if (System.IO.File.Exists(xmlCommentsFile))
+        {
+            var xmlDoc = new XmlDocument();
+            xmlDoc.Load(xmlCommentsFile);
+
+            var memberName = $"T:{controllerType.FullName}";
+            
+
+            var summaryNode = xmlDoc.SelectSingleNode($"/doc/members/member[@name='{memberName}']/summary");
 
             if (summaryNode != null)
             {

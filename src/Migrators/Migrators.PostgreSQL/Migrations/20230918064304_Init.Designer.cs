@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Migrators.PostgreSQL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230917143629_Init")]
+    [Migration("20230918064304_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -391,7 +391,7 @@ namespace Migrators.PostgreSQL.Migrations
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.Identity.User", "User")
-                        .WithMany()
+                        .WithMany("UserRoles")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -399,6 +399,11 @@ namespace Migrators.PostgreSQL.Migrations
                     b.Navigation("Role");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Identity.User", b =>
+                {
+                    b.Navigation("UserRoles");
                 });
 
             modelBuilder.Entity("Domain.Entities.Role", b =>

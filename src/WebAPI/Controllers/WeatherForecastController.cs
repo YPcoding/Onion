@@ -5,9 +5,10 @@ using static Application.Common.Helper.WebApiDocHelper;
 
 namespace WebAPI.Controllers;
 
-[ApiController]
-[Route("[controller]")]
-public class WeatherForecastController : ControllerBase
+/// <summary>
+/// 测试接口
+/// </summary>
+public class WeatherForecastController : ApiControllerBase
 {
     private static readonly string[] Summaries = new[]
     {
@@ -21,6 +22,10 @@ public class WeatherForecastController : ControllerBase
         _logger = logger;
     }
 
+    /// <summary>
+    /// 接口调试
+    /// </summary>
+    /// <returns></returns>
     [HttpGet(Name = "GetWeatherForecast")]
     [AllowAnonymous]
     public IEnumerable<WeatherForecast> Get()
@@ -48,6 +53,4 @@ public class WeatherForecastController : ControllerBase
         })
         .ToArray();
     }
-
-  
 }

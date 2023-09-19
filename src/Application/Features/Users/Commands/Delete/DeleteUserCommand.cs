@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Application.Features.Users.Caching;
+using System.ComponentModel.DataAnnotations;
 
 namespace Application.Features.Users.Commands.Delete;
 
@@ -8,10 +9,19 @@ namespace Application.Features.Users.Commands.Delete;
 public class DeleteUserCommand : IRequest<Result<bool>>
 {
     /// <summary>
-    /// 删除数据的唯一标识
+    /// 删除用户的唯一标识
     /// </summary>
     [Required(ErrorMessage = "删除数据的唯一标识是必填的")]
-    public List<long> Ids { get; set; }
+    public List<long> UserIds { get; set; }
+
+    /// <summary>
+    /// 缓存Key值
+    /// </summary>
+    [JsonIgnore]
+    public string CacheKey => UserCacheKey.GetAllCacheKey;
+
+    [JsonIgnore]
+    public CancellationTokenSource? SharedExpiryTokenSource => UserCacheKey.SharedExpiryTokenSource();
 }
 
 /// <summary>
@@ -20,14 +30,11 @@ public class DeleteUserCommand : IRequest<Result<bool>>
 public class DeleteUserCommandHandler : IRequestHandler<DeleteUserCommand, Result<bool>>
 {
     private readonly IApplicationDbContext _context;
-    private readonly IMapper _mapper;
 
     public DeleteUserCommandHandler(
-        IApplicationDbContext context,
-        IMapper mapper)
+        IApplicationDbContext context)
     {
         _context = context;
-        _mapper = mapper;
     }
 
     /// <summary>
@@ -38,8 +45,19 @@ public class DeleteUserCommandHandler : IRequestHandler<DeleteUserCommand, Resul
     /// <returns>返回处理结果</returns>
     public async Task<Result<bool>> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
     {
-        var items = await _context.Users.Where(x=> request.Ids.Contains(x.Id)).ToListAsync();
-        _context.Users.RemoveRange(items);
+        var users = await _context.Users.Where(x=> request.UserIds.Contains(x.Id)).ToListAsync();
+        _context.Users.RemoveRange(users);
+
+        if (users.Any())
+        {
+            _context.Users.RemoveRange(users);
+
+            var userRole = await _context.UserRoles
+                .Where(x => users.Select(s => s.Id).Contains(x.UserId))
+                .ToListAsync(cancellationToken);
+            if (userRole.Any()) _context.UserRoles.RemoveRange(userRole);
+        }
+
         var isSuccess = await _context.SaveChangesAsync(cancellationToken) > 0;
         return await Result<bool>.SuccessOrFailureAsync(
             isSuccess,

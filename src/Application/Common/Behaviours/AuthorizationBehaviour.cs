@@ -62,6 +62,7 @@ public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRe
         var userPermissions = await _permissionService.GetPermissionsByUserIdAsync(_currentUserService.CurrentUserId);
 
         //检查用户是否拥有访问此路径的权限
+
         if (IsAuthorized(userPermissions, apiPath)) 
         {
             return await next().ConfigureAwait(false);
@@ -79,7 +80,7 @@ public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRe
     /// <returns>返回授权结果</returns>
     private bool IsAuthorized(List<Permission> permissions, string apiPath)
     {
-        return permissions.Any(x => x.Path == apiPath);
+        return permissions.Any(x => apiPath.StartsWith(x.Path ?? throw new ForbiddenAccessException("您无权访问此资源")));
     }
 
     /// <summary>

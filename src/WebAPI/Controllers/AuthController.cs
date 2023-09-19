@@ -4,10 +4,13 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers
 {
+    /// <summary>
+    /// 授权管理
+    /// </summary>
     public class AuthController : ApiControllerBase
     {
         /// <summary>
-        /// 通过用户名和密码登录
+        /// 密码登录
         /// </summary>
         /// <returns></returns>
         [HttpPost("LoginByUserNameAndPassword")]

@@ -58,7 +58,7 @@ public class ApplicationDbContextInitializer
             foreach (var action in controller.Actions)
             {
                 var path = $"api/{controller.ControllerName}/{action.Route}";
-                var permission = new Permission(controller.ControllerName, action.Description, path, sort++, action.HttpMethods)
+                var permission = new Permission(controller.ControllerDescription, action.Description, path, sort++, action.HttpMethods)
                 {
                     Id = SnowFlake.GetInstance().GetLongId()
                 };

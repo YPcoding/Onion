@@ -200,6 +200,20 @@ public class Permission : BaseAuditableEntity
     /// <param name="path"></param>
     public void CreatePath(string path) 
     {
+        if (path.Contains('{'))
+        {
+            string originalString = path;
+
+            // 找到最后一个 '/' 的索引位置
+            int lastIndex = originalString.LastIndexOf('/');
+            if (lastIndex >= 0)
+            {
+                // 使用 .Substring() 方法截取字符串
+                string result = originalString.Substring(0, lastIndex);
+                path = result;
+            }
+        }
+
         if (path.StartsWith("/"))
             Path = path;
         else

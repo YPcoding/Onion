@@ -16,7 +16,14 @@ namespace Domain.Entities.Identity
         /// <summary>
         /// 标准化用户名
         /// </summary>
-        public virtual string? NormalizedUserName { get; set; }
+        public virtual string? NormalizedUserName
+        {
+            get
+            {
+                return UserName?.ToUpper();
+            }
+            set { }
+        }
 
         /// <summary>
         /// 邮箱
@@ -26,12 +33,19 @@ namespace Domain.Entities.Identity
         /// <summary>
         /// 标准化邮箱
         /// </summary>
-        public virtual string? NormalizedEmail { get; set; }
+        public virtual string? NormalizedEmail 
+        { 
+            get 
+            {
+                return Email?.ToUpper();
+            }
+            set { }
+        }
 
         /// <summary>
         /// 确认邮箱
         /// </summary>
-        public virtual bool EmailConfirmed { get; set; }
+        public virtual bool EmailConfirmed { get; set; } = false;
 
         /// <summary>
         /// 哈希密码
@@ -51,7 +65,7 @@ namespace Domain.Entities.Identity
         /// <summary>
         /// 确认手机号码
         /// </summary>
-        public virtual bool PhoneNumberConfirmed { get; set; }
+        public virtual bool PhoneNumberConfirmed { get; set; } = false;
 
         /// <summary>
         /// 启用双因子
@@ -88,6 +102,11 @@ namespace Domain.Entities.Identity
         /// 是否活跃
         /// </summary>
         public bool IsLive { get; set; } = false;
+
+        /// <summary>
+        /// 用户角色
+        /// </summary>
+        public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
 
         /// <summary>
         /// 创建密码

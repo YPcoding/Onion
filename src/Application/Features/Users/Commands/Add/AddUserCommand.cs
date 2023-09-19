@@ -1,8 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
 using Application.Features.Users.Caching;
+using Domain.Entities;
+using Masuit.Tools;
+using Masuit.Tools.Systems;
 
-namespace Application.Features.Users.Commands.AddEdit;
+namespace Application.Features.Users.Commands.Add;
 
 /// <summary>
 /// 添加用户
@@ -23,6 +25,12 @@ public class AddUserCommand : ICacheInvalidatorRequest<Result<long>>
     public string Password { get; set; }
 
     /// <summary>
+    /// 确认密码
+    /// </summary>
+    [Required(ErrorMessage = "确认密码是必填的")]
+    public string ConfirmPassword { get; set; }
+
+    /// <summary>
     /// 邮箱
     /// </summary>
     public string? Email { get; set; }
@@ -31,6 +39,11 @@ public class AddUserCommand : ICacheInvalidatorRequest<Result<long>>
     /// 手机号码
     /// </summary>
     public string? PhoneNumber { get; set; }
+
+    /// <summary>
+    /// 角色唯一标识
+    /// </summary>
+    public List<long>? RoleIds { get; set; }
 
     /// <summary>
     /// 缓存Key值
@@ -67,13 +80,18 @@ public class AddUserCommandHandler : IRequestHandler<AddUserCommand, Result<long
     public async Task<Result<long>> Handle(AddUserCommand request, CancellationToken cancellationToken)
     {
         var user = _mapper.Map<User>(request);
-        user.PasswordHash = request.Password.MDString3("Onion");
+        user.PasswordHash = user.CreatePassword(request.Password);
         user.AddDomainEvent(new CreatedEvent<User>(user));
-        _context.Users.Add(user);
+        request?.RoleIds?.Distinct()?.ForEach(roleId =>
+        {
+            user.UserRoles.Add(new UserRole
+            {
+                Id = SnowFlake.GetInstance().GetLongId(),
+                RoleId = roleId
+            });
+        });
+        await _context.Users.AddAsync(user);
         var isSuccess = await _context.SaveChangesAsync(cancellationToken) > 0;
-        return await Result<long>.SuccessOrFailureAsync(
-            user.Id,
-            isSuccess,
-            new string[] { "操作失败"});
+        return await Result<long>.SuccessOrFailureAsync(user.Id,isSuccess,new string[] { "操作失败"});
     }
 }

@@ -1,9 +1,9 @@
-﻿using Application.Features.Users.Commands.AddEdit;
+﻿using Application.Features.Users.Commands.Add;
 using Application.Features.Users.Commands.Delete;
 using Application.Features.Users.Commands.Update;
 using Application.Features.Users.DTOs;
+using Application.Features.Users.Queries.GetById;
 using Application.Features.Users.Queries.Pagination;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers;
@@ -14,15 +14,26 @@ namespace WebAPI.Controllers;
 public class UserController : ApiControllerBase
 {
     /// <summary>
-    /// 用户分页查询
+    /// 分页查询
     /// </summary>
     /// <returns></returns>
     [HttpPost("PaginationQuery")]
-    [AllowAnonymous]
 
     public async Task<Result<PaginatedData<UserDto>>> PaginationQuery(UsersWithPaginationQuery query)
     {
         return await Mediator.Send(query);
+    }
+
+    /// <summary>
+    /// 单个查询
+    /// </summary>
+    /// <param name="userId">用户唯一标识</param>
+    /// <returns></returns>
+    [HttpGet("Query/{userId}")]
+
+    public async Task<Result<UserDto>> GetByIdQuery(long userId)
+    {
+        return await Mediator.Send(new GetUserByIdQuery { UserId = userId });
     }
 
     /// <summary>

@@ -1,0 +1,98 @@
+﻿using Application.Features.Roles.Caching;
+using Domain.Entities;
+using Masuit.Tools;
+using Masuit.Tools.Systems;
+using System.ComponentModel.DataAnnotations;
+
+namespace Application.Features.Roles.Commands.Update;
+
+
+/// <summary>
+/// 修改角色
+/// </summary>
+[Map(typeof(Role))]
+public class UpdateRoleCommand : ICacheInvalidatorRequest<Result<long>>
+{
+    /// <summary>
+    /// 角色唯一标识
+    /// </summary>
+    [Required(ErrorMessage = "角色唯一标识必填")]
+    public long RoleId { get; set; }
+
+    /// <summary>
+    /// 角色名称
+    /// </summary>
+    [Required(ErrorMessage = "角色名称必填")]
+    public string RoleName { get; set; }
+    /// <summary>
+    /// 角色描述
+    /// </summary>
+    [Required(ErrorMessage = "角色描述必填")]
+    public string Description { get; set; }
+
+    /// <summary>
+    /// 赋予角色的权限唯一标识
+    /// </summary>
+    public List<long>? PermissionIds { get; set; }
+
+    /// <summary>
+    /// 并发标记
+    /// </summary>
+    [Required(ErrorMessage = "并发标记必填的")]
+    public string ConcurrencyStamp { get; set; }
+    [JsonIgnore]
+    public string CacheKey => RoleCacheKey.GetAllCacheKey;
+    [JsonIgnore]
+    public CancellationTokenSource? SharedExpiryTokenSource => RoleCacheKey.SharedExpiryTokenSource(); 
+}
+
+/// <summary>
+/// 处理程序
+/// </summary>
+public class UpdateRoleCommandHandler : IRequestHandler<UpdateRoleCommand, Result<long>>
+{
+    private readonly IApplicationDbContext _context;
+    private readonly IMapper _mapper;
+
+    public UpdateRoleCommandHandler(
+        IApplicationDbContext context,
+        IMapper mapper)
+    {
+        _context = context;
+        _mapper = mapper;
+    }
+
+    /// <summary>
+    /// 业务逻辑
+    /// </summary>
+    /// <param name="request">请求参数</param>
+    /// <param name="cancellationToken">取消标记</param>
+    /// <returns>返回处理结果</returns>
+    public async Task<Result<long>> Handle(UpdateRoleCommand request, CancellationToken cancellationToken)
+    {
+        var role = await _context.Roles.SingleOrDefaultAsync(x => x.Id == request.RoleId
+        && x.ConcurrencyStamp == request.ConcurrencyStamp, cancellationToken)
+        ?? throw new NotFoundException($"数据【{request.RoleId}-{request.ConcurrencyStamp}】未找到");
+
+        var rolePermissions = await _context.RolePermissions.Where(x => x.RoleId == request.RoleId).ToListAsync(cancellationToken);
+        if (rolePermissions.Any()) 
+        {
+            _context.RolePermissions.RemoveRange(rolePermissions);
+        }
+
+        request?.PermissionIds?.Distinct()?.ForEach(permissionId =>
+        {
+            role.RolePermissions.Add(new RolePermission
+            {
+                Id = SnowFlake.GetInstance().GetLongId(),
+                PermissionId = permissionId
+            });
+        });
+
+        role = _mapper.Map(request, role);
+        role.AddDomainEvent(new CreatedEvent<Role>(role));
+        _context.Roles.Update(role);
+        var isSuccess = await _context.SaveChangesAsync(cancellationToken) > 0;
+        return await Result<long>.SuccessOrFailureAsync(role.Id, isSuccess, new string[] { "操作失败" });
+    }
+}
