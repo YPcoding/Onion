@@ -140,6 +140,9 @@ namespace Migrators.PostgreSQL.Migrations
                         .HasMaxLength(36)
                         .HasColumnType("character varying(36)");
 
+                    b.Property<long?>("SuperiorId")
+                        .HasColumnType("bigint");
+
                     b.Property<bool>("TwoFactorEnabled")
                         .HasMaxLength(1)
                         .HasColumnType("boolean");
@@ -150,6 +153,8 @@ namespace Migrators.PostgreSQL.Migrations
                         .HasColumnType("character varying(20)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("SuperiorId");
 
                     b.ToTable("Users");
                 });
@@ -254,19 +259,21 @@ namespace Migrators.PostgreSQL.Migrations
                     b.Property<bool?>("Opened")
                         .HasColumnType("boolean");
 
-                    b.Property<long?>("ParentId")
-                        .HasColumnType("bigint");
-
                     b.Property<string>("Path")
                         .HasColumnType("text");
 
                     b.Property<int?>("Sort")
                         .HasColumnType("integer");
 
+                    b.Property<long?>("SuperiorId")
+                        .HasColumnType("bigint");
+
                     b.Property<int>("Type")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("SuperiorId");
 
                     b.ToTable("Permissions");
                 });
@@ -360,10 +367,28 @@ namespace Migrators.PostgreSQL.Migrations
                     b.Navigation("Owner");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Identity.User", b =>
+                {
+                    b.HasOne("Domain.Entities.Identity.User", "Superior")
+                        .WithMany()
+                        .HasForeignKey("SuperiorId");
+
+                    b.Navigation("Superior");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Permission", b =>
+                {
+                    b.HasOne("Domain.Entities.Permission", "Superior")
+                        .WithMany()
+                        .HasForeignKey("SuperiorId");
+
+                    b.Navigation("Superior");
+                });
+
             modelBuilder.Entity("Domain.Entities.RolePermission", b =>
                 {
                     b.HasOne("Domain.Entities.Permission", "Permission")
-                        .WithMany()
+                        .WithMany("RolePermissions")
                         .HasForeignKey("PermissionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -401,6 +426,11 @@ namespace Migrators.PostgreSQL.Migrations
             modelBuilder.Entity("Domain.Entities.Identity.User", b =>
                 {
                     b.Navigation("UserRoles");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Permission", b =>
+                {
+                    b.Navigation("RolePermissions");
                 });
 
             modelBuilder.Entity("Domain.Entities.Role", b =>

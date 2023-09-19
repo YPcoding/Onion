@@ -8,6 +8,12 @@ namespace Domain.Entities.Identity
     /// </summary>
     public class User : BaseAuditableSoftDeleteEntity, IAuditTrial
     {
+        public User()
+        {
+            UserRoles = new HashSet<UserRole>();
+        }
+
+
         /// <summary>
         /// 用户名
         /// </summary>
@@ -104,9 +110,16 @@ namespace Domain.Entities.Identity
         public bool IsLive { get; set; } = false;
 
         /// <summary>
+        /// 上级节点
+        /// </summary>
+        public long? SuperiorId { get; set; } = null;
+        [ForeignKey("SuperiorId")]
+        public User? Superior { get; set; } = null;
+
+        /// <summary>
         /// 用户角色
         /// </summary>
-        public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
+        public ICollection<UserRole> UserRoles { get; set; }
 
         /// <summary>
         /// 创建密码

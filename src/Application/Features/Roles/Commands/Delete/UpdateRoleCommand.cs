@@ -28,14 +28,11 @@ public class DeleteRoleCommand : ICacheInvalidatorRequest<Result<bool>>
 public class DeleteRoleCommandHandler : IRequestHandler<DeleteRoleCommand, Result<bool>>
 {
     private readonly IApplicationDbContext _context;
-    private readonly IMapper _mapper;
 
     public DeleteRoleCommandHandler(
-        IApplicationDbContext context,
-        IMapper mapper)
+        IApplicationDbContext context)
     {
         _context = context;
-        _mapper = mapper;
     }
 
     /// <summary>
@@ -50,19 +47,19 @@ public class DeleteRoleCommandHandler : IRequestHandler<DeleteRoleCommand, Resul
         .Where(x => request.RoleIds.Contains(x.Id))
         .ToListAsync(cancellationToken);
 
-        if (roles.Any()) 
+        if (roles?.Any() ?? false) 
         {
             _context.Roles.RemoveRange(roles);
 
             var rolePermissions = await _context.RolePermissions
                 .Where(x => roles.Select(s=>s.Id).Contains(x.RoleId))
                 .ToListAsync(cancellationToken);
-            if (rolePermissions.Any()) _context.RolePermissions.RemoveRange(rolePermissions);
+            if (rolePermissions?.Any() ?? false) _context.RolePermissions.RemoveRange(rolePermissions);
 
             var userRole = await _context.UserRoles
                 .Where(x => roles.Select(s => s.Id).Contains(x.RoleId))
                 .ToListAsync(cancellationToken);
-            if (userRole.Any()) _context.UserRoles.RemoveRange(userRole);
+            if (userRole?.Any() ?? false) _context.UserRoles.RemoveRange(userRole);
         }
 
         var isSuccess = await _context.SaveChangesAsync(cancellationToken) > 0;

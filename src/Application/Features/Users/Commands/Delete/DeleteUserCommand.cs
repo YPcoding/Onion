@@ -48,7 +48,7 @@ public class DeleteUserCommandHandler : IRequestHandler<DeleteUserCommand, Resul
         var users = await _context.Users.Where(x=> request.UserIds.Contains(x.Id)).ToListAsync();
         _context.Users.RemoveRange(users);
 
-        if (users.Any())
+        if (users?.Any() ?? false)
         {
             _context.Users.RemoveRange(users);
 

@@ -1,12 +1,17 @@
-﻿namespace Domain.Entities;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Domain.Entities;
 
 public class Permission : BaseAuditableEntity
 {
-    public Permission() { }
-
-    public Permission(long? parentId, string label, string code, PermissionType type, string path, string icon, bool hidden, bool enabled, bool closable, bool opened, bool newWindow, bool external, int sort, string description)
+    public Permission() 
     {
-        ParentId = parentId;
+        RolePermissions = new HashSet<RolePermission>();
+    }
+
+    public Permission(long? superiorId, string label, string code, PermissionType type, string path, string icon, bool hidden, bool enabled, bool closable, bool opened, bool newWindow, bool external, int sort, string description)
+    {
+        SuperiorId = superiorId;
         Label = label;
         Code = code;
         Type = type;
@@ -43,10 +48,13 @@ public class Permission : BaseAuditableEntity
     }
 
     /// <summary>
-    /// 父级节点
+    /// 上级节点
     /// </summary>
-    public long? ParentId { get; set; }
+    public long? SuperiorId { get; set; }
+    [ForeignKey("SuperiorId")]
+    public Permission? Superior { get; set; } = null;
 
+    public ICollection<RolePermission> RolePermissions { get; set; }
     /// <summary>
     /// 权限名称
     /// </summary>
@@ -128,9 +136,9 @@ public class Permission : BaseAuditableEntity
     /// <summary>
     /// 添加菜单
     /// </summary>
-    public Permission AddMenu(int parentId, string menuName, string icon, bool hidden, bool enabled, bool external, int sort, string description) 
+    public Permission AddMenu(int superiorId, string menuName, string icon, bool hidden, bool enabled, bool external, int sort, string description) 
     {
-        this.ParentId = parentId;
+        this.SuperiorId = superiorId;
         this.Label = menuName;
         this.Icon = icon;
         this.Hidden = hidden;
@@ -145,9 +153,9 @@ public class Permission : BaseAuditableEntity
     /// <summary>
     /// 添加页面
     /// </summary>
-    public Permission AddPage(int parentId, string pageName, string path, string icon, bool hidden, bool enabled, bool closable, bool newWindow, bool external, int sort, string description)
+    public Permission AddPage(int superiorId, string pageName, string path, string icon, bool hidden, bool enabled, bool closable, bool newWindow, bool external, int sort, string description)
     {
-        this.ParentId = parentId;
+        this.SuperiorId = superiorId;
         this.Label = pageName;
         CreatePath(path);
         this.Icon = icon;
@@ -165,9 +173,9 @@ public class Permission : BaseAuditableEntity
     /// <summary>
     /// 添加权限点
     /// </summary>
-    public Permission AddDot(long parentId, string dotName, string path, bool enabled, int sort, string description, string? httpMethods = null)
+    public Permission AddDot(long superiorId, string dotName, string path, bool enabled, int sort, string description, string? httpMethods = null)
     {
-        ParentId = parentId;
+        SuperiorId = superiorId;
         Label = dotName;
         Type = PermissionType.Dot;
         CreatePath(path);

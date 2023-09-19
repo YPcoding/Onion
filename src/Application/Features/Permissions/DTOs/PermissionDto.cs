@@ -1,5 +1,6 @@
 ﻿using Domain.Entities;
 using Domain.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace Application.Features.Permissions.DTOs
 {
@@ -12,9 +13,20 @@ namespace Application.Features.Permissions.DTOs
         public long Id { get; set; }
 
         /// <summary>
-        /// 父级节点
+        /// 权限唯一标识
         /// </summary>
-        public long? ParentId { get; set; }
+        public long PermissionId 
+        {
+            get 
+            {
+                return Id;
+            }
+        }
+
+        /// <summary>
+        /// 上级节点
+        /// </summary>
+        public long? SuperiorId { get; set; }
 
         /// <summary>
         /// 权限名称
@@ -27,10 +39,7 @@ namespace Application.Features.Permissions.DTOs
         public string? Code { get; set; }
 
         /// <summary>
-        /// 权限类型
-        /// 菜  单 10
-        /// 页  面 20
-        /// 权限点 30
+        /// 权限类型菜单：10 页面：20 权限点：30
         /// </summary>
         public PermissionType Type { get; set; }
 
@@ -93,5 +102,11 @@ namespace Application.Features.Permissions.DTOs
         /// 分组名称
         /// </summary>
         public string? Group { get; set; }
+
+        /// <summary>
+        /// 并发标记
+        /// </summary>
+        [Required(ErrorMessage = "并发标记必填的")]
+        public string ConcurrencyStamp { get; set; }
     }
 }

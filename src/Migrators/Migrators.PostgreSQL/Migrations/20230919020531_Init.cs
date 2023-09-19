@@ -39,7 +39,7 @@ namespace Migrators.PostgreSQL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false),
-                    ParentId = table.Column<long>(type: "bigint", nullable: true),
+                    SuperiorId = table.Column<long>(type: "bigint", nullable: true),
                     Label = table.Column<string>(type: "text", nullable: true),
                     Code = table.Column<string>(type: "text", nullable: true),
                     Type = table.Column<int>(type: "integer", nullable: false),
@@ -64,6 +64,11 @@ namespace Migrators.PostgreSQL.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Permissions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Permissions_Permissions_SuperiorId",
+                        column: x => x.SuperiorId,
+                        principalTable: "Permissions",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -105,6 +110,7 @@ namespace Migrators.PostgreSQL.Migrations
                     ProfilePictureDataUrl = table.Column<string>(type: "text", nullable: true),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     IsLive = table.Column<bool>(type: "boolean", nullable: false),
+                    SuperiorId = table.Column<long>(type: "bigint", nullable: true),
                     ConcurrencyStamp = table.Column<string>(type: "text", nullable: true),
                     Created = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
                     CreatedBy = table.Column<string>(type: "text", nullable: true),
@@ -116,6 +122,11 @@ namespace Migrators.PostgreSQL.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Users", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Users_Users_SuperiorId",
+                        column: x => x.SuperiorId,
+                        principalTable: "Users",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -202,6 +213,11 @@ namespace Migrators.PostgreSQL.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Permissions_SuperiorId",
+                table: "Permissions",
+                column: "SuperiorId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_RolePermissions_PermissionId",
                 table: "RolePermissions",
                 column: "PermissionId");
@@ -220,6 +236,11 @@ namespace Migrators.PostgreSQL.Migrations
                 name: "IX_UserRoles_UserId",
                 table: "UserRoles",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_SuperiorId",
+                table: "Users",
+                column: "SuperiorId");
         }
 
         /// <inheritdoc />

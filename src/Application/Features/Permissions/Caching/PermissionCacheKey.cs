@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Primitives;
 
-namespace Application.Features.Users.Caching;
+namespace Application.Features.Permissions.Caching;
 
 public static class PermissionCacheKey
 {
@@ -8,7 +8,7 @@ public static class PermissionCacheKey
     private static readonly TimeSpan RefreshInterval = TimeSpan.FromHours(1);
     private static CancellationTokenSource _tokenSource;
 
-    public static string GetPermissionByIdCacheKey(long id)
+    public static string GetByIdCacheKey(long id)
     {
         return $"GetPermissionById,{id}";
     }

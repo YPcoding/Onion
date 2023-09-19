@@ -2,6 +2,9 @@
 {
     /// <summary>
     /// 权限类型
+    /// （菜单：10）
+    /// （页面：20）
+    /// （权限点：30）
     /// </summary>
     public enum PermissionType
     {

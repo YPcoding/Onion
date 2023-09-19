@@ -1,7 +1,6 @@
-﻿using Application.Features.Permissions.DTOs;
-using Application.Features.Users.Caching;
+﻿using Application.Features.Permissions.Caching;
+using Application.Features.Permissions.DTOs;
 using AutoMapper.QueryableExtensions;
-using System.Text.Json.Serialization;
 
 namespace Application.Features.Permissions.Queries.GetByUserId;
 
