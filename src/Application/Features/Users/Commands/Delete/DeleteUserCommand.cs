@@ -6,7 +6,7 @@ namespace Application.Features.Users.Commands.Delete;
 /// <summary>
 /// 删除用户
 /// </summary>
-public class DeleteUserCommand : IRequest<Result<bool>>
+public class DeleteUserCommand : ICacheInvalidatorRequest<Result<bool>>
 {
     /// <summary>
     /// 删除用户的唯一标识
@@ -22,6 +22,7 @@ public class DeleteUserCommand : IRequest<Result<bool>>
 
     [JsonIgnore]
     public CancellationTokenSource? SharedExpiryTokenSource => UserCacheKey.SharedExpiryTokenSource();
+
 }
 
 /// <summary>
