@@ -66,7 +66,8 @@ public class LoginByUserNameAndPasswordCommandHandler : IRequestHandler<LoginByU
             Username = request.UserName,
             Roles = roles?.Select(s => s.RoleName.ToLower())?.ToArray() ?? Array.Empty<string>(),
             AccessToken = token,
-            RefreshToken = token
+            RefreshToken = token,
+            Expires = DateTime.Now.AddSeconds(_optJwtSettings.Value.ExpireSeconds).ToString("yyyy/MM/dd HH:mm:ss")
         };
 
         return await Result<LoginResultDto>.SuccessAsync(result);

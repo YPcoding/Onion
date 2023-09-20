@@ -28,12 +28,6 @@
         /// <summary>
         /// 访问令牌过期时间
         /// </summary>
-        public string Expires 
-        { 
-            get 
-            {
-                return DateTime.Now.AddHours(2).ToString("yyyy/MM/dd HH:mm:ss");
-            } 
-        }
+        public string Expires { get; set; }
     }
 }

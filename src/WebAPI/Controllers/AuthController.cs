@@ -3,7 +3,6 @@ using Application.Common.Interfaces;
 using Application.Constants.ClaimTypes;
 using Application.Features.Auth.Commands;
 using Application.Features.Auth.DTOs;
-using Domain.Entities.Identity;
 using Masuit.Tools;
 using Masuit.Tools.DateTimeExt;
 using Microsoft.AspNetCore.Authorization;
@@ -46,13 +45,15 @@ namespace WebAPI.Controllers
         /// <summary>
         /// 刷新令牌
         /// </summary>
+        /// <param name="refreshToken"></param>
         /// <returns></returns>
-        [HttpPost("RefreshToken/{token}")]
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="Exception"></exception>
+        [HttpPost("RefreshToken/{refreshToken}")]
         [AllowAnonymous]
-
-        public async Task<Result<string>> RefreshToken(string token)
+        public async Task<Result<RefreshTokenDto>> RefreshToken(string refreshToken)
         {
-            var jwtSecurityToken = await _tokenService.DecodeAsync(token);
+            var jwtSecurityToken = await _tokenService.DecodeAsync(refreshToken);
             var claims = jwtSecurityToken?.Claims?.ToArray();
             if (!claims!.Any())
                 throw new ArgumentException("无法解析token");
@@ -76,7 +77,15 @@ namespace WebAPI.Controllers
             var newClaims = await _tokenService.CreateClaimsAsync(userId, userName);
             var newToken = await _tokenService.BuildAsync(newClaims, _optJwtSettings.Value);
 
-            return await Result<string>.SuccessAsync(newToken);
+            var data = new RefreshTokenDto()
+            {
+                AccessToken = newToken,
+                RefreshToken = newToken,
+                Expires = DateTime.Now.AddSeconds(_optJwtSettings.Value.ExpireSeconds)
+                                      .ToString("yyyy/MM/dd HH:mm:ss")
+            };
+
+            return await Result<RefreshTokenDto>.SuccessAsync(data);
         }
     }
 }
