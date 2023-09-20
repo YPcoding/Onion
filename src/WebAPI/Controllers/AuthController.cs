@@ -3,6 +3,8 @@ using Application.Common.Interfaces;
 using Application.Constants.ClaimTypes;
 using Application.Features.Auth.Commands;
 using Application.Features.Auth.DTOs;
+using Application.Features.Permissions.DTOs;
+using Application.Features.Permissions.Queries.GetByUserId;
 using Masuit.Tools;
 using Masuit.Tools.DateTimeExt;
 using Microsoft.AspNetCore.Authorization;
@@ -21,13 +23,16 @@ namespace WebAPI.Controllers
     {
         private readonly ITokenService _tokenService;
         private readonly IOptions<JwtSettings> _optJwtSettings;
+        private readonly ICurrentUserService  _currentUserService;
 
         public AuthController(
-            ITokenService tokenService, 
-            IOptions<JwtSettings> optJwtSettings)
+            ITokenService tokenService,
+            IOptions<JwtSettings> optJwtSettings,
+            ICurrentUserService currentUserService)
         {
             _tokenService = tokenService;
             _optJwtSettings = optJwtSettings;
+            _currentUserService = currentUserService;
         }
 
         /// <summary>
@@ -86,6 +91,20 @@ namespace WebAPI.Controllers
             };
 
             return await Result<RefreshTokenDto>.SuccessAsync(data);
+        }
+
+        /// <summary>
+        /// 获取登录者权限路由
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("LoginerPermissionRouter")]
+
+        public async Task<Result<List<PermissionRouterDto>>> GetLoginerPermissionRouter()
+        {
+            return await Mediator.Send(new GetLoginerPermissionRouterQuery() 
+            { 
+                UserId = _currentUserService.CurrentUserId 
+            });
         }
     }
 }

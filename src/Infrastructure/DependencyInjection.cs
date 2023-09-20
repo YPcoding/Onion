@@ -6,9 +6,6 @@ using Infrastructure.Persistence.Interceptors;
 using Infrastructure.Common.Helper;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Mvc.Controllers;
-using Domain.Services;
-using Domain.Repositories;
-using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -70,6 +67,8 @@ public static class DependencyInjection
             options.SerializerSettings.DateFormatString = "yyyy-MM-dd HH:mm:ss.fff";
             //解决long类型数据精度丢失问题
             options.SerializerSettings.ContractResolver = new CustomContractResolver();
+            options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore; // 忽略空值属性
+            options.SerializerSettings.NullValueHandling = (NullValueHandling)DefaultValueHandling.Ignore;// 忽略默认值属性
         });
         services.AddEndpointsApiExplorer();
         services.Configure<ApiBehaviorOptions>(options => //请求参数校验

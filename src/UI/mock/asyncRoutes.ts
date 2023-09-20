@@ -41,7 +41,7 @@ export default [
     method: "get",
     response: () => {
       return {
-        success: true,
+        succeeded: true,
         data: [permissionRouter]
       };
     }
