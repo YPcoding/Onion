@@ -1,6 +1,8 @@
 namespace Application.Constants.ClaimTypes;
 public static class ApplicationClaimTypes
 {
+    public const string UserId = "UserId";
+    public const string UserName = "UserName";
     public const string Provider = "Provider";
     public const string TenantId = "TenantId";
     public const string SuperiorId = "SuperiorId";
@@ -10,4 +12,5 @@ public static class ApplicationClaimTypes
     public const string Permission = "Permission";
     public const string AssignedRoles = "AssignedRoles";
     public const string ProfilePictureDataUrl = "ProfilePictureDataUrl";
+    public const string RefreshExpires = "RefreshExpires";
 }

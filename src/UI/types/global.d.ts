@@ -1,70 +1,160 @@
-import type { CSSProperties } from 'vue'
+import type {
+  VNode,
+  FunctionalComponent,
+  PropType as VuePropType,
+  ComponentPublicInstance
+} from "vue";
+import type { ECharts } from "echarts";
+import type { IconifyIcon } from "@iconify/vue";
+import type { TableColumns } from "@pureadmin/table";
+
+/**
+ * 全局类型声明，无需引入直接在 `.vue` 、`.ts` 、`.tsx` 文件使用即可获得类型提示
+ */
 declare global {
-  declare interface Fn<T = any> {
-    (...arg: T[]): T
+  /**
+   * 平台的名称、版本、依赖、最后构建时间的类型提示
+   */
+  const __APP_INFO__: {
+    pkg: {
+      name: string;
+      version: string;
+      dependencies: Recordable<string>;
+      devDependencies: Recordable<string>;
+    };
+    lastBuildTime: string;
+  };
+
+  /**
+   * Window 的类型提示
+   */
+  interface Window {
+    // Global vue app instance
+    __APP__: App<Element>;
+    webkitCancelAnimationFrame: (handle: number) => void;
+    mozCancelAnimationFrame: (handle: number) => void;
+    oCancelAnimationFrame: (handle: number) => void;
+    msCancelAnimationFrame: (handle: number) => void;
+    webkitRequestAnimationFrame: (callback: FrameRequestCallback) => number;
+    mozRequestAnimationFrame: (callback: FrameRequestCallback) => number;
+    oRequestAnimationFrame: (callback: FrameRequestCallback) => number;
+    msRequestAnimationFrame: (callback: FrameRequestCallback) => number;
   }
 
-  declare type Nullable<T> = T | null
+  /**
+   * 打包压缩格式的类型声明
+   */
+  type ViteCompression =
+    | "none"
+    | "gzip"
+    | "brotli"
+    | "both"
+    | "gzip-clear"
+    | "brotli-clear"
+    | "both-clear";
 
-  declare type ElRef<T extends HTMLElement = HTMLDivElement> = Nullable<T>
-
-  declare type Recordable<T = any, K = string> = Record<K extends null | undefined ? string : K, T>
-
-  declare type RemoveReadonly<T> = {
-    -readonly [P in keyof T]: T[P]
+  /**
+   * 全局自定义环境变量的类型声明
+   * @see {@link https://yiming_chang.gitee.io/pure-admin-doc/pages/config/#%E5%85%B7%E4%BD%93%E9%85%8D%E7%BD%AE}
+   */
+  interface ViteEnv {
+    VITE_PORT: number;
+    VITE_PUBLIC_PATH: string;
+    VITE_ROUTER_HISTORY: string;
+    VITE_CDN: boolean;
+    VITE_HIDE_HOME: string;
+    VITE_COMPRESSION: ViteCompression;
   }
 
-  declare type ComponentRef<T> = InstanceType<T>
+  /**
+   *  继承 `@pureadmin/table` 的 `TableColumns` ，方便全局直接调用
+   */
+  interface TableColumnList extends Array<TableColumns> {}
 
-  declare type LocaleType = 'zh-CN' | 'en'
-
-  declare type TimeoutHandle = ReturnType<typeof setTimeout>
-  declare type IntervalHandle = ReturnType<typeof setInterval>
-
-  declare type ElementPlusInfoType = 'success' | 'info' | 'warning' | 'danger'
-
-  declare type LayoutType = 'classic' | 'topLeft' | 'top' | 'cutMenu'
-
-  declare type AxiosHeaders =
-    | 'application/json'
-    | 'application/x-www-form-urlencoded'
-    | 'multipart/form-data'
-
-  declare type AxiosMethod = 'get' | 'post' | 'delete' | 'put'
-
-  declare type AxiosResponseType = 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream'
-
-  declare interface AxiosConfig {
-    params?: any
-    data?: any
-    url?: string
-    method?: AxiosMethod
-    headersType?: string
-    responseType?: AxiosResponseType
+  /**
+   * 对应 `public/serverConfig.json` 文件的类型声明
+   * @see {@link https://yiming_chang.gitee.io/pure-admin-doc/pages/config/#serverconfig-json}
+   */
+  interface ServerConfigs {
+    Version?: string;
+    Title?: string;
+    FixedHeader?: boolean;
+    HiddenSideBar?: boolean;
+    MultiTagsCache?: boolean;
+    KeepAlive?: boolean;
+    Locale?: string;
+    Layout?: string;
+    Theme?: string;
+    DarkMode?: boolean;
+    Grey?: boolean;
+    Weak?: boolean;
+    HideTabs?: boolean;
+    SidebarStatus?: boolean;
+    EpThemeColor?: string;
+    ShowLogo?: boolean;
+    ShowModel?: string;
+    MenuArrowIconNoTransition?: boolean;
+    CachingAsyncRoutes?: boolean;
+    TooltipEffect?: Effect;
+    ResponsiveStorageNameSpace?: string;
   }
 
-  declare interface IResponse<T = any> {
-    code: number
-    succeeded: boolean
-    errors: string[]
-    errorMessage: string
-    data: T extends any ? T : T & any
+  /**
+   * 与 `ServerConfigs` 类型不同，这里是缓存到浏览器本地存储的类型声明
+   * @see {@link https://yiming_chang.gitee.io/pure-admin-doc/pages/config/#serverconfig-json}
+   */
+  interface StorageConfigs {
+    version?: string;
+    title?: string;
+    fixedHeader?: boolean;
+    hiddenSideBar?: boolean;
+    multiTagsCache?: boolean;
+    keepAlive?: boolean;
+    locale?: string;
+    layout?: string;
+    theme?: string;
+    darkMode?: boolean;
+    grey?: boolean;
+    weak?: boolean;
+    hideTabs?: boolean;
+    sidebarStatus?: boolean;
+    epThemeColor?: string;
+    showLogo?: boolean;
+    showModel?: string;
+    username?: string;
   }
 
-  declare interface ThemeTypes {
-    elColorPrimary?: string
-    leftMenuBorderColor?: string
-    leftMenuBgColor?: string
-    leftMenuBgLightColor?: string
-    leftMenuBgActiveColor?: string
-    leftMenuCollapseBgActiveColor?: string
-    leftMenuTextColor?: string
-    leftMenuTextActiveColor?: string
-    logoTitleTextColor?: string
-    logoBorderColor?: string
-    topHeaderBgColor?: string
-    topHeaderTextColor?: string
-    topHeaderHoverColor?: string
-    topToolBorderColor?: string
+  /**
+   * `responsive-storage` 本地响应式 `storage` 的类型声明
+   */
+  interface ResponsiveStorage {
+    locale: {
+      locale?: string;
+    };
+    layout: {
+      layout?: string;
+      theme?: string;
+      darkMode?: boolean;
+      sidebarStatus?: boolean;
+      epThemeColor?: string;
+    };
+    configure: {
+      grey?: boolean;
+      weak?: boolean;
+      hideTabs?: boolean;
+      showLogo?: boolean;
+      showModel?: string;
+      multiTagsCache?: boolean;
+    };
+    tags?: Array<any>;
+  }
+
+  /**
+   * 平台里所有组件实例都能访问到的全局属性对象的类型声明
+   */
+  interface GlobalPropertiesApi {
+    $echarts: ECharts;
+    $storage: ResponsiveStorage;
+    $config: ServerConfigs;
   }
 }

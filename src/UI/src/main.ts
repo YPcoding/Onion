@@ -1,56 +1,58 @@
-// 引入windi css
-import '@/plugins/unocss'
+import App from "./App.vue";
+import router from "./router";
+import { setupStore } from "@/store";
+import ElementPlus from "element-plus";
+import { useI18n } from "@/plugins/i18n";
+import { getServerConfig } from "./config";
+import { createApp, Directive } from "vue";
+import { MotionPlugin } from "@vueuse/motion";
+// import { useEcharts } from "@/plugins/echarts";
+import { injectResponsiveStorage } from "@/utils/responsive";
 
-// 导入全局的svg图标
-import '@/plugins/svgIcon'
+// import Table from "@pureadmin/table";
+// import PureDescriptions from "@pureadmin/descriptions";
 
-// 初始化多语言
-import { setupI18n } from '@/plugins/vueI18n'
+// 引入重置样式
+import "./style/reset.scss";
+// 导入公共样式
+import "./style/index.scss";
+// 一定要在main.ts中导入tailwind.css，防止vite每次hmr都会请求src/style/index.scss整体css文件导致热更新慢的问题
+import "./style/tailwind.css";
+import "element-plus/dist/index.css";
+// 导入字体图标
+import "./assets/iconfont/iconfont.js";
+import "./assets/iconfont/iconfont.css";
 
-// 引入状态管理
-import { setupStore } from '@/store'
+const app = createApp(App);
 
-// 全局组件
-import { setupGlobCom } from '@/components'
+// 自定义指令
+import * as directives from "@/directives";
+Object.keys(directives).forEach(key => {
+  app.directive(key, (directives as { [key: string]: Directive })[key]);
+});
 
-// 引入element-plus
-import { setupElementPlus } from '@/plugins/elementPlus'
+// 全局注册`@iconify/vue`图标库
+import {
+  IconifyIconOffline,
+  IconifyIconOnline,
+  FontIcon
+} from "./components/ReIcon";
+app.component("IconifyIconOffline", IconifyIconOffline);
+app.component("IconifyIconOnline", IconifyIconOnline);
+app.component("FontIcon", FontIcon);
 
-// 引入全局样式
-import '@/styles/index.less'
+// 全局注册按钮级别权限组件
+import { Auth } from "@/components/ReAuth";
+app.component("Auth", Auth);
 
-// 引入动画
-import '@/plugins/animate.css'
-
-// 路由
-import { setupRouter } from './router'
-
-// 权限
-import { setupPermission } from './directives'
-
-import { createApp } from 'vue'
-
-import App from './App.vue'
-
-import './permission'
-
-// 创建实例
-const setupAll = async () => {
-  const app = createApp(App)
-
-  await setupI18n(app)
-
-  setupStore(app)
-
-  setupGlobCom(app)
-
-  setupElementPlus(app)
-
-  setupRouter(app)
-
-  setupPermission(app)
-
-  app.mount('#app')
-}
-
-setupAll()
+getServerConfig(app).then(async config => {
+  app.use(router);
+  await router.isReady();
+  injectResponsiveStorage(app, config);
+  setupStore(app);
+  app.use(MotionPlugin).use(useI18n).use(ElementPlus);
+  // .use(useEcharts);
+  // .use(Table);
+  // .use(PureDescriptions);
+  app.mount("#app");
+});

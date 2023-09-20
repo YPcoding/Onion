@@ -1,158 +1,75 @@
-import { resolve } from 'path'
-import { loadEnv } from 'vite'
-import type { UserConfig, ConfigEnv } from 'vite'
-import Vue from '@vitejs/plugin-vue'
-import VueJsx from '@vitejs/plugin-vue-jsx'
-import progress from 'vite-plugin-progress'
-import EslintPlugin from 'vite-plugin-eslint'
-import { ViteEjsPlugin } from "vite-plugin-ejs"
-import { viteMockServe } from 'vite-plugin-mock'
-import PurgeIcons from 'vite-plugin-purge-icons'
-import VueI18nPlugin from "@intlify/unplugin-vue-i18n/vite"
-import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
-import { createStyleImportPlugin, ElementPlusResolve } from 'vite-plugin-style-import'
-import UnoCSS from 'unocss/vite'
+import dayjs from "dayjs";
+import { resolve } from "path";
+import pkg from "./package.json";
+import { warpperEnv } from "./build";
+import { getPluginsList } from "./build/plugins";
+import { include, exclude } from "./build/optimize";
+import { UserConfigExport, ConfigEnv, loadEnv } from "vite";
 
-// https://vitejs.dev/config/
-const root = process.cwd()
+/** 当前执行node命令时文件夹的地址（工作目录） */
+const root: string = process.cwd();
 
-function pathResolve(dir: string) {
-  return resolve(root, '.', dir)
-}
+/** 路径查找 */
+const pathResolve = (dir: string): string => {
+  return resolve(__dirname, ".", dir);
+};
 
-export default ({ command, mode }: ConfigEnv): UserConfig => {
-  let env = {} as any
-  const isBuild = command === 'build'
-  if (!isBuild) {
-    env = loadEnv((process.argv[3] === '--mode' ? process.argv[4] : process.argv[3]), root)
-  } else {
-    env = loadEnv(mode, root)
-  }
+/** 设置别名 */
+const alias: Record<string, string> = {
+  "@": pathResolve("src"),
+  "@build": pathResolve("build")
+};
+
+const { dependencies, devDependencies, name, version } = pkg;
+const __APP_INFO__ = {
+  pkg: { dependencies, devDependencies, name, version },
+  lastBuildTime: dayjs(new Date()).format("YYYY-MM-DD HH:mm:ss")
+};
+
+export default ({ command, mode }: ConfigEnv): UserConfigExport => {
+  const { VITE_CDN, VITE_PORT, VITE_COMPRESSION, VITE_PUBLIC_PATH } =
+    warpperEnv(loadEnv(mode, root));
   return {
-    base: env.VITE_BASE_PATH,
-    plugins: [
-      Vue({
-        script: {
-          // 开启defineModel
-          defineModel: true
-        }
-      }),
-      VueJsx(),
-      progress(),
-      createStyleImportPlugin({
-        resolves: [ElementPlusResolve()],
-        libs: [{
-          libraryName: 'element-plus',
-          esModule: true,
-          resolveStyle: (name) => {
-            if (name === 'click-outside') {
-              return ''
-            }
-            return `element-plus/es/components/${name.replace(/^el-/, '')}/style/css`
-          }
-        }]
-      }),
-      //关闭Eslint语法校验
-      // EslintPlugin({
-      //   cache: false,
-      //   include: ['src/**/*.vue', 'src/**/*.ts', 'src/**/*.tsx'] // 检查的文件
-      // }),
-      VueI18nPlugin({
-        runtimeOnly: true,
-        compositionOnly: true,
-        include: [resolve(__dirname, 'src/locales/**')]
-      }),
-      createSvgIconsPlugin({
-        iconDirs: [pathResolve('src/assets/svgs')],
-        symbolId: 'icon-[dir]-[name]',
-        svgoOptions: true
-      }),
-      PurgeIcons(),
-      viteMockServe({
-        ignore: /^\_/,
-        mockPath: 'mock',
-        localEnabled: !isBuild,
-        prodEnabled: isBuild,
-        injectCode: `
-          import { setupProdMockServer } from '../mock/_createProductionServer'
-
-          setupProdMockServer()
-          `
-      }),
-      ViteEjsPlugin({
-        title: env.VITE_APP_TITLE
-      }),
-      UnoCSS(),
-      // sveltekit(),
-    ],
-
-    css: {
-      preprocessorOptions: {
-        less: {
-          additionalData: '@import "./src/styles/variables.module.less";',
-          javascriptEnabled: true
-        }
-      }
-    },
+    base: VITE_PUBLIC_PATH,
+    root,
     resolve: {
-      extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.less', '.css'],
-      alias: [
-        {
-          find: 'vue-i18n',
-          replacement: 'vue-i18n/dist/vue-i18n.cjs.js'
-        },
-        {
-          find: /\@\//,
-          replacement: `${pathResolve('src')}/`
-        }
-      ]
+      alias
+    },
+    // 服务端渲染
+    server: {
+      // 是否开启 https
+      https: false,
+      // 端口号
+      port: VITE_PORT,
+      host: "0.0.0.0",
+      // 本地跨域代理 https://cn.vitejs.dev/config/server-options.html#server-proxy
+      proxy: {}
+    },
+    plugins: getPluginsList(command, VITE_CDN, VITE_COMPRESSION),
+    // https://cn.vitejs.dev/config/dep-optimization-options.html#dep-optimization-options
+    optimizeDeps: {
+      include,
+      exclude
     },
     build: {
-      minify: 'terser',
-      outDir: env.VITE_OUT_DIR || 'dist',
-      sourcemap: env.VITE_SOURCEMAP === 'true' ? 'inline' : false,
-      // brotliSize: false,
-      terserOptions: {
-        compress: {
-          drop_debugger: env.VITE_DROP_DEBUGGER === 'true',
-          drop_console: env.VITE_DROP_CONSOLE === 'true'
+      sourcemap: false,
+      // 消除打包大小超过500kb警告
+      chunkSizeWarningLimit: 4000,
+      rollupOptions: {
+        input: {
+          index: pathResolve("index.html")
+        },
+        // 静态资源分类打包
+        output: {
+          chunkFileNames: "static/js/[name]-[hash].js",
+          entryFileNames: "static/js/[name]-[hash].js",
+          assetFileNames: "static/[ext]/[name]-[hash].[ext]"
         }
       }
     },
-    server: {
-      port: 4000,
-      proxy: {
-        // 选项写法
-        '/api': {
-          target: 'http://127.0.0.1:8000',
-          changeOrigin: true,
-          rewrite: path => path.replace(/^\/api/, '')
-        }
-      },
-      hmr: {
-        overlay: false
-      },
-      host: '0.0.0.0'
-    },
-    optimizeDeps: {
-      include: [
-        'vue',
-        'vue-router',
-        'vue-types',
-        'element-plus/es/locale/lang/zh-cn',
-        'element-plus/es/locale/lang/en',
-        '@iconify/iconify',
-        '@vueuse/core',
-        'axios',
-        'qs',
-        'echarts',
-        'echarts-wordcloud',
-        'intro.js',
-        'qrcode',
-        '@wangeditor/editor',
-        '@wangeditor/editor-for-vue',
-        'vue-json-pretty'
-      ]
+    define: {
+      __INTLIFY_PROD_DEVTOOLS__: false,
+      __APP_INFO__: JSON.stringify(__APP_INFO__)
     }
-  }
-}
+  };
+};

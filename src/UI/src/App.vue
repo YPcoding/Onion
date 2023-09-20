@@ -1,63 +1,26 @@
-<script setup lang="ts">
-import { computed } from 'vue'
-import { useAppStore } from '@/store/modules/app'
-import { ConfigGlobal } from '@/components/ConfigGlobal'
-import { isDark } from '@/utils/is'
-import { useDesign } from '@/hooks/web/useDesign'
-import { useStorage } from '@/hooks/web/useStorage'
-
-const { getPrefixCls } = useDesign()
-
-const prefixCls = getPrefixCls('app')
-
-const appStore = useAppStore()
-
-const currentSize = computed(() => appStore.getCurrentSize)
-
-const greyMode = computed(() => appStore.getGreyMode)
-
-const { getStorage } = useStorage()
-
-// 根据浏览器当前主题设置系统主题色
-const setDefaultTheme = () => {
-  if (getStorage('isDark') !== null) {
-    appStore.setIsDark(getStorage('isDark'))
-    return
-  }
-  const isDarkTheme = isDark()
-  appStore.setIsDark(isDarkTheme)
-}
-
-setDefaultTheme()
-</script>
-
 <template>
-  <ConfigGlobal :size="currentSize">
-    <RouterView :class="greyMode ? `${prefixCls}-grey-mode` : ''" />
-  </ConfigGlobal>
+  <el-config-provider :locale="currentLocale">
+    <router-view />
+    <ReDialog />
+  </el-config-provider>
 </template>
 
-<style lang="less">
-@prefix-cls: ~'@{namespace}-app';
-
-.size {
-  width: 100%;
-  height: 100%;
-}
-
-html,
-body {
-  padding: 0 !important;
-  margin: 0;
-  overflow: hidden;
-  .size;
-
-  #app {
-    .size;
+<script lang="ts">
+import { defineComponent } from "vue";
+import { ElConfigProvider } from "element-plus";
+import zhCn from "element-plus/lib/locale/lang/zh-cn";
+import en from "element-plus/lib/locale/lang/en";
+import { ReDialog } from "@/components/ReDialog";
+export default defineComponent({
+  name: "app",
+  components: {
+    [ElConfigProvider.name]: ElConfigProvider,
+    ReDialog
+  },
+  computed: {
+    currentLocale() {
+      return this.$storage.locale?.locale === "zh" ? zhCn : en;
+    }
   }
-}
-
-.@{prefix-cls}-grey-mode {
-  filter: grayscale(100%);
-}
-</style>
+});
+</script>

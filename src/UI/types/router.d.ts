@@ -1,77 +1,105 @@
-import type { RouteRecordRaw } from 'vue-router'
-import { defineComponent } from 'vue'
+// 全局路由类型声明
 
-/**
-* redirect: noredirect        当设置 noredirect 的时候该路由在面包屑导航中不可被点击
-* name:'router-name'          设定路由的名字，一定要填写不然使用<keep-alive>时会出现各种问题
-* meta : {
-    hidden: true              当设置 true 的时候该路由不会再侧边栏出现 如404，login等页面(默认 false)
-
-    alwaysShow: true          当你一个路由下面的 children 声明的路由大于1个时，自动会变成嵌套的模式，
-                              只有一个时，会将那个子路由当做根路由显示在侧边栏，
-                              若你想不管路由下面的 children 声明的个数都显示你的根路由，
-                              你可以设置 alwaysShow: true，这样它就会忽略之前定义的规则，
-                              一直显示根路由(默认 false)
-
-    title: 'title'            设置该路由在侧边栏和面包屑中展示的名字
-
-    icon: 'svg-name'          设置该路由的图标
-
-    noCache: true             如果设置为true，则不会被 <keep-alive> 缓存(默认 false)
-
-    breadcrumb: false         如果设置为false，则不会在breadcrumb面包屑中显示(默认 true)
-
-    affix: true               如果设置为true，则会一直固定在tag项中(默认 false)
-
-    noTagsView: true          如果设置为true，则不会出现在tag中(默认 false)
-
-    activeMenu: '/dashboard'  显示高亮的路由路径
-
-    canTo: true               设置为true即使hidden为true，也依然可以进行路由跳转(默认 false)
-
-    permission: ['edit','add', 'delete']    设置该路由的权限
-  }
-**/
-
-interface RouteMetaCustom extends Record<string | number | symbol, unknown> {
-  hidden?: boolean
-  alwaysShow?: boolean
-  title?: string
-  icon?: string
-  noCache?: boolean
-  breadcrumb?: boolean
-  affix?: boolean
-  activeMenu?: string
-  noTagsView?: boolean
-  canTo?: boolean
-  permission?: string[]
-}
-
-declare module 'vue-router' {
-  interface RouteMeta extends RouteMetaCustom {}
-}
-
-type Component<T = any> =
-  | ReturnType<typeof defineComponent>
-  | (() => Promise<typeof import('*.vue')>)
-  | (() => Promise<T>)
+import { type RouteComponent, type RouteLocationNormalized } from "vue-router";
 
 declare global {
-  declare interface AppRouteRecordRaw extends Omit<RouteRecordRaw, 'meta'> {
-    name: string
-    meta: RouteMetaCustom
-    component?: Component | string
-    children?: AppRouteRecordRaw[]
-    props?: Recordable
-    fullPath?: string
+  interface ToRouteType extends RouteLocationNormalized {
+    meta: CustomizeRouteMeta;
   }
 
-  declare interface AppCustomRouteRecordRaw extends Omit<RouteRecordRaw, 'meta'> {
-    name: string
-    meta: RouteMetaCustom
-    component: string
-    path: string
-    redirect: string
-    children?: AppCustomRouteRecordRaw[]
+  /**
+   * @description 完整子路由的`meta`配置表
+   */
+  interface CustomizeRouteMeta {
+    /** 菜单名称（兼容国际化、非国际化，如何用国际化的写法就必须在根目录的`locales`文件夹下对应添加） `必填` */
+    title: string;
+    /** 菜单图标 `可选` */
+    icon?: string | FunctionalComponent | IconifyIcon;
+    /** 菜单名称右侧的额外图标 */
+    extraIcon?: string | FunctionalComponent | IconifyIcon;
+    /** 是否在菜单中显示（默认`true`）`可选` */
+    showLink?: boolean;
+    /** 是否显示父级菜单 `可选` */
+    showParent?: boolean;
+    /** 页面级别权限设置 `可选` */
+    roles?: Array<string>;
+    /** 按钮级别权限设置 `可选` */
+    auths?: Array<string>;
+    /** 路由组件缓存（开启 `true`、关闭 `false`）`可选` */
+    keepAlive?: boolean;
+    /** 内嵌的`iframe`链接 `可选` */
+    frameSrc?: string;
+    /** `iframe`页是否开启首次加载动画（默认`true`）`可选` */
+    frameLoading?: boolean;
+    /** 页面加载动画（有两种形式，一种直接采用vue内置的`transitions`动画，另一种是使用`animate.css`写进、离场动画）`可选` */
+    transition?: {
+      /**
+       * @description 当前路由动画效果
+       * @see {@link https://next.router.vuejs.org/guide/advanced/transitions.html#transitions}
+       * @see animate.css {@link https://animate.style}
+       */
+      name?: string;
+      /** 进场动画 */
+      enterTransition?: string;
+      /** 离场动画 */
+      leaveTransition?: string;
+    };
+    // 是否不添加信息到标签页，（默认`false`）
+    hiddenTag?: boolean;
+    /** 动态路由可打开的最大数量 `可选` */
+    dynamicLevel?: number;
+    /** 将某个菜单激活
+     * （主要用于通过`query`或`params`传参的路由，当它们通过配置`showLink: false`后不在菜单中显示，就不会有任何菜单高亮，
+     * 而通过设置`activePath`指定激活菜单即可获得高亮，`activePath`为指定激活菜单的`path`）
+     */
+    activePath?: string;
   }
+
+  /**
+   * @description 完整子路由配置表
+   */
+  interface RouteChildrenConfigsTable {
+    /** 子路由地址 `必填` */
+    path: string;
+    /** 路由名字（对应不要重复，和当前组件的`name`保持一致）`必填` */
+    name?: string;
+    /** 路由重定向 `可选` */
+    redirect?: string;
+    /** 按需加载组件 `可选` */
+    component?: RouteComponent;
+    meta?: CustomizeRouteMeta;
+    /** 子路由配置项 */
+    children?: Array<RouteChildrenConfigsTable>;
+  }
+
+  /**
+   * @description 整体路由配置表（包括完整子路由）
+   */
+  interface RouteConfigsTable {
+    /** 路由地址 `必填` */
+    path: string;
+    /** 路由名字（保持唯一）`可选` */
+    name?: string;
+    /** `Layout`组件 `可选` */
+    component?: RouteComponent;
+    /** 路由重定向 `可选` */
+    redirect?: string;
+    meta?: {
+      /** 菜单名称（兼容国际化、非国际化，如何用国际化的写法就必须在根目录的`locales`文件夹下对应添加）`必填` */
+      title: string;
+      /** 菜单图标 `可选` */
+      icon?: string | FunctionalComponent | IconifyIcon;
+      /** 是否在菜单中显示（默认`true`）`可选` */
+      showLink?: boolean;
+      /** 菜单升序排序，值越高排的越后（只针对顶级路由）`可选` */
+      rank?: number;
+    };
+    /** 子路由配置项 */
+    children?: Array<RouteChildrenConfigsTable>;
+  }
+}
+
+// https://router.vuejs.org/zh/guide/advanced/meta.html#typescript
+declare module "vue-router" {
+  interface RouteMeta extends CustomizeRouteMeta {}
 }

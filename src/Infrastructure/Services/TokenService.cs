@@ -1,4 +1,6 @@
 ﻿using Application.Common.Configurations;
+using Application.Constants.ClaimTypes;
+using Masuit.Tools.DateTimeExt;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -6,25 +8,49 @@ using System.Text;
 
 namespace Infrastructure.Services
 {
-    /// <summary>
-    /// 生成Token服务
-    /// </summary>
     public class TokenService : ITokenService
     {
-        public async Task<string> BuildTokenAsync(IEnumerable<Claim> claims, JwtSettings options)
+        public async Task<string> BuildAsync(IEnumerable<Claim> claims, JwtSettings options)
         {
             return await Task.Run(() =>
             {
-                TimeSpan ExpiryDuration = TimeSpan.FromSeconds(options.ExpireSeconds);
-                var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(options.SecurityKey));
-                var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature);
-                var tokenDescriptor = new JwtSecurityToken(
-                    options.Issuer,
-                    options.Audience,
-                    claims,
-                    expires: DateTime.Now.Add(ExpiryDuration),
-                    signingCredentials: credentials);
-                return new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(options.SecurityKey));
+                var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+                var timestamp = DateTime.Now.AddMinutes(options.ExpireSeconds + options.RefreshExpiresSeconds).GetTotalSeconds().ToString();
+                claims = claims.Append(new Claim(ApplicationClaimTypes.RefreshExpires, timestamp)).ToArray();
+
+                var token = new JwtSecurityToken(
+                    issuer: options.Issuer,
+                    audience: options.Audience,
+                    claims: claims,
+                    notBefore: DateTime.Now,
+                    expires: DateTime.Now.AddMinutes(options.ExpireSeconds),
+                    signingCredentials: signingCredentials
+                );
+                return new JwtSecurityTokenHandler().WriteToken(token);
+            });
+        }
+
+        public async Task<IEnumerable<Claim>> CreateClaimsAsync(long userId, string userName)
+        {
+            return await Task.Run(() =>
+            {
+                List<Claim> claims = new()
+                {
+                  new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+                  new Claim(ClaimTypes.Name,userName)
+                 };
+                return claims;
+            });
+        }
+
+        public async Task<JwtSecurityToken> DecodeAsync(string jwtToken)
+        {
+            return await Task.Run(() =>
+            {
+                var jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
+                var jwtSecurityToken = jwtSecurityTokenHandler.ReadJwtToken(jwtToken);
+                return jwtSecurityToken;
             });
         }
     }

@@ -1,6 +1,4 @@
 /dist/*
 /public/*
 public/*
-/dist*
-/src/types/env.d.ts
-/docs/**/*
+src/style/reset.scss

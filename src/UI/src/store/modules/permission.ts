@@ -1,84 +1,64 @@
-import { defineStore } from 'pinia'
-import { asyncRouterMap, constantRouterMap } from '@/router'
-import {
-  generateRoutesByFrontEnd,
-  generateRoutesByServer,
-  flatMultiLevelRoutes
-} from '@/utils/routerHelper'
-import { store } from '../index'
-import { cloneDeep } from 'lodash-es'
+import { defineStore } from "pinia";
+import { store } from "@/store";
+import { cacheType } from "./types";
+import { constantMenus } from "@/router";
+import { useMultiTagsStoreHook } from "./multiTags";
+import { debounce, getKeyList } from "@pureadmin/utils";
+import { ascending, filterTree, filterNoPermissionTree } from "@/router/utils";
 
-export interface PermissionState {
-  routers: AppRouteRecordRaw[]
-  addRouters: AppRouteRecordRaw[]
-  isAddRouters: boolean
-  menuTabRouters: AppRouteRecordRaw[]
-}
-
-export const usePermissionStore = defineStore('permission', {
-  state: (): PermissionState => ({
-    routers: [],
-    addRouters: [],
-    isAddRouters: false,
-    menuTabRouters: []
+export const usePermissionStore = defineStore({
+  id: "pure-permission",
+  state: () => ({
+    // 静态路由生成的菜单
+    constantMenus,
+    // 整体路由生成的菜单（静态、动态）
+    wholeMenus: [],
+    // 缓存页面keepAlive
+    cachePageList: []
   }),
-  getters: {
-    getRouters(): AppRouteRecordRaw[] {
-      return this.routers
-    },
-    getAddRouters(): AppRouteRecordRaw[] {
-      return flatMultiLevelRoutes(cloneDeep(this.addRouters))
-    },
-    getIsAddRouters(): boolean {
-      return this.isAddRouters
-    },
-    getMenuTabRouters(): AppRouteRecordRaw[] {
-      return this.menuTabRouters
-    }
-  },
   actions: {
-    generateRoutes(
-      type: 'server' | 'frontEnd' | 'static',
-      routers?: AppCustomRouteRecordRaw[] | string[]
-    ): Promise<unknown> {
-      return new Promise<void>((resolve) => {
-        let routerMap: AppRouteRecordRaw[] = []
-        if (type === 'server') {
-          // 模拟后端过滤菜单
-          routerMap = generateRoutesByServer(routers as AppCustomRouteRecordRaw[])
-        } else if (type === 'frontEnd') {
-          // 模拟前端过滤菜单
-          routerMap = generateRoutesByFrontEnd(cloneDeep(asyncRouterMap), routers as string[])
-        } else {
-          // 直接读取静态路由表
-          routerMap = cloneDeep(asyncRouterMap)
+    /** 组装整体路由生成的菜单 */
+    handleWholeMenus(routes: any[]) {
+      this.wholeMenus = filterNoPermissionTree(
+        filterTree(ascending(this.constantMenus.concat(routes)))
+      );
+    },
+    cacheOperate({ mode, name }: cacheType) {
+      const delIndex = this.cachePageList.findIndex(v => v === name);
+      switch (mode) {
+        case "refresh":
+          this.cachePageList = this.cachePageList.filter(v => v !== name);
+          break;
+        case "add":
+          this.cachePageList.push(name);
+          break;
+        case "delete":
+          delIndex !== -1 && this.cachePageList.splice(delIndex, 1);
+          break;
+      }
+      /** 监听缓存页面是否存在于标签页，不存在则删除 */
+      debounce(() => {
+        let cacheLength = this.cachePageList.length;
+        const nameList = getKeyList(useMultiTagsStoreHook().multiTags, "name");
+        while (cacheLength > 0) {
+          nameList.findIndex(v => v === this.cachePageList[cacheLength - 1]) ===
+            -1 &&
+            this.cachePageList.splice(
+              this.cachePageList.indexOf(this.cachePageList[cacheLength - 1]),
+              1
+            );
+          cacheLength--;
         }
-        // 动态路由，404一定要放到最后面
-        this.addRouters = routerMap.concat([
-          {
-            path: '/:path(.*)*',
-            redirect: '/404',
-            name: '404Page',
-            meta: {
-              hidden: true,
-              breadcrumb: false
-            }
-          }
-        ])
-        // 渲染菜单的所有路由
-        this.routers = cloneDeep(constantRouterMap).concat(routerMap)
-        resolve()
-      })
+      })();
     },
-    setIsAddRouters(state: boolean): void {
-      this.isAddRouters = state
-    },
-    setMenuTabRouters(routers: AppRouteRecordRaw[]): void {
-      this.menuTabRouters = routers
+    /** 清空缓存页面 */
+    clearAllCachePage() {
+      this.wholeMenus = [];
+      this.cachePageList = [];
     }
   }
-})
+});
 
-export const usePermissionStoreWithOut = () => {
-  return usePermissionStore(store)
+export function usePermissionStoreHook() {
+  return usePermissionStore(store);
 }

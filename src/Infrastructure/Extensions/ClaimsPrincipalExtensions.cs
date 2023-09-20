@@ -33,4 +33,6 @@ public static class ClaimsPrincipalExtensions
         => claimsPrincipal.FindFirstValue(ApplicationClaimTypes.AssignedRoles);
     public static string[]? GetRoles(this ClaimsPrincipal claimsPrincipal)
         => claimsPrincipal.Claims.Where(x => x.Type == ClaimTypes.Role).Select(x => x.Value).ToArray();
+    public static string? GetRefreshExpires(this ClaimsPrincipal claimsPrincipal)
+        => claimsPrincipal.FindFirstValue(ApplicationClaimTypes.RefreshExpires);
 }
