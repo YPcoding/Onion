@@ -1,7 +1,10 @@
-﻿using Application.Features.Users.Commands.Add;
+﻿using Application.Features.Roles.DTOs;
+using Application.Features.Roles.Queries.GetAll;
+using Application.Features.Users.Commands.Add;
 using Application.Features.Users.Commands.Delete;
 using Application.Features.Users.Commands.Update;
 using Application.Features.Users.DTOs;
+using Application.Features.Users.Queries.GetAll;
 using Application.Features.Users.Queries.GetById;
 using Application.Features.Users.Queries.Pagination;
 using Microsoft.AspNetCore.Mvc;
@@ -34,6 +37,16 @@ public class UserController : ApiControllerBase
     public async Task<Result<UserDto>> GetByIdQuery(long userId)
     {
         return await Mediator.Send(new GetUserByIdQuery { UserId = userId });
+    }
+
+    /// <summary>
+    /// 获取所有用户
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("Query/All")]
+    public async Task<Result<IEnumerable<UserDto>>> GetAllUsersQuery()
+    {
+        return await Mediator.Send(new GetAllUsersQuery());
     }
 
     /// <summary>

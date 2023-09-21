@@ -27,6 +27,11 @@ namespace Application.Features.Users.DTOs
         }
 
         /// <summary>
+        /// 上级唯一标识
+        /// </summary>
+        public long? SuperiorId { get; set; }
+
+        /// <summary>
         /// 用户名
         /// </summary>
         public string UserName { get; set; }
@@ -34,7 +39,18 @@ namespace Application.Features.Users.DTOs
         /// <summary>
         /// 角色
         /// </summary>
-        public List<RoleDto> Roles { get; set; }
+        public List<RoleDto>? Roles { get; set; }
+
+        /// <summary>
+        /// 角色唯一标识
+        /// </summary>
+        public List<long>? RoleIds 
+        {
+            get 
+            {
+                return Roles?.Select(s => s.RoleId)?.ToList();
+            }
+        }
 
         /// <summary>
         /// 标准化用户名

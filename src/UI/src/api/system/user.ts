@@ -8,6 +8,14 @@ type Result = {
   code: number;
 };
 
+type ResultArray = {
+  succeeded: boolean;
+  data?: Array<any>;
+  errors: Array<string>;
+  errorMessage: string;
+  code: number;
+};
+
 type ResultTable = {
   succeeded: boolean;
   errors: Array<any>;
@@ -38,15 +46,33 @@ export const getUserList = (data?: object) => {
   });
 };
 
-// 参数接口
-export interface UserDeleteParams {
-  /*删除用户的唯一标识 */
-  userIds: Record<string, unknown>[];
-}
+/** 新增用户 */
+export const addUser = (data?: object) => {
+  return http.request<Result>("post", "/api/User/Add", {
+    data
+  });
+};
 
-/** 批量伤处用户 */
+/** 修改用户 */
+export const updateUser = (data?: object) => {
+  return http.request<Result>("put", "/api/User/Update", {
+    data
+  });
+};
+
+/** 批量删除用户 */
 export const onbatchDeleteUser = (data?: object) => {
   return http.request<Result>("delete", "/api/User/Delete", {
     data
   });
+};
+
+/** 获取所有角色 */
+export const getAllRole = () => {
+  return http.request<ResultArray>("get", "/api/Role/Query/All");
+};
+
+/** 获取所有用户 */
+export const getAllUser = () => {
+  return http.request<ResultArray>("get", "/api/User/Query/All");
 };

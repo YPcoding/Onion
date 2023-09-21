@@ -39,6 +39,11 @@ public class UpdateUserCommand : ICacheInvalidatorRequest<Result<long>>
     public List<long>? RoleIds { get; set; }
 
     /// <summary>
+    /// 上级节点
+    /// </summary>
+    public long? SuperiorId { get; set; }
+
+    /// <summary>
     /// 并发标记
     /// </summary>
     [Required(ErrorMessage = "并发标记必填的")]

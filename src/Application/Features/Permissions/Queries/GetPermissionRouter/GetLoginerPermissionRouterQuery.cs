@@ -184,7 +184,7 @@ public class GetLoginerPermissionRouterQueryHandler :
                 }
              }
         };
-        datas.Add(permissionData);
+        //datas.Add(permissionData);
         datas.Add(systemData);
         return await Result<List<PermissionRouterDto>>.SuccessAsync(datas);
     }

@@ -2,12 +2,20 @@ import dayjs from "dayjs";
 import {
   getUserList,
   onbatchDeleteUser,
-  UserDeleteParams
+  getAllRole,
+  getAllUser,
+  addUser,
+  updateUser
 } from "@/api/system/user";
 import { type PaginationProps } from "@pureadmin/table";
 import { usePublicHooks } from "../../hooks";
 import { message } from "@/utils/message";
 import { hideTextAtIndex, getKeyList, isAllEmpty } from "@pureadmin/utils";
+import type { FormItemProps, RoleFormItemProps } from "../utils/types";
+import { addDialog } from "@/components/ReDialog";
+import editForm from "../form/index.vue";
+import roleForm from "../form/role.vue";
+import { cloneDeep } from "@pureadmin/utils";
 import {
   ElForm,
   ElInput,
@@ -35,13 +43,17 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
     phoneNumber: "",
     lockoutEnabled: null,
     orderBy: "Id",
-    sortDirection: "Descending"
+    sortDirection: "Descending",
+    pageNumber: 1,
+    pageSize: 10
   });
-
+  const formRef = ref();
   const dataList = ref([]);
   const loading = ref(true);
   const switchLoadMap = ref({});
   const selectedNum = ref(0);
+  const roleOptions = ref([]);
+  const higherUserOptions = ref();
   const { switchStyle } = usePublicHooks();
   const pagination = reactive<PaginationProps>({
     total: 0,
@@ -258,17 +270,16 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
 
   onMounted(async () => {
     onSearch();
+    // 角色列表
+    roleOptions.value = (await getAllRole()).data;
+    // userOptions.value = (await getAllUser()).data;
   });
 
   function onChange({ row, index }) {}
 
-  function handleUpdate(row) {
-    console.log(row);
-  }
+  function handleUpdate(row) {}
 
   function handleDelete(row) {
-    // 创建一个参数对象
-
     // 调用 onbatchDeleteUser 方法
     onbatchDeleteUser({ userIds: [row.id] })
       .then(response => {
@@ -293,29 +304,125 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
   }
 
   function handleSizeChange(val: number) {
-    console.log(`${val} items per page`);
+    form.pageSize = val;
+    onSearch();
   }
 
   function handleCurrentChange(val: number) {
-    console.log(`current page: ${val}`);
+    form.pageNumber = val;
+    onSearch();
   }
 
-  /** 当CheckBox选择项发生变化时会触发该事件 */
-  function handleSelectionChange(val) {
-    // 重置表格高度
-    tableRef.value.setAdaptive();
-  }
-
-  /** 取消选择 */
-  function onSelectionCancel() {
-    // 用于多选表格，清空用户的选择
-    tableRef.value.getTableRef().clearSelection();
+  async function openDialog(title = "新增", row?: FormItemProps) {
+    higherUserOptions.value = (await getAllUser()).data;
+    console.log(higherUserOptions.value);
+    addDialog({
+      title: `${title}用户`,
+      props: {
+        formInline: {
+          title,
+          higherUserOptions: formatUserOptions(
+            cloneDeep(higherUserOptions.value)
+          ),
+          userId: row?.userId ?? null,
+          superiorId: row?.superiorId ?? null,
+          userName: row?.userName ?? "",
+          password: row?.password ?? "",
+          confirmPassword: row?.confirmPassword ?? "",
+          phoneNumber: row?.phoneNumber ?? "",
+          email: row?.email ?? "",
+          isActive: row?.isActive ?? null,
+          roleIds: row?.roleIds ?? null,
+          roleOptions: roleOptions.value ?? [],
+          concurrencyStamp: row?.concurrencyStamp ?? ""
+        }
+      },
+      width: "46%",
+      draggable: true,
+      fullscreenIcon: true,
+      closeOnClickModal: false,
+      contentRenderer: () => h(editForm, { ref: formRef }),
+      beforeSure: (done, { options }) => {
+        const FormRef = formRef.value.getRef();
+        const curData = options.props.formInline as FormItemProps;
+        async function chores() {
+          done(); // 关闭弹框
+          onSearch(); // 刷新表格数据
+        }
+        FormRef.validate(valid => {
+          if (valid) {
+            // 表单规则校验通过
+            if (title === "新增") {
+              // 实际开发先调用新增接口，再进行下面操作
+              addUser(curData)
+                .then(response => {
+                  // 处理成功的响应
+                  if (response.succeeded) {
+                    onSearch();
+                  } else {
+                    message(`新增失败`, {
+                      type: "error"
+                    });
+                  }
+                })
+                .catch(error => {
+                  // 处理错误
+                  message(error, {
+                    type: "error"
+                  });
+                });
+              chores();
+            } else {
+              // 实际开发先调用编辑接口，再进行下面操作
+              updateUser(curData)
+                .then(response => {
+                  // 处理成功的响应
+                  if (response.succeeded) {
+                    onSearch();
+                  } else {
+                    message(`修改失败`, {
+                      type: "error"
+                    });
+                  }
+                })
+                .catch(error => {
+                  // 处理错误
+                  message(error, {
+                    type: "error"
+                  });
+                });
+              chores();
+            }
+          }
+        });
+      }
+    });
   }
 
   /** 批量删除 */
   function onbatchDel() {
     const curSelected = tableRef.value.getTableRef().getSelectionRows();
-
+    // 调用 onbatchDeleteUser 方法
+    onbatchDeleteUser({ userIds: getKeyList(curSelected, "id") })
+      .then(response => {
+        // 处理成功的响应
+        if (response.succeeded && response.data) {
+          message(`已删除用户编号为 ${getKeyList(curSelected, "id")} 的数据`, {
+            type: "success"
+          });
+          onSearch();
+        } else {
+          message(`删除失败`, {
+            type: "error"
+          });
+        }
+      })
+      .catch(error => {
+        // 处理错误
+        message(error, {
+          type: "error"
+        });
+      });
     tableRef.value.getTableRef().clearSelection();
   }
 
@@ -323,19 +430,33 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
     onSearch();
   }
 
-  function formatHigherDeptOptions(treeList) {
-    // 根据返回数据的status字段值判断追加是否禁用disabled字段，返回处理后的树结构，用于上级部门级联选择器的展示（实际开发中也是如此，不可能前端需要的每个字段后端都会返回，这时需要前端自行根据后端返回的某些字段做逻辑处理）
-    if (!treeList || !treeList.length) return;
-    const newTreeList = [];
-    for (let i = 0; i < treeList.length; i++) {
-      treeList[i].disabled = treeList[i].status === 0 ? true : false;
-      formatHigherDeptOptions(treeList[i].children);
-      newTreeList.push(treeList[i]);
+  function formatUserOptions(data, superiorId?: string) {
+    if (!data || !data.length) return;
+    const tree = [];
+    for (const item of data) {
+      if (item.superiorId === superiorId) {
+        const children = formatUserOptions(data, item.id);
+        if (children.length > 0) {
+          item.children = children;
+        }
+        tree.push(item);
+      }
     }
-    return newTreeList;
+    return tree;
+  }
+  /** 当CheckBox选择项发生变化时会触发该事件 */
+  function handleSelectionChange(val) {
+    selectedNum.value = val.length;
+    // 重置表格高度
+    tableRef.value.setAdaptive();
   }
 
-  function openDialog(title = "新增", row?: FormItemProps) {}
+  /** 取消选择 */
+  function onSelectionCancel() {
+    selectedNum.value = 0;
+    // 用于多选表格，清空用户的选择
+    tableRef.value.getTableRef().clearSelection();
+  }
 
   /** 上传头像 */
   function handleUpload(row) {}

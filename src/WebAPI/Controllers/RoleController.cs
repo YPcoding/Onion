@@ -2,9 +2,11 @@
 using Application.Features.Roles.Commands.Delete;
 using Application.Features.Roles.Commands.Update;
 using Application.Features.Roles.DTOs;
+using Application.Features.Roles.Queries.GetAll;
 using Application.Features.Roles.Queries.GetById;
 using Application.Features.Roles.Queries.Pagination;
 using Microsoft.AspNetCore.Mvc;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace WebAPI.Controllers;
 
@@ -34,6 +36,16 @@ public class RoleController : ApiControllerBase
     public async Task<Result<RoleDto>> GetByIdQuery(long roleId)
     {
         return await Mediator.Send(new GetRoleByIdQuery { RoleId = roleId });
+    }
+
+    /// <summary>
+    /// 获取所有角色
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("Query/All")]
+    public async Task<Result<IEnumerable<RoleDto>>>  GetAllRolesQuery()
+    {
+        return await Mediator.Send(new GetAllRolesQuery());
     }
 
     /// <summary>

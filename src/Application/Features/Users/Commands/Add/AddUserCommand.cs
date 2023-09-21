@@ -41,9 +41,20 @@ public class AddUserCommand : ICacheInvalidatorRequest<Result<long>>
     public string? PhoneNumber { get; set; }
 
     /// <summary>
+    /// 用户状态：是否激活
+    /// </summary>
+    [Required(ErrorMessage = "用户状态是必填的")]
+    public bool IsActive { get; set; }
+
+    /// <summary>
     /// 角色唯一标识
     /// </summary>
     public List<long>? RoleIds { get; set; }
+
+    /// <summary>
+    /// 上级节点
+    /// </summary>
+    public long? SuperiorId { get; set; }
 
     /// <summary>
     /// 缓存Key值

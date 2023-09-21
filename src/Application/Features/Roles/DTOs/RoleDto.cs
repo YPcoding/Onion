@@ -16,7 +16,7 @@ public class RoleDto
     /// <summary>
     /// 角色唯一标识
     /// </summary>
-    public long Role 
+    public long RoleId
     { 
         get 
         { 

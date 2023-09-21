@@ -110,7 +110,7 @@ namespace Domain.Entities.Identity
         public bool IsLive { get; set; } = false;
 
         /// <summary>
-        /// 上级节点
+        /// 上级唯一标识
         /// </summary>
         public long? SuperiorId { get; set; } = null;
         [ForeignKey("SuperiorId")]
