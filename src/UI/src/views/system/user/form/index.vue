@@ -19,7 +19,8 @@ const props = withDefaults(defineProps<FormProps>(), {
     roleOptions: [],
     roleIds: [],
     higherUserOptions: [],
-    concurrencyStamp: ""
+    concurrencyStamp: "",
+    profilePictureDataUrl: ""
   })
 });
 
@@ -104,8 +105,8 @@ defineExpose({ getRef });
           <el-switch
             v-model="newFormInline.isActive"
             inline-prompt
-            :active-value="1"
-            :inactive-value="0"
+            :active-value="true"
+            :inactive-value="false"
             active-text="启用"
             inactive-text="停用"
             :style="switchStyle"

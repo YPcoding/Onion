@@ -14,6 +14,7 @@ interface FormItemProps {
   roleIds: Record<string, unknown>[];
   higherUserOptions: Record<string, unknown>[];
   concurrencyStamp: string;
+  profilePictureDataUrl: string;
 }
 interface FormProps {
   formInline: FormItemProps;

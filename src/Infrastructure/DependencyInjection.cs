@@ -28,6 +28,7 @@ public static class DependencyInjection
         services.AddScoped<ISaveChangesInterceptor, DispatchDomainEventsInterceptor>();
         services.Configure<DatabaseSettings>(configuration.GetSection(DatabaseSettings.Key));
         services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.Key));
+        services.Configure<SystemSettings>(configuration.GetSection(SystemSettings.Key));
         services.AddSingleton(s => s.GetRequiredService<IOptions<DatabaseSettings>>().Value);
         services.AddDbContext<ApplicationDbContext>((p, m) =>
         {

@@ -5,13 +5,16 @@ import {
   getAllRole,
   getAllUser,
   addUser,
-  updateUser
+  updateUser,
+  updateUserAvatar
 } from "@/api/system/user";
+import { uploadEnclosure, convertImageToBase64 } from "@/api/upload";
 import { type PaginationProps } from "@pureadmin/table";
 import { usePublicHooks } from "../../hooks";
 import { message } from "@/utils/message";
 import { hideTextAtIndex, getKeyList, isAllEmpty } from "@pureadmin/utils";
 import type { FormItemProps, RoleFormItemProps } from "../utils/types";
+import croppingUpload from "../upload.vue";
 import { addDialog } from "@/components/ReDialog";
 import editForm from "../form/index.vue";
 import roleForm from "../form/role.vue";
@@ -34,6 +37,7 @@ import {
   onMounted
 } from "vue";
 import { bool } from "vue-types";
+import { error } from "console";
 
 export function useUser(tableRef: Ref, treeRef: Ref) {
   const form = reactive({
@@ -54,6 +58,7 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
   const selectedNum = ref(0);
   const roleOptions = ref([]);
   const higherUserOptions = ref();
+  const avatarInfo = ref();
   const { switchStyle } = usePublicHooks();
   const pagination = reactive<PaginationProps>({
     total: 0,
@@ -109,8 +114,8 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
         <el-image
           fit="cover"
           preview-teleported={true}
-          src={row.profilePictureDataUrl}
-          preview-src-list={Array.of(row.profilePictureDataUrl)}
+          src={`${row.profilePictureDataUrl}`}
+          preview-src-list={Array.of(`${row.profilePictureDataUrl}`)}
           class="w-[24px] h-[24px] rounded-full align-middle"
         />
       ),
@@ -217,9 +222,9 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
         <el-switch
           size={scope.props.size === "small" ? "small" : "default"}
           loading={switchLoadMap.value[scope.index]?.loading}
-          v-model={scope.row.status}
-          active-value={1}
-          inactive-value={0}
+          v-model={scope.row.lockoutEnabled}
+          active-value={true}
+          inactive-value={false}
           active-text="已锁定"
           inactive-text="未锁定"
           inline-prompt
@@ -274,8 +279,6 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
     roleOptions.value = (await getAllRole()).data;
     // userOptions.value = (await getAllUser()).data;
   });
-
-  function onChange({ row, index }) {}
 
   function handleUpdate(row) {}
 
@@ -334,7 +337,8 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
           isActive: row?.isActive ?? null,
           roleIds: row?.roleIds ?? null,
           roleOptions: roleOptions.value ?? [],
-          concurrencyStamp: row?.concurrencyStamp ?? ""
+          concurrencyStamp: row?.concurrencyStamp ?? "",
+          profilePictureDataUrl: row?.profilePictureDataUrl
         }
       },
       width: "46%",
@@ -459,7 +463,64 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
   }
 
   /** 上传头像 */
-  function handleUpload(row) {}
+  async function handleUpload(row) {
+    const imageUrl = `${row.profilePictureDataUrl}`;
+    const base64Data2 = (await convertImageToBase64({ imagePath: imageUrl }))
+      .data;
+    addDialog({
+      title: "裁剪、上传头像",
+      width: "40%",
+      draggable: true,
+      closeOnClickModal: false,
+      contentRenderer: () =>
+        h(croppingUpload, {
+          imgSrc: base64Data2,
+          onCropper: info => (avatarInfo.value = info)
+        }),
+      beforeSure: done => {
+        const base64Data = avatarInfo.value.base64; // 替换为实际的 Base64 数据
+        uploadEnclosure({ base64: base64Data })
+          .then(response => {
+            // 处理成功的响应
+            if (response.succeeded) {
+              updateUserAvatar({
+                userId: row?.userId,
+                profilePictureDataUrl: response.data,
+                concurrencyStamp: row?.concurrencyStamp
+              })
+                .then(res => {
+                  if (res.succeeded) {
+                    message(`修改成功`, {
+                      type: "success"
+                    });
+                    onSearch(); // 刷新表格数据
+                  } else {
+                    message(`修改失败`, {
+                      type: "error"
+                    });
+                  }
+                })
+                .catch(error => {
+                  message(`修改失败`, {
+                    type: "error"
+                  });
+                });
+            } else {
+              message(`上传失败`, {
+                type: "error"
+              });
+            }
+          })
+          .catch(error => {
+            // 处理错误
+            message("上传失败", {
+              type: "error"
+            });
+          });
+        done(); // 关闭弹框
+      }
+    });
+  }
 
   return {
     form,

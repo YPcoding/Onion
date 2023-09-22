@@ -15,8 +15,8 @@ public class UpdateUserCommandValidator : AbstractValidator<UpdateUserCommand>
         RuleFor(v => v.PhoneNumber)
              .Must(BeValidPhoneNumber!).WithMessage($"号码格式错误");
 
-        RuleFor(v => v.ProfilePictureDataUrl)
-             .Must(BeValidProfilePictureDataUrl!).WithMessage($"链接格式错误");
+        //RuleFor(v => v.ProfilePictureDataUrl)
+        //     .Must(BeValidProfilePictureDataUrl!).WithMessage($"链接格式错误");
 
         RuleFor(v => v.RoleIds)
              .MustAsync(BeExistRoles).WithMessage($"角色不存在"); ;
@@ -58,23 +58,23 @@ public class UpdateUserCommandValidator : AbstractValidator<UpdateUserCommand>
         }
     }
 
-    /// <summary>
-    /// 校验头像
-    /// </summary>
-    /// <param name="profilePictureDataUrl">头像链接地址</param>
-    /// <returns></returns>
-    private bool BeValidProfilePictureDataUrl(string profilePictureDataUrl)
-    {
-        if (profilePictureDataUrl.IsNullOrEmpty())
-        {
-            return true;
-        }
-        else
-        {
-            bool isUrl = profilePictureDataUrl.MatchUrl();
-            return isUrl;
-        }
-    }
+    ///// <summary>
+    ///// 校验头像
+    ///// </summary>
+    ///// <param name="profilePictureDataUrl">头像链接地址</param>
+    ///// <returns></returns>
+    //private bool BeValidProfilePictureDataUrl(string profilePictureDataUrl)
+    //{
+    //    if (profilePictureDataUrl.IsNullOrEmpty())
+    //    {
+    //        return true;
+    //    }
+    //    else
+    //    {
+    //        bool isUrl = profilePictureDataUrl.MatchUrl();
+    //        return isUrl;
+    //    }
+    //}
 
     /// <summary>
     /// 校验角色是否存在

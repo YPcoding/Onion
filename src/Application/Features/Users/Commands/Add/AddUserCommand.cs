@@ -3,6 +3,7 @@ using Application.Features.Users.Caching;
 using Domain.Entities;
 using Masuit.Tools;
 using Masuit.Tools.Systems;
+using Microsoft.Extensions.Options;
 
 namespace Application.Features.Users.Commands.Add;
 
@@ -73,13 +74,16 @@ public class AddUserCommandHandler : IRequestHandler<AddUserCommand, Result<long
 {
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
+    private readonly IOptions<SystemSettings> _optSystemSettings;
 
     public AddUserCommandHandler(
-        IApplicationDbContext context, 
-        IMapper mapper)
+        IApplicationDbContext context,
+        IMapper mapper,
+        IOptions<SystemSettings> optSystemSettings)
     {
         _context = context;
         _mapper = mapper;
+        _optSystemSettings = optSystemSettings;
     }
 
     /// <summary>
@@ -92,6 +96,7 @@ public class AddUserCommandHandler : IRequestHandler<AddUserCommand, Result<long
     {
         var user = _mapper.Map<User>(request);
         user.PasswordHash = user.CreatePassword(request.Password);
+        user.ProfilePictureDataUrl = $"{_optSystemSettings.Value.HostDomainName}/Files/Image/2.png";
         user.AddDomainEvent(new CreatedEvent<User>(user));
         request?.RoleIds?.Distinct()?.ForEach(roleId =>
         {

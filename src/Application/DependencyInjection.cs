@@ -21,6 +21,7 @@ public static class DependencyInjection
             config.AddOpenBehavior(typeof(CacheInvalidationBehaviour<,>));
         });
         services.AddLazyCache();
+
         return services;
     }
 }

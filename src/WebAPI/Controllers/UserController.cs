@@ -71,6 +71,16 @@ public class UserController : ApiControllerBase
     }
 
     /// <summary>
+    /// 修改用户头像
+    /// </summary>
+    /// <returns></returns>
+    [HttpPut("Update/Avatar")]
+    public async Task<Result<long>> UpdateAvatar(UpdateUserAvatarCommand command)
+    {
+        return await Mediator.Send(command);
+    }
+
+    /// <summary>
     /// 删除用户
     /// </summary>
     /// <returns></returns>

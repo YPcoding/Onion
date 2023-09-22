@@ -60,6 +60,13 @@ export const updateUser = (data?: object) => {
   });
 };
 
+/** 修改用户 */
+export const updateUserAvatar = (data?: object) => {
+  return http.request<Result>("put", "/api/User/Update/Avatar", {
+    data
+  });
+};
+
 /** 批量删除用户 */
 export const onbatchDeleteUser = (data?: object) => {
   return http.request<Result>("delete", "/api/User/Delete", {

@@ -1,10 +1,11 @@
-﻿using Domain.Entities;
+﻿using Application.Common.Configurations;
+using Domain.Entities;
 using Domain.Entities.Identity;
 using Domain.Enums;
 using Infrastructure.Persistence;
 using Masuit.Tools;
 using Masuit.Tools.Systems;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using System.Linq.Dynamic.Core;
 using static Application.Common.Helper.WebApiDocHelper;
 
@@ -13,13 +14,16 @@ public class ApplicationDbContextInitializer
 {
     private readonly ILogger<ApplicationDbContextInitializer> _logger;
     private readonly ApplicationDbContext _context;
+    private readonly IOptions<SystemSettings> _optSystemSettings;
 
     public ApplicationDbContextInitializer(
         ILogger<ApplicationDbContextInitializer> logger,
-        ApplicationDbContext context)
+        ApplicationDbContext context,
+        IOptions<SystemSettings> optSystemSettings)
     {
         _logger = logger;
         _context = context;
+        _optSystemSettings = optSystemSettings;
     }
     public async Task InitialiseAsync()
     {
@@ -73,9 +77,9 @@ public class ApplicationDbContextInitializer
     private async Task TrySeedAsync()
     {
         // 默认用户
-        var administrator = new User { UserName = "admin", IsActive = true, Email = "761516331@qq.com", EmailConfirmed = true, ProfilePictureDataUrl = "https://p.qqan.com/up/2021-4/16182800486083341.png" };   
-        administrator.PasswordHash= administrator.CreatePassword("admin");
-        var user = new User { UserName = "user", IsActive = true, Email = "1103354424@qq.com", EmailConfirmed = true, ProfilePictureDataUrl = "https://p.qqan.com/up/2021-3/16157755391319120.jpg" };
+        var administrator = new User { UserName = "admin", IsActive = true, Email = "761516331@qq.com", EmailConfirmed = true, ProfilePictureDataUrl = $"{_optSystemSettings.Value.HostDomainName}/Files/Image/2.png" };
+        administrator.PasswordHash = administrator.CreatePassword("admin");
+        var user = new User { LockoutEnabled = true, UserName = "user", IsActive = true, Email = "1103354424@qq.com", EmailConfirmed = true, ProfilePictureDataUrl = $"{_optSystemSettings.Value.HostDomainName}/Files/Image/1.jpg" };
         user.PasswordHash = user.CreatePassword("user");
         if (!await _context.Users.AnyAsync(x => x.UserName == "admin"))
         {
@@ -169,7 +173,7 @@ public class ApplicationDbContextInitializer
         if (notHaveUserPermissions.Any())
         {
             var items = new List<RolePermission>();
-            foreach (var permission in notHaveUserPermissions) 
+            foreach (var permission in notHaveUserPermissions)
             {
                 var item = new RolePermission
                 {
