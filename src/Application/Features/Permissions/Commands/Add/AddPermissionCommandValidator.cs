@@ -8,7 +8,7 @@
             _context = context;
 
             RuleFor(v => v.SuperiorId)
-                  .MustAsync(BeExistSuperiorId).WithMessage($"角色不存在");
+                  .MustAsync(BeExistSuperiorId).WithMessage($"上级不存在");
         }
 
 

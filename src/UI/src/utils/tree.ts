@@ -130,14 +130,14 @@ export const appendFieldByUniqueId = (
  * @description 构造树型结构数据
  * @param data 数据源
  * @param id id字段 默认id
- * @param parentId 父节点字段，默认parentId
+ * @param superiorId 父节点字段，默认superiorId
  * @param children 子节点字段，默认children
  * @returns 追加字段后的树
  */
 export const handleTree = (
   data: any[],
   id?: string,
-  parentId?: string,
+  superiorId?: number,
   children?: string
 ): any => {
   if (!Array.isArray(data)) {
@@ -146,7 +146,7 @@ export const handleTree = (
   }
   const config = {
     id: id || "id",
-    parentId: parentId || "parentId",
+    superiorId: superiorId || "superiorId",
     childrenList: children || "children"
   };
 
@@ -155,17 +155,17 @@ export const handleTree = (
   const tree = [];
 
   for (const d of data) {
-    const parentId = d[config.parentId];
-    if (childrenListMap[parentId] == null) {
-      childrenListMap[parentId] = [];
+    const superiorId = d[config.superiorId];
+    if (childrenListMap[superiorId] == null) {
+      childrenListMap[superiorId] = [];
     }
     nodeIds[d[config.id]] = d;
-    childrenListMap[parentId].push(d);
+    childrenListMap[superiorId].push(d);
   }
 
   for (const d of data) {
-    const parentId = d[config.parentId];
-    if (nodeIds[parentId] == null) {
+    const superiorId = d[config.superiorId];
+    if (nodeIds[superiorId] == null) {
       tree.push(d);
     }
   }

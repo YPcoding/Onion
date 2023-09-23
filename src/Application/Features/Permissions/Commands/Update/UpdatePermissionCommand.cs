@@ -144,6 +144,8 @@ public class UpdatePermissionCommandHandler : IRequestHandler<UpdatePermissionCo
            ?? throw new NotFoundException($"数据【{request.PermissionId}-{request.ConcurrencyStamp}】未找到");
 
         permission = _mapper.Map(request, permission);
+        permission.CreatePath(request.Path!);
+        permission.CreateCode(request.Path!);
         permission.AddDomainEvent(new UpdatedEvent<Permission>(permission));
         _context.Permissions.Update(permission);
 

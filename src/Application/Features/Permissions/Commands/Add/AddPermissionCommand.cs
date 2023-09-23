@@ -126,6 +126,8 @@ public class AddPermissionCommandHandler : IRequestHandler<AddPermissionCommand,
     public async Task<Result<long>> Handle(AddPermissionCommand request, CancellationToken cancellationToken)
     {
         var permission = _mapper.Map<Permission>(request);
+        permission.CreatePath(request.Path!);
+        permission.CreateCode(request.Path!);
         permission.AddDomainEvent(new CreatedEvent<Permission>(permission));     
         await _context.Permissions.AddAsync(permission);
         var isSuccess = await _context.SaveChangesAsync(cancellationToken) > 0;

@@ -1,10 +1,8 @@
 ﻿using Application.Common.Configurations;
 using Application.Common.Interfaces;
-using Application.Common.Models;
 using Common.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;

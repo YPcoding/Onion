@@ -35,16 +35,20 @@ public class Permission : BaseAuditableEntity
     /// <param name="path">接口路径</param>
     /// <param name="sort">排序</param>
     /// <param name="httpMethods">请求方法</param>
-    public Permission(string group, string label, string path, int sort, string httpMethods)
+    /// <param name="type">权限类型</param>
+    /// <param name="description">描述</param>
+    /// <param name="icon">Icon</param>
+    public Permission(string group, string label, string path, int sort, string httpMethods, PermissionType type,string description,string icon)
     {
         Group = group;
         Label = label;
         CreateCode(path);
-        Type = PermissionType.Dot;
+        Type = type;
         CreatePath(path);
         Sort = sort;
-        Description = "自动添加";
+        Description = description;
         HttpMethods = httpMethods;
+        Icon = icon;
     }
 
     /// <summary>
@@ -136,7 +140,7 @@ public class Permission : BaseAuditableEntity
     /// <summary>
     /// 添加菜单
     /// </summary>
-    public Permission AddMenu(int superiorId, string menuName, string icon, bool hidden, bool enabled, bool external, int sort, string description) 
+    public Permission AddMenu(int superiorId, string menuName, string path, string icon, bool hidden, bool enabled, bool external, int sort, string description) 
     {
         this.SuperiorId = superiorId;
         this.Label = menuName;
@@ -147,6 +151,8 @@ public class Permission : BaseAuditableEntity
         this.Sort = sort;
         this.Description = description;
         this.Type = PermissionType.Menu;
+        CreatePath(path);
+        CreateCode(path);
         return this;
     }
 
@@ -158,6 +164,7 @@ public class Permission : BaseAuditableEntity
         this.SuperiorId = superiorId;
         this.Label = pageName;
         CreatePath(path);
+        CreateCode(path);
         this.Icon = icon;
         this.Hidden = hidden;
         this.Enabled = enabled;
@@ -183,11 +190,7 @@ public class Permission : BaseAuditableEntity
         Sort = sort;
         Description = description;
         HttpMethods = httpMethods;
-
-        if (path?.StartsWith("/") ?? false)
-            Code = path?.Replace("/", ":").Substring(1).ToLower();
-        else
-            Code = path?.Replace("/", ":").ToLower();
+        CreateCode(path);
 
         return this;
     }
@@ -200,6 +203,8 @@ public class Permission : BaseAuditableEntity
     public void CreateCode(string path) 
     {
         Code = path?.Replace("/", ":").ToLower() ?? "";
+        if (Code.StartsWith(":"))
+            Code = Code.Substring(1);
     }
 
     /// <summary>

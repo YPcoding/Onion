@@ -5,7 +5,9 @@ using Domain.Enums;
 using Infrastructure.Persistence;
 using Masuit.Tools;
 using Masuit.Tools.Systems;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using System;
 using System.Linq.Dynamic.Core;
 using static Application.Common.Helper.WebApiDocHelper;
 
@@ -57,20 +59,52 @@ public class ApplicationDbContextInitializer
     {
         List<ControllerInfo> controllers = GetWebApiControllersWithActions();
         var allPermissions = new List<Permission>();
+        var menuId = SnowFlake.GetInstance().GetLongId();
+        var menu = new Permission("系统管理", "系统管理", "/system", 0, "", PermissionType.Menu, "", "lollipop")
+        {
+            Id = menuId
+        };
         foreach (var controller in controllers)
         {
             int sort = 0;
+            var pageId = SnowFlake.GetInstance().GetLongId();
+            var pagePath = "";
+            var name = "";
+            if (controller.ControllerName == "User") 
+            {
+                pagePath = "/system/user/index";
+                name = "SystemUserPage";
+            }
+            if (controller.ControllerName == "Role")
+            {
+                pagePath = "/system/role/index";
+                name = "SystemRolePage";
+            }
+            if (controller.ControllerName == "Permission")
+            {
+                pagePath = "/system/permission/index";
+                name = "SystemPermissionPage";
+            }
+            var page = new Permission(controller.ControllerDescription, controller.ControllerDescription, pagePath, 0, "", PermissionType.Page, name, "")
+            {
+                Id = pageId,
+                SuperiorId = menuId
+            };
+            allPermissions.Add(page);
             foreach (var action in controller.Actions)
             {
                 var path = $"api/{controller.ControllerName}/{action.Route}";
-                var permission = new Permission(controller.ControllerDescription, action.Description, path, sort++, action.HttpMethods)
+                if (action.Description.IsNullOrEmpty()) continue;
+                var permission = new Permission(controller.ControllerDescription, action.Description, path, sort++, action.HttpMethods, PermissionType.Dot, "", "")
                 {
-                    Id = SnowFlake.GetInstance().GetLongId()
+                    Id = SnowFlake.GetInstance().GetLongId(),
+                    SuperiorId = pageId
                 };
                 allPermissions.Add(permission);
             }
             sort = 0;
         }
+        allPermissions.Add(menu);
         return allPermissions;
     }
 
