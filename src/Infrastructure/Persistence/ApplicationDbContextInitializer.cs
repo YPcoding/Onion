@@ -95,15 +95,15 @@ public class ApplicationDbContextInitializer
         }
 
         // 默认角色
-        var administratorRole = new Role("Admin", "系统管理员");
-        var userRole = new Role("User", "普通用户");
-        if (!await _context.Roles.AnyAsync(x => x.RoleName == "Admin"))
+        var administratorRole = new Role() { RoleName = "超级管理员", RoleCode = "Administrator", Description = "拥有系统所有权限", IsActive = true };
+        var userRole = new Role() { RoleName = "普通用户", RoleCode = "Common", Description = "拥有系统所有查询功能", IsActive = true };
+        if (!await _context.Roles.AnyAsync(x => x.RoleCode == "Administrator"))
         {
             _context.Roles.Add(administratorRole);
             await _context.SaveChangesAsync();
             _logger.LogInformation($"成功添加管理员角色数据");
         }
-        if (!await _context.Roles.AnyAsync(x => x.RoleName == "User"))
+        if (!await _context.Roles.AnyAsync(x => x.RoleCode == "Common"))
         {
             _context.Roles.Add(userRole);
             await _context.SaveChangesAsync();
@@ -111,9 +111,9 @@ public class ApplicationDbContextInitializer
         }
 
         // 默认用户角色
-        var administratorRoleId = (await _context.Roles.FirstOrDefaultAsync(x => x.RoleName == "Admin"))?.Id;
+        var administratorRoleId = (await _context.Roles.FirstOrDefaultAsync(x => x.RoleCode == "Administrator"))?.Id;
         var administratorId = (await _context.Users.FirstOrDefaultAsync(x => x.UserName == "admin"))?.Id;
-        var userRoleId = (await _context.Roles.FirstOrDefaultAsync(x => x.RoleName == "User"))?.Id;
+        var userRoleId = (await _context.Roles.FirstOrDefaultAsync(x => x.RoleCode == "Common"))?.Id;
         var userId = (await _context.Users.FirstOrDefaultAsync(x => x.UserName == "user"))?.Id;
         if (!await _context.UserRoles.AnyAsync(x => x.UserId == administratorId && x.RoleId == administratorRoleId))
         {

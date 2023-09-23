@@ -18,15 +18,19 @@ public class AddRoleCommand : ICacheInvalidatorRequest<Result<long>>
     /// </summary>
     [Required(ErrorMessage = "角色名称必填")]
     public string RoleName { get; set; }
+
+    /// <summary>
+    /// 角色标识
+    /// </summary>
+    [Required(ErrorMessage = "角色标识必填")]
+    public string RoleCode { get; set; }
+
     /// <summary>
     /// 角色描述
     /// </summary>
     [Required(ErrorMessage = "角色描述必填")]
     public string Description { get; set; }
-    /// <summary>
-    /// 赋予角色的权限唯一标识
-    /// </summary>
-    public List<long>? PermissionIds { get; set; }
+
     [JsonIgnore]
     public string CacheKey => RoleCacheKey.GetAllCacheKey;
     [JsonIgnore]
@@ -58,14 +62,6 @@ public class AddRoleCommandHandler : IRequestHandler<AddRoleCommand, Result<long
     public async Task<Result<long>> Handle(AddRoleCommand request, CancellationToken cancellationToken)
     {
         var role = _mapper.Map<Role>(request);
-        request?.PermissionIds?.Distinct()?.ForEach(permissionId =>
-        {
-            role.RolePermissions.Add(new RolePermission
-            {
-                Id = SnowFlake.GetInstance().GetLongId(),
-                PermissionId = permissionId
-            });
-        });
         role.AddDomainEvent(new CreatedEvent<Role>(role));
         await _context.Roles.AddAsync(role);
         var isSuccess = await _context.SaveChangesAsync(cancellationToken) > 0;

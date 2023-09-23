@@ -11,7 +11,17 @@ public class RoleAdvancedFilter : PaginationFilter
     public string? RoleName { get; set; }
 
     /// <summary>
+    /// 角色标识
+    /// </summary>
+    public string? RoleCode { get; set; }
+
+    /// <summary>
     /// 角色描述
     /// </summary>
     public string? Description { get; set; }
+
+    /// <summary>
+    /// 是否激活
+    /// </summary>
+    public bool? IsActive { get; set; }
 }

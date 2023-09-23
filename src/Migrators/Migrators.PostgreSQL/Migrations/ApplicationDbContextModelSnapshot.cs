@@ -60,7 +60,7 @@ namespace Migrators.PostgreSQL.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AuditTrails");
+                    b.ToTable("AuditTrails", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Identity.User", b =>
@@ -156,7 +156,7 @@ namespace Migrators.PostgreSQL.Migrations
 
                     b.HasIndex("SuperiorId");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Logger.Logger", b =>
@@ -200,7 +200,7 @@ namespace Migrators.PostgreSQL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Loggers");
+                    b.ToTable("Loggers", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Permission", b =>
@@ -275,7 +275,7 @@ namespace Migrators.PostgreSQL.Migrations
 
                     b.HasIndex("SuperiorId");
 
-                    b.ToTable("Permissions");
+                    b.ToTable("Permissions", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Role", b =>
@@ -296,10 +296,17 @@ namespace Migrators.PostgreSQL.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
                     b.Property<DateTime?>("LastModified")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("RoleCode")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("RoleName")
@@ -308,7 +315,7 @@ namespace Migrators.PostgreSQL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles");
+                    b.ToTable("Roles", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.RolePermission", b =>
@@ -331,7 +338,7 @@ namespace Migrators.PostgreSQL.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("RolePermissions");
+                    b.ToTable("RolePermissions", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.UserRole", b =>
@@ -354,7 +361,7 @@ namespace Migrators.PostgreSQL.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserRoles");
+                    b.ToTable("UserRoles", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Audit.AuditTrail", b =>

@@ -123,7 +123,7 @@ public class GetLoginerPermissionRouterQueryHandler :
                     Meta = new Meta
                     {
                         Title = "menus.permissionPage",
-                        Roles = new[] { "admin", "common" } //角色
+                        Roles = new[] { "administrator", "common" } //角色
                     }
                 },
                 new PermissionRouterDto
@@ -133,7 +133,7 @@ public class GetLoginerPermissionRouterQueryHandler :
                     Meta = new Meta
                     {
                         Title = "menus.permissionPage",
-                        Roles = new[] { "admin", "common" },
+                        Roles = new[] { "administrator", "common" },
                         Auths= new[] { "btn_add", "btn_edit","btn_delete" }, //权限点
                     }
                 },
@@ -144,7 +144,7 @@ public class GetLoginerPermissionRouterQueryHandler :
                     Meta = new Meta
                     {
                         Title = "用户管理",
-                        Roles = new[] { "admin", "common" },
+                        Roles = new[] { "administrator", "common" },
                         Auths= new[] { "btn_add", "btn_edit","btn_delete" }, //权限点
                     }
                 }
@@ -169,7 +169,7 @@ public class GetLoginerPermissionRouterQueryHandler :
                     Meta = new Meta
                     {
                         Title = "用户管理",
-                        Roles = new[] { "admin", "common" } //角色
+                        Roles = new[] { "administrator", "common" } //角色
                     }
                 },
                 new PermissionRouterDto
@@ -179,7 +179,7 @@ public class GetLoginerPermissionRouterQueryHandler :
                     Meta = new Meta
                     {
                         Title = "角色管理",
-                        Roles = new[] { "admin", "common" } //角色
+                        Roles = new[] { "administrator", "common" } //角色
                     }
                 }
              }

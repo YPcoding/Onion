@@ -64,7 +64,7 @@ public class LoginByUserNameAndPasswordCommandHandler : IRequestHandler<LoginByU
         var result = new LoginResultDto
         {
             Username = request.UserName,
-            Roles = roles?.Select(s => s.RoleName.ToLower())?.ToArray() ?? Array.Empty<string>(),
+            Roles = roles?.Select(s => s.RoleCode.ToLower())?.ToArray() ?? Array.Empty<string>(),
             AccessToken = token,
             RefreshToken = token,
             Expires = DateTime.Now.AddSeconds(_optJwtSettings.Value.ExpireSeconds).ToString("yyyy/MM/dd HH:mm:ss")

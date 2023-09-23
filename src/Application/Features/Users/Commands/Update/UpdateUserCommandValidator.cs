@@ -90,7 +90,7 @@ public class UpdateUserCommandValidator : AbstractValidator<UpdateUserCommand>
     /// <returns>返回布尔值</returns>
     private async Task<bool> BeExistRoles(List<long>? roleIds, CancellationToken cancellationToken)
     {
-        if (roleIds != null && roleIds.Count > 0)
+        if (roleIds!.Any())
         {
             roleIds = roleIds.Distinct().ToList();
             var roles = await _context.Roles.Where(x => roleIds.Contains(x.Id)).ToListAsync(cancellationToken);
@@ -108,7 +108,11 @@ public class UpdateUserCommandValidator : AbstractValidator<UpdateUserCommand>
     /// <returns>返回布尔值</returns>
     private async Task<bool> BeExistSuperiorId(long? superiorId, CancellationToken cancellationToken)
     {
-        return await _context.Users.Where(x => x.Id == superiorId).AnyAsync(cancellationToken);
+        if (superiorId.HasValue)
+        {
+            return await _context.Users.Where(x => x.Id == superiorId).AnyAsync(cancellationToken);
+        }
+        return true;
     }
 
     /// <summary>

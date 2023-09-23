@@ -30,6 +30,16 @@ public class RoleDto
     public string RoleName { get; set; }
 
     /// <summary>
+    /// 角色编码
+    /// </summary>
+    public string RoleCode { get; set; }
+
+    /// <summary>
+    /// 是否激活
+    /// </summary>
+    public bool IsActive { get; set; }
+
+    /// <summary>
     /// 角色描述
     /// </summary>
     public string Description { get; set; }

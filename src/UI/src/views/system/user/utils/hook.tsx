@@ -228,10 +228,10 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
           size={scope.props.size === "small" ? "small" : "default"}
           loading={switchLoadMap.value[scope.index]?.loading}
           v-model={scope.row.lockoutEnabled}
-          active-value={true}
-          inactive-value={false}
-          active-text="已锁定"
-          inactive-text="未锁定"
+          active-value={false}
+          inactive-value={true}
+          active-text="未锁定"
+          inactive-text="已锁定"
           inline-prompt
           style={switchStyle.value}
         />
@@ -302,6 +302,13 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
   function handleCurrentChange(val: number) {
     form.pageNumber = val;
     onSearch();
+  }
+
+  /** 当CheckBox选择项发生变化时会触发该事件 */
+  function handleSelectionChange(val) {
+    selectedNum.value = val.length;
+    // 重置表格高度
+    tableRef.value.setAdaptive();
   }
 
   async function openDialog(title = "新增", row?: FormItemProps) {
@@ -386,12 +393,6 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
       }
     }
     return tree;
-  }
-  /** 当CheckBox选择项发生变化时会触发该事件 */
-  function handleSelectionChange(val) {
-    selectedNum.value = val.length;
-    // 重置表格高度
-    tableRef.value.setAdaptive();
   }
 
   /** 取消选择 */

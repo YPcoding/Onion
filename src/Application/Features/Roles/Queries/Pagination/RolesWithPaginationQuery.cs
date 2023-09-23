@@ -11,7 +11,8 @@ public class RolesWithPaginationQuery : RoleAdvancedFilter, ICacheableRequest<Re
 {
     public override string ToString()
     {
-        return $"Search:{Keyword}, {OrderBy}, {SortDirection}, {PageNumber}, {PageSize}";
+        return $"Search:{Keyword},RoleName:{RoleName},RoleCode:{RoleCode},IsActive:{IsActive} {OrderBy}, {SortDirection}, {PageNumber}, {PageSize}";
+
     }
 
     [JsonIgnore]

@@ -7,8 +7,8 @@ export function usePublicHooks() {
 
   const switchStyle = computed(() => {
     return {
-      "--el-switch-on-color": "#e84749",
-      "--el-switch-off-color": "#6abe39"
+      "--el-switch-on-color": "#6abe39",
+      "--el-switch-off-color": "#e84749"
     };
   });
 

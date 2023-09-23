@@ -77,6 +77,8 @@ namespace Migrators.PostgreSQL.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false),
                     RoleName = table.Column<string>(type: "text", nullable: false),
+                    RoleCode = table.Column<string>(type: "text", nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     Description = table.Column<string>(type: "text", nullable: false),
                     ConcurrencyStamp = table.Column<string>(type: "text", nullable: true),
                     Created = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
