@@ -19,7 +19,13 @@ public class UpdateUserCommandValidator : AbstractValidator<UpdateUserCommand>
         //     .Must(BeValidProfilePictureDataUrl!).WithMessage($"链接格式错误");
 
         RuleFor(v => v.RoleIds)
-             .MustAsync(BeExistRoles).WithMessage($"角色不存在"); ;
+             .MustAsync(BeExistRoles).WithMessage($"角色不存在");
+
+        RuleFor(v => v.SuperiorId)
+             .MustAsync(BeExistSuperiorId).WithMessage($"上级不存在");
+
+        RuleFor(v=>v.SuperiorId)
+            .MustAsync(BeValidSuperiorIdWithUserId).WithMessage($"上级不能是自己本身");
     }
 
     /// <summary>
@@ -44,7 +50,7 @@ public class UpdateUserCommandValidator : AbstractValidator<UpdateUserCommand>
     /// 校验手机号码
     /// </summary>
     /// <param name="phoneNumber">手机号码</param>
-    /// <returns></returns>
+    /// <returns>返回布尔值</returns>
     private bool BeValidPhoneNumber(string phoneNumber)
     {
         if (phoneNumber.IsNullOrEmpty())
@@ -81,7 +87,7 @@ public class UpdateUserCommandValidator : AbstractValidator<UpdateUserCommand>
     /// </summary>
     /// <param name="roleIds">角色唯一标识</param>
     /// <param name="cancellationToken">取消标记</param>
-    /// <returns></returns>
+    /// <returns>返回布尔值</returns>
     private async Task<bool> BeExistRoles(List<long>? roleIds, CancellationToken cancellationToken)
     {
         if (roleIds != null && roleIds.Count > 0)
@@ -92,5 +98,31 @@ public class UpdateUserCommandValidator : AbstractValidator<UpdateUserCommand>
         }
 
         return true;
+    }
+
+    /// <summary>
+    /// 上级唯一标识是否存在
+    /// </summary>
+    /// <param name="superiorId">上级唯一标识</param>
+    /// <param name="cancellationToken">取消标记</param>
+    /// <returns>返回布尔值</returns>
+    private async Task<bool> BeExistSuperiorId(long? superiorId, CancellationToken cancellationToken)
+    {
+        return await _context.Users.Where(x => x.Id == superiorId).AnyAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// 校验用户唯一标识与上级唯一标识是否一至
+    /// </summary>
+    /// <param name="command">修改参数</param>
+    /// <param name="superiorId">上级唯一标识</param>
+    /// <param name="cancellationToken">取消标记</param>
+    /// <returns>返回布尔值</returns>
+    private async Task<bool> BeValidSuperiorIdWithUserId(UpdateUserCommand command, long? superiorId, CancellationToken cancellationToken)
+    {
+        return await Task.Run(() => 
+        {
+            return command.UserId != superiorId;
+        });
     }
 }

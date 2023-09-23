@@ -13,6 +13,11 @@ public static class RoleCacheKey
         return $"GetRoleById,{id}";
     }
 
+    public static string GetByUserIdCacheKey(long id)
+    {
+        return $"GetRoleByUserId,{id}";
+    }
+
     static RoleCacheKey()
     {
         _tokenSource = new CancellationTokenSource(RefreshInterval);

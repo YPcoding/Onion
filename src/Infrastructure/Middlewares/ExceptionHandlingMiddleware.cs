@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using FluentValidation;
+using System.Text.Json;
 
 namespace Infrastructure.Middlewares;
 
@@ -46,12 +47,28 @@ internal class ExceptionHandlingMiddleware : IMiddleware
                 case KeyNotFoundException:
                     response.StatusCode = (int)HttpStatusCode.NotFound;
                     break;
+                case ValidationException:
+                    if (exception.Message is not null)
+                    {
+                        var validationException = (ValidationException)exception;
+                        var errors = validationException.Errors
+                            .Select(s => s.ErrorMessage).ToArray();
+
+                        if (!errors.Any())
+                        {
+                            errors = new string[] { exception.Message };
+                        }
+
+                        responseModel = await Result.FailureAsync(errors);
+                    }
+                    response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    break;
 
                 default:
                     response.StatusCode = (int)HttpStatusCode.InternalServerError;
                     break;
             }
-            _logger.LogError(exception, $"{exception}. Request failed with Status Code {response.StatusCode}");
+            _logger.LogError(exception, $"{exception.Message}. 请求失败，状态代码为：{response.StatusCode}");
             JsonSerializerOptions options = new(JsonSerializerDefaults.Web)
             {
                 WriteIndented = true

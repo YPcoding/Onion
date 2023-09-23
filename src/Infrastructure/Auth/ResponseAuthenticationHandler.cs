@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+using System.Text.Json;
 using System.Text.Encodings.Web;
 
 namespace Infrastructure.Auth;
@@ -29,36 +28,25 @@ public class ResponseAuthenticationHandler : AuthenticationHandler<Authenticatio
     {
         Response.ContentType = "application/json";
         Response.StatusCode = StatusCodes.Status401Unauthorized;
-        await Response.WriteAsync(JsonConvert.SerializeObject(
-            new 
-            {
-                code = StatusCodes.Status401Unauthorized,
-                succeeded = false,
-                errors = new string[] { "未授权" },
-                errorMessage = "未授权"
-            },
-            new JsonSerializerSettings()
-            {
-                ContractResolver = new CamelCasePropertyNamesContractResolver()
-            }));
+        JsonSerializerOptions options = new(JsonSerializerDefaults.Web)
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            WriteIndented = true
+        };
+        var responseModel = await Result.FailureAsync(new string[] { "未授权" });
+        await Response.WriteAsync(JsonSerializer.Serialize(responseModel, options));
     }
 
     protected override async Task HandleForbiddenAsync(AuthenticationProperties properties)
     {
         Response.ContentType = "application/json";
         Response.StatusCode = StatusCodes.Status403Forbidden;
-        await Response.WriteAsync(JsonConvert.SerializeObject(
-            new
-            {
-                code = StatusCodes.Status403Forbidden,
-                succeeded = false,
-                errors = new string[] { "禁止访问" },
-                errorMessage = "禁止访问"
-            },
-            new JsonSerializerSettings()
-            {
-                ContractResolver = new CamelCasePropertyNamesContractResolver()
-            }
-        ));
+        JsonSerializerOptions options = new(JsonSerializerDefaults.Web)
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            WriteIndented = true
+        };
+        var responseModel = await Result.FailureAsync(new string[] { "禁止访问" });
+        await Response.WriteAsync(JsonSerializer.Serialize(responseModel, options));
     }
 }

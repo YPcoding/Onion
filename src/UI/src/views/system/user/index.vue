@@ -36,10 +36,12 @@ const {
   handleUpdate,
   handleDelete,
   handleUpload,
+  handleReset,
   handleSizeChange,
   onSelectionCancel,
   handleCurrentChange,
-  handleSelectionChange
+  handleSelectionChange,
+  handleRole
 } = useUser(tableRef, treeRef);
 </script>
 <template>
@@ -217,6 +219,7 @@ const {
                         type="primary"
                         :size="size"
                         :icon="useRenderIcon(Password)"
+                        @click="handleReset(row)"
                       >
                         重置密码
                       </el-button>
@@ -228,6 +231,7 @@ const {
                         type="primary"
                         :size="size"
                         :icon="useRenderIcon(Role)"
+                        @click="handleRole(row)"
                       >
                         分配角色
                       </el-button>

@@ -22,9 +22,15 @@ public class GetRoleQuery : ICacheableRequest<Result<RoleDto>>
     public MemoryCacheEntryOptions? Options => RoleCacheKey.MemoryCacheEntryOptions;
 }
 
+public class GetAllRoleQueryByUserId : IRequest<Result<IEnumerable<RoleDto>>>
+{
+    public required long UserId { get; set; }
+}
+
 public class GetAllRolesQueryHandler :
     IRequestHandler<GetAllRolesQuery, Result<IEnumerable<RoleDto>>>,
-    IRequestHandler<GetRoleQuery, Result<RoleDto>>
+    IRequestHandler<GetRoleQuery, Result<RoleDto>>,
+    IRequestHandler<GetAllRoleQueryByUserId, Result<IEnumerable<RoleDto>>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
@@ -52,5 +58,13 @@ public class GetAllRolesQueryHandler :
             .ProjectTo<RoleDto>(_mapper.ConfigurationProvider)
             .FirstOrDefaultAsync(cancellationToken) ?? throw new NotFoundException($"角色唯一标识: {request.RoleId} 未找到。");
         return await Result<RoleDto>.SuccessAsync(data);
+    }
+
+    public async Task<Result<IEnumerable<RoleDto>>> Handle(GetAllRoleQueryByUserId request, CancellationToken cancellationToken)
+    {
+        var data = await _context.Roles.Where(ur => ur.UserRoles.Any(u => u.UserId == request.UserId))
+            .ProjectTo<RoleDto>(_mapper.ConfigurationProvider)
+            .ToListAsync(cancellationToken);
+        return await Result<IEnumerable<RoleDto>>.SuccessAsync(data);
     }
 }

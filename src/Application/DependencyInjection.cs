@@ -1,4 +1,5 @@
 ﻿using Application.Common.Behaviours;
+using Application.Common.ExceptionHandlers;
 using Application.Common.PublishStrategies;
 using MediatR.Pipeline;
 using System.Reflection;

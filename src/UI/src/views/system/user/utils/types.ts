@@ -21,11 +21,10 @@ interface FormProps {
 }
 
 interface RoleFormItemProps {
-  username: string;
-  /** 角色列表 */
+  userId: string;
+  userName: string;
   roleOptions: any[];
-  /** 选中的角色列表 */
-  roleids: Record<number, unknown>[];
+  roleIds: Record<number, unknown>[];
 }
 interface RoleFormProps {
   formInline: RoleFormItemProps;

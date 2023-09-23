@@ -1,16 +1,13 @@
 ﻿using Application.Features.Users.Caching;
-using Domain.Entities;
-using Masuit.Tools;
-using Masuit.Tools.Systems;
 using System.ComponentModel.DataAnnotations;
 
 namespace Application.Features.Users.Commands.Update;
 
 /// <summary>
-/// 修改用户
+/// 重置密码
 /// </summary>
 [Map(typeof(User))]
-public class UpdateUserCommand : ICacheInvalidatorRequest<Result<long>>
+public class ResetPasswordCommand : ICacheInvalidatorRequest<Result<long>>
 {
     /// <summary>
     /// 唯一标识
@@ -19,30 +16,10 @@ public class UpdateUserCommand : ICacheInvalidatorRequest<Result<long>>
     public long UserId { get; set; }
 
     /// <summary>
-    /// 邮箱
+    /// 密码
     /// </summary>
-    public string? Email { get; set; }
-
-    /// <summary>
-    /// 是否激活
-    /// </summary>
-    [Required(ErrorMessage = "是否激活是必填的")]
-    public bool IsActive { get; set; }
-
-    /// <summary>
-    /// 手机号码
-    /// </summary>
-    public string? PhoneNumber { get; set; }
-
-    /// <summary>
-    /// 角色唯一标识
-    /// </summary>
-    public List<long>? RoleIds { get; set; }
-
-    /// <summary>
-    /// 上级节点
-    /// </summary>
-    public long? SuperiorId { get; set; }
+    [Required(ErrorMessage = "密码是必填的")]
+    public string Password { get; set; }
 
     /// <summary>
     /// 并发标记
@@ -63,12 +40,12 @@ public class UpdateUserCommand : ICacheInvalidatorRequest<Result<long>>
 /// <summary>
 /// 处理程序
 /// </summary>
-public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, Result<long>>
+public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand, Result<long>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
 
-    public UpdateUserCommandHandler(
+    public ResetPasswordCommandHandler(
         IApplicationDbContext context,
         IMapper mapper)
     {
@@ -83,28 +60,14 @@ public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, Resul
     /// <param name="cancellationToken">取消标记</param>
     /// <returns>返回处理结果</returns>
     /// <exception cref="NotFoundException">未找到的异常处理</exception>
-    public async Task<Result<long>> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
+    public async Task<Result<long>> Handle(ResetPasswordCommand request, CancellationToken cancellationToken)
     {
         var user = await _context.Users.SingleOrDefaultAsync(x => x.Id == request.UserId
             && x.ConcurrencyStamp == request.ConcurrencyStamp, cancellationToken)
             ?? throw new NotFoundException($"数据【{request.UserId}-{request.ConcurrencyStamp}】未找到");
 
-        var userRoles = await _context.UserRoles.Where(x => x.UserId == request.UserId).ToListAsync(cancellationToken);
-        if (userRoles.Any())
-        {
-            _context.UserRoles.RemoveRange(userRoles);
-        }
-
-        request?.RoleIds?.Distinct()?.ForEach(roleId =>
-        {
-            user.UserRoles.Add(new UserRole
-            {
-                Id = SnowFlake.GetInstance().GetLongId(),
-                RoleId = roleId
-            });
-        });
-
         user = _mapper.Map(request, user);
+        user.ChangePassword(request.Password);
         user.AddDomainEvent(new UpdatedEvent<User>(user));
         _context.Users.Update(user);
         var isSuccess = await _context.SaveChangesAsync(cancellationToken) > 0;

@@ -67,6 +67,13 @@ export const updateUserAvatar = (data?: object) => {
   });
 };
 
+/** 重置密码 */
+export const resetPassword = (data?: object) => {
+  return http.request<Result>("put", "/api/User/Reset/Password", {
+    data
+  });
+};
+
 /** 批量删除用户 */
 export const onbatchDeleteUser = (data?: object) => {
   return http.request<Result>("delete", "/api/User/Delete", {
@@ -79,7 +86,19 @@ export const getAllRole = () => {
   return http.request<ResultArray>("get", "/api/Role/Query/All");
 };
 
+/** 获取用户所有角色 */
+export const getAllRoleByUserId = (userId: number) => {
+  return http.request<ResultArray>("get", `/api/Role/Query/All/By/${userId}`);
+};
+
 /** 获取所有用户 */
 export const getAllUser = () => {
   return http.request<ResultArray>("get", "/api/User/Query/All");
+};
+
+/** 分配角色 */
+export const roleAssigning = (data?: object) => {
+  return http.request<Result>("put", "/api/Role/Assigning", {
+    data
+  });
 };

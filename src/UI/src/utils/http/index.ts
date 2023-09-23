@@ -11,6 +11,7 @@ import {
 } from "./types.d";
 import { stringify } from "qs";
 import NProgress from "../progress";
+import { message } from "@/utils/message";
 import { getToken, formatToken } from "@/utils/auth";
 import { useUserStoreHook } from "@/store/modules/user";
 
@@ -131,12 +132,15 @@ class PureHttp {
         // 优先判断post/get等方法是否传入回调，否则执行初始化设置等回调
         if (typeof $config.beforeResponseCallback === "function") {
           $config.beforeResponseCallback(response);
+          console.log("响应拦截111");
           return response.data;
         }
         if (PureHttp.initConfig.beforeResponseCallback) {
           PureHttp.initConfig.beforeResponseCallback(response);
+          console.log("响应拦截222");
           return response.data;
         }
+        console.log("响应拦截333");
         return response.data;
       },
       (error: PureHttpError) => {
@@ -145,6 +149,9 @@ class PureHttp {
         // 关闭进度条动画
         NProgress.done();
         // 所有的响应异常 区分来源为取消请求/非取消请求
+        message(error.response.data?.errorMessage, {
+          type: "error"
+        });
         return Promise.reject($error);
       }
     );

@@ -1,6 +1,4 @@
-﻿using Application.Features.Roles.DTOs;
-using Application.Features.Roles.Queries.GetAll;
-using Application.Features.Users.Commands.Add;
+﻿using Application.Features.Users.Commands.Add;
 using Application.Features.Users.Commands.Delete;
 using Application.Features.Users.Commands.Update;
 using Application.Features.Users.DTOs;
@@ -76,6 +74,16 @@ public class UserController : ApiControllerBase
     /// <returns></returns>
     [HttpPut("Update/Avatar")]
     public async Task<Result<long>> UpdateAvatar(UpdateUserAvatarCommand command)
+    {
+        return await Mediator.Send(command);
+    }
+
+    /// <summary>
+    /// 重置密码
+    /// </summary>
+    /// <returns></returns>
+    [HttpPut("Reset/Password")]
+    public async Task<Result<long>> ResetPassword(ResetPasswordCommand command)
     {
         return await Mediator.Send(command);
     }

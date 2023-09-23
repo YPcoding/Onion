@@ -6,7 +6,6 @@ using Application.Features.Roles.Queries.GetAll;
 using Application.Features.Roles.Queries.GetById;
 using Application.Features.Roles.Queries.Pagination;
 using Microsoft.AspNetCore.Mvc;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace WebAPI.Controllers;
 
@@ -43,9 +42,19 @@ public class RoleController : ApiControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpGet("Query/All")]
-    public async Task<Result<IEnumerable<RoleDto>>>  GetAllRolesQuery()
+    public async Task<Result<IEnumerable<RoleDto>>>  GetAllRoleQuery()
     {
         return await Mediator.Send(new GetAllRolesQuery());
+    }
+
+    /// <summary>
+    /// 获取用户角色
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("Query/All/By/{userId}")]
+    public async Task<Result<IEnumerable<RoleDto>>> GetAllRoleQueryByUserId(long userId)
+    {
+        return await Mediator.Send(new GetAllRoleQueryByUserId() { UserId = userId });
     }
 
     /// <summary>
@@ -66,6 +75,17 @@ public class RoleController : ApiControllerBase
     [HttpPut("Update")]
 
     public async Task<Result<long>> Update(UpdateRoleCommand command)
+    {
+        return await Mediator.Send(command);
+    }
+
+    /// <summary>
+    /// 分配角色
+    /// </summary>
+    /// <returns></returns>
+    [HttpPut("Assigning")]
+
+    public async Task<Result<bool>> Assigning(AssigningRoleCommand command)
     {
         return await Mediator.Send(command);
     }

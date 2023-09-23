@@ -5,10 +5,10 @@ import { RoleFormProps } from "../utils/types";
 
 const props = withDefaults(defineProps<RoleFormProps>(), {
   formInline: () => ({
-    username: "",
-    nickname: "",
+    userId: "",
+    userName: "",
     roleOptions: [],
-    ids: []
+    roleIds: []
   })
 });
 
@@ -18,20 +18,15 @@ const newFormInline = ref(props.formInline);
 <template>
   <el-form :model="newFormInline">
     <el-row :gutter="30">
-      <!-- <re-col>
-        <el-form-item label="用户名称" prop="username">
-          <el-input disabled v-model="newFormInline.username" />
-        </el-form-item>
-      </re-col> -->
       <re-col>
-        <el-form-item label="用户昵称" prop="nickname">
-          <el-input disabled v-model="newFormInline.nickname" />
+        <el-form-item label="用户名称" prop="userName">
+          <el-input disabled v-model="newFormInline.userName" />
         </el-form-item>
       </re-col>
       <re-col>
-        <el-form-item label="角色列表" prop="ids">
+        <el-form-item label="角色列表" prop="roleIds">
           <el-select
-            v-model="newFormInline.ids"
+            v-model="newFormInline.roleIds"
             placeholder="请选择"
             class="w-full"
             clearable
@@ -40,10 +35,10 @@ const newFormInline = ref(props.formInline);
             <el-option
               v-for="(item, index) in newFormInline.roleOptions"
               :key="index"
-              :value="item.id"
-              :label="item.name"
+              :value="item.roleId"
+              :label="item.roleName"
             >
-              {{ item.name }}
+              {{ item.roleName }}
             </el-option>
           </el-select>
         </el-form-item>
