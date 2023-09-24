@@ -2,11 +2,12 @@
 {
     public class PermissionRouterDto
     {
+        public long Id { get; set; }
         public string Path { get; set; }
         public string? Name { get; set; }
         public string? Component { get; set; }
         public Meta Meta { get; set; }
-        public PermissionRouterDto[]? Children { get; set; }
+        public List<PermissionRouterDto>? Children { get; set; }
     }
 
     public class Meta 

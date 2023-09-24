@@ -3,6 +3,7 @@ import { ref } from "vue";
 import { useUser } from "./utils/hook";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { PureTableBar } from "@/components/RePureTableBar";
+import { hasAuth, getAuths } from "@/router/utils";
 
 import Upload from "@iconify-icons/ri/upload-line";
 import Role from "@iconify-icons/ri/admin-line";
@@ -113,6 +114,7 @@ const {
             type="primary"
             :icon="useRenderIcon(AddFill)"
             @click="openDialog()"
+            v-if="hasAuth('api:user:add')"
           >
             新增用户
           </el-button>
@@ -136,7 +138,12 @@ const {
             </div>
             <el-popconfirm title="是否确认删除?" @confirm="onbatchDel">
               <template #reference>
-                <el-button type="danger" text class="mr-1">
+                <el-button
+                  type="danger"
+                  text
+                  class="mr-1"
+                  v-if="hasAuth('api:user:delete')"
+                >
                   批量删除
                 </el-button>
               </template>
@@ -170,6 +177,7 @@ const {
                 :size="size"
                 :icon="useRenderIcon(EditPen)"
                 @click="openDialog('编辑', row)"
+                v-if="hasAuth('api:user:update')"
               >
                 修改
               </el-button>
@@ -184,6 +192,7 @@ const {
                     type="primary"
                     :size="size"
                     :icon="useRenderIcon(Delete)"
+                    v-if="hasAuth('api:user:delete')"
                   >
                     删除
                   </el-button>
@@ -208,6 +217,7 @@ const {
                         :size="size"
                         :icon="useRenderIcon(Upload)"
                         @click="handleUpload(row)"
+                        v-if="hasAuth('api:user:update:avatar')"
                       >
                         上传头像
                       </el-button>
@@ -220,6 +230,7 @@ const {
                         :size="size"
                         :icon="useRenderIcon(Password)"
                         @click="handleReset(row)"
+                        v-if="hasAuth('api:user:reset:password')"
                       >
                         重置密码
                       </el-button>
@@ -232,6 +243,7 @@ const {
                         :size="size"
                         :icon="useRenderIcon(Role)"
                         @click="handleRole(row)"
+                        v-if="hasAuth('api:role:assigning')"
                       >
                         分配角色
                       </el-button>

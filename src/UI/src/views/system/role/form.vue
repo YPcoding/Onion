@@ -9,7 +9,8 @@ const props = withDefaults(defineProps<FormProps>(), {
     roleName: "",
     roleCode: "",
     description: "",
-    isActive: true
+    isActive: true,
+    concurrencyStamp: ""
   })
 });
 

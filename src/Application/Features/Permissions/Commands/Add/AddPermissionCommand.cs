@@ -128,9 +128,11 @@ public class AddPermissionCommandHandler : IRequestHandler<AddPermissionCommand,
         var permission = _mapper.Map<Permission>(request);
         permission.CreatePath(request.Path!);
         permission.CreateCode(request.Path!);
-        permission.AddDomainEvent(new CreatedEvent<Permission>(permission));     
+        permission.AddDomainEvent(new CreatedEvent<Permission>(permission));    
+        
         await _context.Permissions.AddAsync(permission);
         var isSuccess = await _context.SaveChangesAsync(cancellationToken) > 0;
+
         return await Result<long>.SuccessOrFailureAsync(permission.Id, isSuccess, new string[] { "操作失败" });
     }
 }

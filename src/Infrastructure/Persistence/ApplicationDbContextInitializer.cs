@@ -175,6 +175,30 @@ public class ApplicationDbContextInitializer
             }
             if (permissions.Any())
             {
+
+                permissions.ForEach(async permission=>{
+                    if (permission.Type ==PermissionType.Dot)
+                    {
+                        var superior = await _context.Permissions
+                          .Where(x => x.Group == permission.Group && x.Type == PermissionType.Page)
+                          .FirstOrDefaultAsync();
+                        if (superior != null) 
+                        {
+                            permission.SuperiorId = superior.Id;
+                        }
+                    }
+                    if (permission.Type == PermissionType.Page)
+                    {
+                        var superior = await _context.Permissions
+                          .Where(x => x.Group == permission.Group && x.Type == PermissionType.Menu)
+                          .FirstOrDefaultAsync();
+                        if (superior != null)
+                        {
+                            permission.SuperiorId = superior.Id;
+                        }
+                    }
+
+                });//避免报外键的错误
                 _context.Permissions.AddRange(permissions);
                 await _context.SaveChangesAsync();
                 _logger.LogInformation($"成功添加权限数据");
@@ -186,7 +210,7 @@ public class ApplicationDbContextInitializer
         var administratorRolePermissions = await _context.RolePermissions.Where(x => x.RoleId == administratorRoleId).ToListAsync();
         var userRolePermissions = await _context.RolePermissions.Where(x => x.RoleId == userRoleId).ToListAsync();
         var notHaveAdministratorPermissions = permissions.Where(x => !administratorRolePermissions.Select(x => x.PermissionId).Contains(x.Id)).ToList();
-        var notHaveUserPermissions = permissions.Where(x => !userRolePermissions.Select(x => x.PermissionId).Contains(x.Id) && x.HttpMethods == "GET").ToList();
+        var notHaveUserPermissions = permissions.Where(x => !userRolePermissions.Select(x => x.PermissionId).Contains(x.Id) && (x.HttpMethods == "GET" || x.Type == PermissionType.Page|| x.Type==PermissionType.Menu)).ToList();
         if (notHaveAdministratorPermissions.Any())
         {
             var items = new List<RolePermission>();
@@ -221,29 +245,5 @@ public class ApplicationDbContextInitializer
             await _context.SaveChangesAsync();
             _logger.LogInformation($"成功添加普通用户权限数据");
         }
-
-        //创建前端模拟权限数据
-        //if (!permissions.Any(x=>x.Path== "/permission"))
-        //{
-        //    var permissionMenu = new Permission()
-        //    {
-        //        Code = "permission",
-        //        Path = "/permission",
-        //        Description = "menus.permission",
-        //        Icon = "lollipop",
-        //        Sort = 10,
-        //        Type = PermissionType.Menu
-        //    };
-        //    await _context.Permissions.AddAsync(permissionMenu);
-        //    await _context.SaveChangesAsync();
-        //    permissions = new List<Permission>()
-        //    {
-        //        new Permission(){ Code ="/permission/page/index", SuperiorId = permissionMenu.Id, Path = "/permission/page/index", Label = "PermissionPage", Type=PermissionType.Page,Description="menus.permissionPage"},
-        //        new Permission(){ Code ="/permission/button/index", SuperiorId = permissionMenu.Id, Path = "/permission/button/index", Label = "PermissionButton", Type=PermissionType.Page,Description="menus.permissionPage"}
-        //    };
-        //    await _context.Permissions.AddRangeAsync(permissions);
-        //    await _context.SaveChangesAsync();
-        //    _logger.LogInformation($"成功创建前端模拟权限数据");
-        //}
     }
 }

@@ -46,6 +46,14 @@ export const getRoleList = (data?: object) => {
   });
 };
 
+/** 获取角色权限 */
+export const getRolePermissionsByRoleId = (roleId: number) => {
+  return http.request<ResultArray>(
+    "get",
+    `/api/Role/Query/Permission/By/${roleId}`
+  );
+};
+
 /** 新增角色 */
 export const addRole = (data?: object) => {
   return http.request<Result>("post", "/api/Role/Add", {

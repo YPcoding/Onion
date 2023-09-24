@@ -10,4 +10,14 @@ interface FormProps {
   formInline: FormItemProps;
 }
 
-export type { FormItemProps, FormProps };
+interface MenuFormItemProps {
+  roleId: number;
+  roleName: string;
+  permissionOptions: any[];
+  rolePermissionsData: Record<string, unknown>[];
+}
+interface MenuFormProps {
+  formInline: MenuFormItemProps;
+}
+
+export type { FormItemProps, FormProps, MenuFormItemProps, MenuFormProps };

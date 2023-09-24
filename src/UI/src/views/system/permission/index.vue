@@ -3,6 +3,7 @@ import { ref } from "vue";
 import { usePermission } from "./utils/hook";
 import { PureTableBar } from "@/components/RePureTableBar";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
+import { hasAuth, getAuths } from "@/router/utils";
 
 import Delete from "@iconify-icons/ep/delete";
 import EditPen from "@iconify-icons/ep/edit-pen";
@@ -79,6 +80,7 @@ const {
     >
       <template #buttons>
         <el-button
+          v-if="hasAuth('api:permission:add')"
           type="primary"
           :icon="useRenderIcon(AddFill)"
           @click="openDialog()"
@@ -108,6 +110,7 @@ const {
         >
           <template #operation="{ row }">
             <el-button
+              v-if="hasAuth('api:permission:update')"
               class="reset-margin"
               link
               type="primary"
@@ -118,11 +121,12 @@ const {
               编辑
             </el-button>
             <el-popconfirm
-              :title="`是否确认删除权限名称为${row.name}的这条数据`"
+              :title="`是否确认删除权限名称为${row.label}的这条数据,以及其下的所有子节点`"
               @confirm="handleDelete(row)"
             >
               <template #reference>
                 <el-button
+                  v-if="hasAuth('api:permission:delete')"
                   class="reset-margin"
                   link
                   type="primary"

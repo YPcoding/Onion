@@ -26,7 +26,8 @@ const props = withDefaults(defineProps<FormProps>(), {
     external: null,
     sort: 0,
     description: "",
-    group: ""
+    group: "",
+    concurrencyStamp: ""
   })
 });
 

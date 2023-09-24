@@ -4,6 +4,7 @@ using Application.Features.Roles.Commands.Update;
 using Application.Features.Roles.DTOs;
 using Application.Features.Roles.Queries.GetAll;
 using Application.Features.Roles.Queries.GetById;
+using Application.Features.Roles.Queries.GetPermissionById;
 using Application.Features.Roles.Queries.Pagination;
 using Microsoft.AspNetCore.Mvc;
 
@@ -34,7 +35,7 @@ public class RoleController : ApiControllerBase
 
     public async Task<Result<RoleDto>> GetByIdQuery(long roleId)
     {
-        return await Mediator.Send(new GetRoleByIdQuery { RoleId = roleId });
+        return await Mediator.Send(new GetRoleQueryById { RoleId = roleId });
     }
 
     /// <summary>
@@ -55,6 +56,17 @@ public class RoleController : ApiControllerBase
     public async Task<Result<IEnumerable<RoleDto>>> GetAllRoleQueryByUserId(long userId)
     {
         return await Mediator.Send(new GetAllRoleQueryByUserId() { UserId = userId });
+    }
+
+    //
+    /// <summary>
+    /// 获取角色权限
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("Query/Permission/By/{roleId}")]
+    public async Task<Result<IEnumerable<RolePermissionDto>>> GetRolePermissionQueryById(long roleId)
+    {
+        return await Mediator.Send(new GetRolePermissionQueryById() { RoleId = roleId });
     }
 
     /// <summary>

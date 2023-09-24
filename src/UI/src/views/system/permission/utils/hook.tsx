@@ -5,7 +5,8 @@ import { message } from "@/utils/message";
 import {
   getPermissionList,
   addPermission,
-  updatePermission
+  updatePermission,
+  deletePermission
 } from "@/api/system/permission";
 import { usePublicHooks } from "../../hooks";
 import { addDialog } from "@/components/ReDialog";
@@ -35,6 +36,22 @@ export function usePermission() {
       label: "唯一编码",
       prop: "code",
       minWidth: 300
+    },
+    {
+      label: "类型",
+      prop: "type",
+      minWidth: 100,
+      formatter: row => {
+        if (row.type === 10) {
+          return "菜单";
+        } else if (row.type === 20) {
+          return "页面";
+        } else if (row.type === 30) {
+          return "权限点";
+        } else {
+          return "";
+        }
+      }
     },
     {
       label: "描述",
@@ -189,8 +206,9 @@ export function usePermission() {
     });
   }
 
-  function handleDelete(row) {
-    message(`您删除了权限名称为${row.name}的这条数据`, { type: "success" });
+  async function handleDelete(row) {
+    await deletePermission({ permissionIds: [row.permissionId] });
+    message(`您删除了权限名称为${row.label}的这条数据`, { type: "success" });
     onSearch();
   }
 

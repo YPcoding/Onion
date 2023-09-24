@@ -1,6 +1,5 @@
 ﻿using Application.Features.Permissions.Caching;
 using Application.Features.Permissions.DTOs;
-using Domain.Entities;
 using Domain.Services;
 
 namespace Application.Features.Permissions.Queries.GetByUserId;
@@ -40,8 +39,8 @@ public class GetPermissionByUserIdQueryHandler :
 
     public async Task<Result<IEnumerable<PermissionDto>>> Handle(GetPermissionByUserIdQuery request, CancellationToken cancellationToken)
     {
-        var permissions =await _permissionService.GetPermissionsByUserIdAsync(request.UserId);
-        return await Result<IEnumerable<PermissionDto>>
-            .SuccessAsync(_mapper.Map(permissions, new List<PermissionDto>()));
+        var permissions = await _permissionService.GetPermissionsByUserIdAsync(request.UserId);
+        var permissionDtos = _mapper.Map<IEnumerable<PermissionDto>>(permissions);
+        return await Result<IEnumerable<PermissionDto>>.SuccessAsync(permissionDtos);
     }
 }

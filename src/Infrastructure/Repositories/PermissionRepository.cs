@@ -16,6 +16,37 @@ namespace Infrastructure.Repositories
         }
 
         /// <summary>
+        /// 通过条件获取所有权限
+        /// </summary>
+        /// <param name="condition"></param>
+        /// <returns>权限</returns>
+        public async Task<List<Permission>> GetAllAsync(Expression<Func<Permission, bool>>? condition, CancellationToken cancellationToken = default)
+        {
+            IQueryable<Permission> query = _dbContext.Permissions;
+
+            if (condition != null)
+            {
+                query = query.Where(condition);
+            }
+
+            return await query.ToListAsync();
+        }
+
+        /// <summary>
+        /// 通过角色唯一标识获取角色权限
+        /// </summary>
+        /// <param name="roleId"></param>
+        /// <returns>角色权限</returns>
+        public async Task<List<Permission>> GetPermissionsByRoleIdAsync(long roleId)
+        {
+            var rolePermissions = await _dbContext.Permissions
+                .Where(p => p.RolePermissions.Any(rp => rp.Role.UserRoles.Any(ur => ur.RoleId == roleId)))
+                .ToListAsync() ?? new List<Permission>();
+
+            return rolePermissions;
+        }
+
+        /// <summary>
         /// 通过用户唯一标识获取用户权限
         /// </summary>
         /// <param name="userId">用户唯一标识</param>

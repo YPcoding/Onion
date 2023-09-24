@@ -1,19 +1,20 @@
 import dayjs from "dayjs";
 import editForm from "../form.vue";
+import menuForm from "../menu.vue";
 import { message } from "@/utils/message";
 import {
   getRoleList,
   addRole,
   updateRole,
-  onbatchDeleteRole
+  onbatchDeleteRole,
+  getRolePermissionsByRoleId
 } from "@/api/system/role";
 import { ElMessageBox } from "element-plus";
 import { usePublicHooks } from "../../hooks";
 import { addDialog } from "@/components/ReDialog";
-import { type FormItemProps } from "../utils/types";
+import { type FormItemProps, type MenuFormItemProps } from "../utils/types";
 import { type PaginationProps } from "@pureadmin/table";
 import { reactive, ref, onMounted, h, toRaw, type Ref } from "vue";
-import { bool } from "vue-types";
 
 export function useRole(tableRef: Ref) {
   const form = reactive({
@@ -38,6 +39,7 @@ export function useRole(tableRef: Ref) {
     currentPage: 1,
     background: true
   });
+  const treeData = ref();
   const columns: TableColumnList = [
     {
       label: "角色编号",
@@ -99,15 +101,6 @@ export function useRole(tableRef: Ref) {
       slot: "operation"
     }
   ];
-  // const buttonClass = computed(() => {
-  //   return [
-  //     "!h-[20px]",
-  //     "reset-margin",
-  //     "!text-gray-500",
-  //     "dark:!text-white",
-  //     "dark:hover:!text-primary"
-  //   ];
-  // });
 
   function onChange({ row, index }) {
     ElMessageBox.confirm(
@@ -237,9 +230,31 @@ export function useRole(tableRef: Ref) {
     });
   }
 
-  /** 菜单权限 */
-  function handleMenu() {
-    message("等菜单管理页面开发后完善");
+  async function openMenuDialog(title = "菜单权限", row?: MenuFormItemProps) {
+    const rolePermissions = (await getRolePermissionsByRoleId(row?.roleId))
+      .data;
+    console.log(rolePermissions);
+    addDialog({
+      title: `为${row?.roleName}分配${title}`,
+      props: {
+        formInline: {
+          roleId: row?.roleId ?? "",
+          roleName: row?.roleName ?? "",
+          permissionOptions: [],
+          rolePermissionsData: rolePermissions
+        }
+      },
+      width: "40%",
+      draggable: true,
+      fullscreenIcon: true,
+      closeOnClickModal: false,
+      contentRenderer: () => h(menuForm, { ref: formRef }),
+      beforeSure: (done, { options }) => {
+        function chores() {
+          done(); // 关闭弹框
+        }
+      }
+    });
   }
 
   /** 数据权限 可自行开发 */
@@ -255,14 +270,12 @@ export function useRole(tableRef: Ref) {
     columns,
     dataList,
     pagination,
-    // buttonClass,
     selectedNum,
     onSearch,
     resetForm,
     openDialog,
-    handleMenu,
+    openMenuDialog,
     handleDelete,
-    // handleDatabase,
     handleSizeChange,
     handleCurrentChange,
     handleSelectionChange

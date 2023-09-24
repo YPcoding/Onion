@@ -101,9 +101,9 @@ namespace WebAPI.Controllers
 
         public async Task<Result<List<PermissionRouterDto>>> GetLoginerPermissionRouter()
         {
-            return await Mediator.Send(new GetLoginerPermissionRouterQuery() 
-            { 
-                UserId = _currentUserService.CurrentUserId 
+            return await Mediator.Send(new GetLoginerPermissionRouterQuery()
+            {
+                UserId = _currentUserService.CurrentUserId
             });
         }
     }

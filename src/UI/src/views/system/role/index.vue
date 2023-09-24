@@ -21,17 +21,15 @@ const {
   columns,
   dataList,
   pagination,
-  // buttonClass,
   onSearch,
   resetForm,
   openDialog,
-  handleMenu,
+  openMenuDialog,
   handleDelete,
-  // handleDatabase,
   handleSizeChange,
   handleCurrentChange,
   handleSelectionChange
-} = useRole();
+} = useRole(formRef);
 </script>
 
 <template>
@@ -131,7 +129,7 @@ const {
               type="primary"
               :size="size"
               :icon="useRenderIcon(Menu)"
-              @click="handleMenu"
+              @click="openMenuDialog('CAI', row)"
             >
               菜单权限
             </el-button>
@@ -151,43 +149,6 @@ const {
                 </el-button>
               </template>
             </el-popconfirm>
-            <!-- <el-dropdown>
-              <el-button
-                class="ml-3 mt-[2px]"
-                link
-                type="primary"
-                :size="size"
-                :icon="useRenderIcon(More)"
-              />
-              <template #dropdown>
-                <el-dropdown-menu>
-                  <el-dropdown-item>
-                    <el-button
-                      :class="buttonClass"
-                      link
-                      type="primary"
-                      :size="size"
-                      :icon="useRenderIcon(Menu)"
-                      @click="handleMenu"
-                    >
-                      菜单权限
-                    </el-button>
-                  </el-dropdown-item>
-                  <el-dropdown-item>
-                    <el-button
-                      :class="buttonClass"
-                      link
-                      type="primary"
-                      :size="size"
-                      :icon="useRenderIcon(Database)"
-                      @click="handleDatabase"
-                    >
-                      数据权限
-                    </el-button>
-                  </el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown> -->
           </template>
         </pure-table>
       </template>

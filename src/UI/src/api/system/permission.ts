@@ -57,3 +57,10 @@ export const updatePermission = (data?: object) => {
     data
   });
 };
+
+/** 删除权限 */
+export const deletePermission = (data?: object) => {
+  return http.request<Result>("delete", "/api/Permission/Delete", {
+    data
+  });
+};

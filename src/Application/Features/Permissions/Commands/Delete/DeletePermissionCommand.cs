@@ -50,13 +50,17 @@ public class DeletePermissionCommandHandler : IRequestHandler<DeletePermissionCo
     /// <returns>返回处理结果</returns>
     public async Task<Result<bool>> Handle(DeletePermissionCommand request, CancellationToken cancellationToken)
     {
-        var permission = await _context.Permissions.Where(x => request.PermissionIds.Contains(x.Id)).ToListAsync();
-        if (permission?.Any() ?? false)
+        var permissionsToDelete = await _context.Permissions
+            .Where(x => request.PermissionIds.Contains(x.Id) || request.PermissionIds.Contains((long)x.SuperiorId!))
+            .ToListAsync();
+
+        if (permissionsToDelete.Any())
         {
-            _context.Permissions.RemoveRange(permission);
+            _context.Permissions.RemoveRange(permissionsToDelete);
+            var isSuccess = await _context.SaveChangesAsync(cancellationToken) > 0;
+            return await Result<bool>.FailureAsync(new string[] { "操作失败" });
         }
 
-        var isSuccess = await _context.SaveChangesAsync(cancellationToken) > 0;
-        return await Result<bool>.SuccessOrFailureAsync(isSuccess, isSuccess, new string[] { "操作失败" });
+        return await Result<bool>.FailureAsync(new string[] { "没有找到需要删除的权限" });
     }
 }

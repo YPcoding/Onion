@@ -132,15 +132,12 @@ class PureHttp {
         // 优先判断post/get等方法是否传入回调，否则执行初始化设置等回调
         if (typeof $config.beforeResponseCallback === "function") {
           $config.beforeResponseCallback(response);
-          console.log("响应拦截111");
           return response.data;
         }
         if (PureHttp.initConfig.beforeResponseCallback) {
           PureHttp.initConfig.beforeResponseCallback(response);
-          console.log("响应拦截222");
           return response.data;
         }
-        console.log("响应拦截333");
         return response.data;
       },
       (error: PureHttpError) => {
@@ -149,6 +146,7 @@ class PureHttp {
         // 关闭进度条动画
         NProgress.done();
         // 所有的响应异常 区分来源为取消请求/非取消请求
+        console.log(error.response);
         message(error.response.data?.errorMessage, {
           type: "error"
         });

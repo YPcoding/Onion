@@ -10,7 +10,7 @@ namespace Application.Features.Roles.Queries.GetById;
 /// <summary>
 /// 通过角色唯一标识获取一条数据
 /// </summary>
-public class GetRoleByIdQuery : ICacheableRequest<Result<RoleDto>>
+public class GetRoleQueryById : ICacheableRequest<Result<RoleDto>>
 {
     /// <summary>
     /// 唯一标识
@@ -26,7 +26,7 @@ public class GetRoleByIdQuery : ICacheableRequest<Result<RoleDto>>
 /// <summary>
 /// 处理程序
 /// </summary>
-public class GetRoleByIdQueryHandler : IRequestHandler<GetRoleByIdQuery, Result<RoleDto>>
+public class GetRoleByIdQueryHandler : IRequestHandler<GetRoleQueryById, Result<RoleDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
@@ -47,7 +47,7 @@ public class GetRoleByIdQueryHandler : IRequestHandler<GetRoleByIdQuery, Result<
     /// <param name="cancellationToken">取消标记</param>
     /// <returns>返回一条查询的角色数据</returns>
     /// <exception cref="NotFoundException">未找到数据移除处理</exception>
-    public async Task<Result<RoleDto>> Handle(GetRoleByIdQuery request, CancellationToken cancellationToken)
+    public async Task<Result<RoleDto>> Handle(GetRoleQueryById request, CancellationToken cancellationToken)
     {
         var role = await _context.Roles.ApplySpecification(new RoleByIdSpec(request.RoleId))
                      .ProjectTo<RoleDto>(_mapper.ConfigurationProvider)
