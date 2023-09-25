@@ -1,5 +1,7 @@
 using Domain.Entities;
+using Domain.Enums;
 using Domain.Services;
+using Masuit.Tools;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -36,7 +38,7 @@ public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRe
     /// <param name="cancellationToken">取消标记</param>
     /// <returns>进入下一管道</returns>
     /// <exception cref="ForbiddenAccessException">未授权时的异常处理</exception>
-    public async Task<TResponse> Handle(TRequest request,  RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         var httpContext = _httpContextAccessor.HttpContext;
         var routeData = httpContext?.GetRouteData();
@@ -49,26 +51,19 @@ public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRe
             var actionInfo = controllerType.GetMethods()
                 .FirstOrDefault(m => m.Name == actionName);
 
-            //检测是否可以匿名访问
             if (actionInfo != null && actionInfo.GetCustomAttributes(typeof(AllowAnonymousAttribute), true).Any())
             {
                 return await next().ConfigureAwait(false);
             }
         }
 
-        //获取请求的接口路径
-        var apiPath = httpContext?.Request?.Path.Value ?? "";
-        //获取当前用户的权限
-        var userPermissions = await _permissionService.GetPermissionsByUserIdAsync(_currentUserService.CurrentUserId);
-
-        //检查用户是否拥有访问此路径的权限
-
-        if (IsAuthorized(userPermissions, apiPath)) 
+        //判断是否授权
+        if (await IsAuthorizedAsync(httpContext!))
         {
             return await next().ConfigureAwait(false);
         }
 
-        var errorMessage = "您无权访问此资源";
+        const string errorMessage = "您无权访问此资源";
         throw new ForbiddenAccessException(errorMessage);
     }
 
@@ -78,10 +73,21 @@ public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRe
     /// <param name="permissions">用户权限</param>
     /// <param name="apiPath">接口路径</param>
     /// <returns>返回授权结果</returns>
-    private bool IsAuthorized(List<Permission> permissions, string apiPath)
+    private bool IsAuthorized(IEnumerable<Permission> permissions, string apiPath)
     {
-        return permissions.Any(x => apiPath.StartsWith(x.Path ?? 
-            throw new ForbiddenAccessException("您无权访问此资源")));
+        return permissions.Any(x =>
+            x.Type == PermissionType.Dot &&           // 权限类型为 Dot
+            !string.IsNullOrEmpty(x.Path) &&           // Path 不为空
+            x.Path != "/" &&                           // Path 不为根路径
+            apiPath.StartsWith(x.Path)                 // apiPath 以 x.Path 开头
+        );
+    }
+
+    private async Task<bool> IsAuthorizedAsync(HttpContext httpContext)
+    {
+        var apiPath = httpContext?.Request?.Path.Value ?? "";
+        var userPermissions = await _permissionService.GetPermissionsByUserIdAsync(_currentUserService.CurrentUserId);
+        return IsAuthorized(userPermissions, apiPath);
     }
 
     /// <summary>

@@ -98,7 +98,7 @@ export const getAllUser = () => {
 
 /** 分配角色 */
 export const roleAssigning = (data?: object) => {
-  return http.request<Result>("put", "/api/Role/Assigning", {
+  return http.request<Result>("put", "/api/User/Assigning/Role", {
     data
   });
 };

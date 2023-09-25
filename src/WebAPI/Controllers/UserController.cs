@@ -1,4 +1,5 @@
-﻿using Application.Features.Users.Commands.Add;
+﻿using Application.Features.Roles.Commands.Update;
+using Application.Features.Users.Commands.Add;
 using Application.Features.Users.Commands.Delete;
 using Application.Features.Users.Commands.Update;
 using Application.Features.Users.DTOs;
@@ -35,6 +36,16 @@ public class UserController : ApiControllerBase
     public async Task<Result<UserDto>> GetByIdQuery(long userId)
     {
         return await Mediator.Send(new GetUserByIdQuery { UserId = userId });
+    }
+
+    /// <summary>
+    /// 分配角色
+    /// </summary>
+    /// <returns></returns>
+    [HttpPut("Assigning/Role")]
+    public async Task<Result<bool>> Assigning(AssigningRoleCommand command)
+    {
+        return await Mediator.Send(command);
     }
 
     /// <summary>

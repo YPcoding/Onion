@@ -42,6 +42,7 @@ import {
 } from "vue";
 import { bool } from "vue-types";
 import { error } from "console";
+import { hasAuth, getAuths } from "@/router/utils";
 
 export function useUser(tableRef: Ref, treeRef: Ref) {
   const form = reactive({
@@ -186,7 +187,17 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
       label: "操作",
       fixed: "right",
       width: 180,
-      slot: "operation"
+      slot: "operation",
+      hide: () => {
+        // 判断权限是否可以显示操作栏
+        const auths = [
+          "api:user:update",
+          "api:user:reset:password",
+          "api:user:assigning:role",
+          "api:user:update:avatar"
+        ];
+        return !usePublicHooks().hasAuthIntersection(getAuths(), auths);
+      }
     }
   ];
   const buttonClass = computed(() => {

@@ -10,16 +10,16 @@ namespace Application.Features.Permissions.Queries.GetByUserId;
 /// <summary>
 /// 获取登录者权限路由
 /// </summary>
-public class GetLoginerPermissionRouterQuery : ICacheableRequest<Result<List<PermissionRouterDto>>>
+public class GetLoginerPermissionRouterQuery : IRequest<Result<List<PermissionRouterDto>>>
 {
     /// <summary>
     /// 用户唯一标识
     /// </summary>
     public required long UserId { get; set; }
-    [JsonIgnore]
-    public string CacheKey => PermissionCacheKey.GetPermissionByUserIdCacheKey(UserId);
-    [JsonIgnore]
-    public MemoryCacheEntryOptions? Options => PermissionCacheKey.MemoryCacheEntryOptions;
+    //[JsonIgnore]
+    //public string CacheKey => PermissionCacheKey.GetPermissionByUserIdCacheKey(UserId);
+    //[JsonIgnore]
+    //public MemoryCacheEntryOptions? Options => PermissionCacheKey.MemoryCacheEntryOptions;
 }
 
 public class GetLoginerPermissionRouterQueryHandler :

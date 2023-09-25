@@ -9,6 +9,7 @@ import Search from "@iconify-icons/ep/search";
 import Refresh from "@iconify-icons/ep/refresh";
 import Menu from "@iconify-icons/ep/menu";
 import AddFill from "@iconify-icons/ri/add-circle-line";
+import { hasAuth } from "@/router/utils";
 
 defineOptions({
   name: "Role"
@@ -33,7 +34,7 @@ const {
 </script>
 
 <template>
-  <div class="main">
+  <div class="main" v-if="hasAuth('api:role:paginationquery')">
     <el-form
       ref="formRef"
       :inline="true"
@@ -88,6 +89,7 @@ const {
           type="primary"
           :icon="useRenderIcon(AddFill)"
           @click="openDialog()"
+          v-if="hasAuth('api:role:add')"
         >
           新增角色
         </el-button>
@@ -114,6 +116,7 @@ const {
         >
           <template #operation="{ row }">
             <el-button
+              v-if="hasAuth('api:role:update')"
               class="reset-margin"
               link
               type="primary"
@@ -124,6 +127,7 @@ const {
               修改
             </el-button>
             <el-button
+              v-if="hasAuth('api:role:permission:menu')"
               class="reset-margin"
               link
               type="primary"
@@ -139,6 +143,7 @@ const {
             >
               <template #reference>
                 <el-button
+                  v-if="hasAuth('api:role:delete')"
                   class="reset-margin"
                   link
                   type="primary"

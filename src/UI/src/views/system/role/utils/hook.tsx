@@ -16,6 +16,7 @@ import { addDialog } from "@/components/ReDialog";
 import { type FormItemProps, type MenuFormItemProps } from "../utils/types";
 import { type PaginationProps } from "@pureadmin/table";
 import { reactive, ref, onMounted, h, toRaw, type Ref } from "vue";
+import { hasAuth, getAuths } from "@/router/utils";
 
 export function useRole(tableRef: Ref) {
   const form = reactive({
@@ -99,7 +100,16 @@ export function useRole(tableRef: Ref) {
       label: "操作",
       fixed: "right",
       width: 240,
-      slot: "operation"
+      slot: "operation",
+      hide: () => {
+        // 判断权限是否可以显示操作栏
+        const auths = [
+          "api:role:permission:menu",
+          "api:role:update",
+          "api:role:delete"
+        ];
+        return !usePublicHooks().hasAuthIntersection(getAuths(), auths);
+      }
     }
   ];
 

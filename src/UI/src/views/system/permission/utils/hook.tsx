@@ -13,6 +13,7 @@ import { addDialog } from "@/components/ReDialog";
 import { reactive, ref, onMounted, h } from "vue";
 import { type FormItemProps } from "../utils/types";
 import { cloneDeep, isAllEmpty } from "@pureadmin/utils";
+import { hasAuth, getAuths } from "@/router/utils";
 
 export function usePermission() {
   const form = reactive({
@@ -81,7 +82,7 @@ export function usePermission() {
     {
       label: "状态",
       prop: "enabled",
-      minWidth: 50,
+      minWidth: 60,
       cellRenderer: ({ row, props }) => (
         <el-tag size={props.size} style={tagStyle.value(row.enabled)}>
           {row.enabled === true ? "启用" : "停用"}
@@ -99,7 +100,12 @@ export function usePermission() {
       label: "操作",
       fixed: "right",
       width: 160,
-      slot: "operation"
+      slot: "operation",
+      hide: () => {
+        // 判断权限是否可以显示操作栏
+        const auths = ["api:permission:delete", "api:permission:update"];
+        return !usePublicHooks().hasAuthIntersection(getAuths(), auths);
+      }
     }
   ];
 

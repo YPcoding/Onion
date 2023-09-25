@@ -28,12 +28,19 @@ export function usePublicHooks() {
     };
   });
 
+  // 数组交集计算方法
+  function hasAuthIntersection<T>(array1: T[], array2: T[]): boolean {
+    return array1.some(value => array2.includes(value));
+  }
+
   return {
     /** 当前网页是否为`dark`模式 */
     isDark,
     /** 表现更鲜明的`el-switch`组件  */
     switchStyle,
     /** 表现更鲜明的`el-tag`组件  */
-    tagStyle
+    tagStyle,
+    /** 判断两个数组彼此是否存在相同值，用于判断授权  */
+    hasAuthIntersection
   };
 }

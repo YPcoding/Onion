@@ -92,17 +92,6 @@ public class RoleController : ApiControllerBase
     }
 
     /// <summary>
-    /// 分配角色
-    /// </summary>
-    /// <returns></returns>
-    [HttpPut("Assigning")]
-
-    public async Task<Result<bool>> Assigning(AssigningRoleCommand command)
-    {
-        return await Mediator.Send(command);
-    }
-
-    /// <summary>
     /// 修改角色菜单权限
     /// </summary>
     /// <returns></returns>

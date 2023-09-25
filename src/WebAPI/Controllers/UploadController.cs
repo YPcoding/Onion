@@ -74,20 +74,17 @@ public class UploadController : ApiControllerBase
     [AllowAnonymous]
     public async Task<Result<string>> UploadImageForBase64(RequestBase64 request)
     {
-        // 获取 Base64 数据和文件扩展名
-        string base64Data = request.Base64.Replace("data:image/png;base64,","");
-        string fileExtension = ".jpeg";
+        string base64Data = request.Base64.Replace("data:image/png;base64,", "");
+        string fileExtension = GetFileExtension(base64Data);
 
-        // 将 Base64 数据解码为字节数组
         byte[] imageBytes = Convert.FromBase64String(base64Data);
 
-        // 生成唯一的文件名
-        string fileName = Guid.NewGuid().ToString() + fileExtension;
+        string folderPath = Path.Combine("Files", "Image");
+        Directory.CreateDirectory(folderPath);
 
-        // 构建文件路径
-        string filePath = Path.Combine("Files", "Image", fileName);
+        string fileName = $"{Guid.NewGuid()}{fileExtension}";
+        string filePath = Path.Combine(folderPath, fileName);
 
-        // 保存字节数组为图片文件
         System.IO.File.WriteAllBytes(filePath, imageBytes);
 
         var result = filePath.Replace("\\", "/");
@@ -104,6 +101,16 @@ public class UploadController : ApiControllerBase
     public class RequestImagePath
     {
         public string ImagePath { get; set; }
+    }
+
+    private string GetFileExtension(string base64)
+    {
+        if (base64.StartsWith("data:image/png;base64,"))
+        {
+            return ".png";
+        }
+        // 添加其他支持的文件类型的处理逻辑
+        return ".jpeg"; // 默认扩展名
     }
 
     /// <summary>

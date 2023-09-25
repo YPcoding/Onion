@@ -46,7 +46,7 @@ const {
 } = useUser(tableRef, treeRef);
 </script>
 <template>
-  <div class="flex justify-between">
+  <div class="flex justify-between" v-if="hasAuth('api:user:paginationquery')">
     <div class="w-[calc(100%-0px)]">
       <el-form
         ref="formRef"
@@ -243,7 +243,7 @@ const {
                         :size="size"
                         :icon="useRenderIcon(Role)"
                         @click="handleRole(row)"
-                        v-if="hasAuth('api:role:assigning')"
+                        v-if="hasAuth('api:user:assigning:role')"
                       >
                         分配角色
                       </el-button>

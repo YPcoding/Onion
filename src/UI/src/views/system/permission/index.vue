@@ -33,6 +33,7 @@ const {
 <template>
   <div class="main">
     <el-form
+      v-if="hasAuth('api:permission:query:all')"
       ref="formRef"
       :inline="true"
       :model="form"
@@ -77,6 +78,7 @@ const {
       :columns="columns"
       :tableRef="tableRef?.getTableRef()"
       @refresh="onSearch"
+      v-if="hasAuth('api:permission:query:all')"
     >
       <template #buttons>
         <el-button
