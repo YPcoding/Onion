@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Application.Features.Users.Caching;
 using Domain.Entities;
-using Masuit.Tools;
 using Masuit.Tools.Systems;
 using Microsoft.Extensions.Options;
 
@@ -98,14 +97,17 @@ public class AddUserCommandHandler : IRequestHandler<AddUserCommand, Result<long
         user.PasswordHash = user.CreatePassword(request.Password);
         user.ProfilePictureDataUrl = $"{_optSystemSettings.Value.HostDomainName}/Image/2.png";
         user.AddDomainEvent(new CreatedEvent<User>(user));
-        request?.RoleIds?.Distinct()?.ForEach(roleId =>
+        if (request.RoleIds != null)
         {
-            user.UserRoles.Add(new UserRole
+            foreach (var roleId in request.RoleIds.Distinct())
             {
-                Id = SnowFlake.GetInstance().GetLongId(),
-                RoleId = roleId
-            });
-        });
+                user.UserRoles.Add(new UserRole
+                {
+                    Id = SnowFlake.GetInstance().GetLongId(),
+                    RoleId = roleId
+                });
+            }
+        }
         await _context.Users.AddAsync(user);
         var isSuccess = await _context.SaveChangesAsync(cancellationToken) > 0;
         return await Result<long>.SuccessOrFailureAsync(user.Id,isSuccess,new string[] { "操作失败"});

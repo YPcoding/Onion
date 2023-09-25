@@ -73,9 +73,9 @@ public class UpdateRoleCommandHandler : IRequestHandler<UpdateRoleCommand, Resul
     /// <returns>返回处理结果</returns>
     public async Task<Result<long>> Handle(UpdateRoleCommand request, CancellationToken cancellationToken)
     {
-        var role = await _context.Roles.SingleOrDefaultAsync(x => x.Id == request.RoleId
-        && x.ConcurrencyStamp == request.ConcurrencyStamp, cancellationToken)
-        ?? throw new NotFoundException($"数据【{request.RoleId}-{request.ConcurrencyStamp}】未找到");
+        var role = await _context.Roles
+           .SingleOrDefaultAsync(x => x.Id == request.RoleId && x.ConcurrencyStamp == request.ConcurrencyStamp, cancellationToken)
+           ?? throw new NotFoundException($"数据【{request.RoleId}-{request.ConcurrencyStamp}】未找到");
 
         role = _mapper.Map(request, role);
         role.AddDomainEvent(new UpdatedEvent<Role>(role));

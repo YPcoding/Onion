@@ -54,10 +54,11 @@ namespace Infrastructure.Repositories
         public async Task<List<Permission>> GetPermissionsByUserIdAsync(long userId)
         {
             var userPermissions = await _dbContext.Permissions
-                .Where(p => p.RolePermissions.Any(rp => rp.Role.UserRoles.Any(ur => ur.UserId == userId)))
-                .ToListAsync() ?? new List<Permission>();
+                .Where(p => p.RolePermissions.Any(rp => rp.Role.UserRoles.Any(ur => ur.UserId == userId)) && p.Enabled == true && p.Hidden == false)
+                .OrderBy(o => o.Sort)
+                .ToListAsync();
 
-            return userPermissions;
+            return userPermissions ?? new List<Permission>();
         }
     }
 }

@@ -139,8 +139,7 @@ public class UpdatePermissionCommandHandler : IRequestHandler<UpdatePermissionCo
     /// <returns>返回处理结果</returns>
     public async Task<Result<long>> Handle(UpdatePermissionCommand request, CancellationToken cancellationToken)
     {
-        var permission = await _context.Permissions.SingleOrDefaultAsync(x => x.Id == request.PermissionId
-           && x.ConcurrencyStamp == request.ConcurrencyStamp, cancellationToken)
+        var permission = await _context.Permissions.SingleOrDefaultAsync(x => x.Id == request.PermissionId && x.ConcurrencyStamp == request.ConcurrencyStamp, cancellationToken)
            ?? throw new NotFoundException($"数据【{request.PermissionId}-{request.ConcurrencyStamp}】未找到");
 
         permission = _mapper.Map(request, permission);

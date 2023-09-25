@@ -52,13 +52,13 @@ public class UpdateRolePermissionCommandHandler : IRequestHandler<UpdateRolePerm
     /// <returns>返回处理结果</returns>
     public async Task<Result<bool>> Handle(UpdateRolePermissionMenuCommand request, CancellationToken cancellationToken)
     {
-        var role = await _context.Roles.SingleOrDefaultAsync(x => x.Id == request.RoleId
-        && x.ConcurrencyStamp == request.ConcurrencyStamp, cancellationToken)
-        ?? throw new NotFoundException($"数据【{request.RoleId}-{request.ConcurrencyStamp}】未找到");
+        var role = await _context.Roles
+            .SingleOrDefaultAsync(x => x.Id == request.RoleId && x.ConcurrencyStamp == request.ConcurrencyStamp, cancellationToken)
+             ?? throw new NotFoundException($"数据【{request.RoleId}-{request.ConcurrencyStamp}】未找到");
 
         var rolePermissions = await _context.RolePermissions
-         .Where(x => x.RoleId == request.RoleId)
-         .ToListAsync(cancellationToken);
+            .Where(x => x.RoleId == request.RoleId)
+            .ToListAsync(cancellationToken);
 
         if (rolePermissions.Any())
         {
@@ -72,7 +72,12 @@ public class UpdateRolePermissionCommandHandler : IRequestHandler<UpdateRolePerm
             PermissionId = permissionId
         }).ToList();
 
-        _context.RolePermissions.AddRange(newRolePermissions);
+        // 批量插入新的角色权限
+        if (newRolePermissions.Any())
+        {
+            _context.RolePermissions.AddRange(newRolePermissions);
+        }
+        // 更新角色
         _context.Roles.Update(role);
 
         var isSuccess = await _context.SaveChangesAsync(cancellationToken) > 0;

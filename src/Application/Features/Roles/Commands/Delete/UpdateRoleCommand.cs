@@ -43,26 +43,40 @@ public class DeleteRoleCommandHandler : IRequestHandler<DeleteRoleCommand, Resul
     /// <returns>返回处理结果</returns>
     public async Task<Result<bool>> Handle(DeleteRoleCommand request, CancellationToken cancellationToken)
     {
-        var roles = await _context.Roles
-        .Where(x => request.RoleIds.Contains(x.Id))
-        .ToListAsync(cancellationToken);
+        var rolesToDelete = await _context.Roles
+            .Where(x => request.RoleIds.Contains(x.Id))
+            .ToListAsync(cancellationToken);
 
-        if (roles?.Any() ?? false) 
+        if (rolesToDelete.Any())
         {
-            _context.Roles.RemoveRange(roles);
+            _context.Roles.RemoveRange(rolesToDelete);
 
-            var rolePermissions = await _context.RolePermissions
-                .Where(x => roles.Select(s=>s.Id).Contains(x.RoleId))
-                .ToListAsync(cancellationToken);
-            if (rolePermissions?.Any() ?? false) _context.RolePermissions.RemoveRange(rolePermissions);
+            var roleIdsToDelete = rolesToDelete.Select(r => r.Id).ToList();
 
-            var userRole = await _context.UserRoles
-                .Where(x => roles.Select(s => s.Id).Contains(x.RoleId))
+            // 移除角色权限
+            var rolePermissionsToDelete = await _context.RolePermissions
+                .Where(x => roleIdsToDelete.Contains(x.RoleId))
                 .ToListAsync(cancellationToken);
-            if (userRole?.Any() ?? false) _context.UserRoles.RemoveRange(userRole);
+
+            if (rolePermissionsToDelete.Any())
+            {
+                _context.RolePermissions.RemoveRange(rolePermissionsToDelete);
+            }
+
+            // 移除用户角色
+            var userRolesToDelete = await _context.UserRoles
+                .Where(x => roleIdsToDelete.Contains(x.RoleId))
+                .ToListAsync(cancellationToken);
+
+            if (userRolesToDelete.Any())
+            {
+                _context.UserRoles.RemoveRange(userRolesToDelete);
+            }
+
+            var isSuccess = await _context.SaveChangesAsync(cancellationToken) > 0;
+            return await Result<bool>.SuccessOrFailureAsync(isSuccess, isSuccess, new string[] { "操作失败" });
         }
 
-        var isSuccess = await _context.SaveChangesAsync(cancellationToken) > 0;
-        return await Result<bool>.SuccessOrFailureAsync(isSuccess, isSuccess, new string[] { "操作失败" });
+        return await Result<bool>.SuccessAsync(true);
     }
 }

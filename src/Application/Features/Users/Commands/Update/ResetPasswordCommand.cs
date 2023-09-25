@@ -62,8 +62,8 @@ public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand,
     /// <exception cref="NotFoundException">未找到的异常处理</exception>
     public async Task<Result<long>> Handle(ResetPasswordCommand request, CancellationToken cancellationToken)
     {
-        var user = await _context.Users.SingleOrDefaultAsync(x => x.Id == request.UserId
-            && x.ConcurrencyStamp == request.ConcurrencyStamp, cancellationToken)
+        var user = await _context.Users
+            .SingleOrDefaultAsync(x => x.Id == request.UserId && x.ConcurrencyStamp == request.ConcurrencyStamp, cancellationToken)
             ?? throw new NotFoundException($"数据【{request.UserId}-{request.ConcurrencyStamp}】未找到");
 
         user = _mapper.Map(request, user);
@@ -71,9 +71,6 @@ public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand,
         user.AddDomainEvent(new UpdatedEvent<User>(user));
         _context.Users.Update(user);
         var isSuccess = await _context.SaveChangesAsync(cancellationToken) > 0;
-        return await Result<long>.SuccessOrFailureAsync(
-            request!.UserId,
-            isSuccess,
-            new string[] { "操作失败" });
+        return await Result<long>.SuccessOrFailureAsync(request!.UserId, isSuccess, new string[] { "操作失败" });
     }
 }
