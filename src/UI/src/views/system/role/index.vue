@@ -129,7 +129,7 @@ const {
               type="primary"
               :size="size"
               :icon="useRenderIcon(Menu)"
-              @click="openMenuDialog('CAI', row)"
+              @click="openMenuDialog('菜单权限', row)"
             >
               菜单权限
             </el-button>

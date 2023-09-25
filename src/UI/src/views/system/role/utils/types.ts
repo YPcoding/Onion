@@ -14,7 +14,9 @@ interface MenuFormItemProps {
   roleId: number;
   roleName: string;
   permissionOptions: any[];
+  permissionIds: any[];
   rolePermissionsData: Record<string, unknown>[];
+  concurrencyStamp: string;
 }
 interface MenuFormProps {
   formInline: MenuFormItemProps;

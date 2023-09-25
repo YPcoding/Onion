@@ -68,6 +68,13 @@ export const updateRole = (data?: object) => {
   });
 };
 
+/** 修改角色权限菜单 */
+export const updateRolePermissionMenu = (data?: object) => {
+  return http.request<Result>("put", "/api/Role/Permission/Menu", {
+    data
+  });
+};
+
 /** 批量删除角色 */
 export const onbatchDeleteRole = (data?: object) => {
   return http.request<Result>("delete", "/api/Role/Delete", {

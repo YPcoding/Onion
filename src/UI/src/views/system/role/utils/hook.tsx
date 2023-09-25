@@ -7,7 +7,8 @@ import {
   addRole,
   updateRole,
   onbatchDeleteRole,
-  getRolePermissionsByRoleId
+  getRolePermissionsByRoleId,
+  updateRolePermissionMenu
 } from "@/api/system/role";
 import { ElMessageBox } from "element-plus";
 import { usePublicHooks } from "../../hooks";
@@ -39,7 +40,7 @@ export function useRole(tableRef: Ref) {
     currentPage: 1,
     background: true
   });
-  const treeData = ref();
+  const treeData = ref([]);
   const columns: TableColumnList = [
     {
       label: "角色编号",
@@ -231,9 +232,6 @@ export function useRole(tableRef: Ref) {
   }
 
   async function openMenuDialog(title = "菜单权限", row?: MenuFormItemProps) {
-    const rolePermissions = (await getRolePermissionsByRoleId(row?.roleId))
-      .data;
-    console.log(rolePermissions);
     addDialog({
       title: `为${row?.roleName}分配${title}`,
       props: {
@@ -241,7 +239,9 @@ export function useRole(tableRef: Ref) {
           roleId: row?.roleId ?? "",
           roleName: row?.roleName ?? "",
           permissionOptions: [],
-          rolePermissionsData: rolePermissions
+          permissionIds: [],
+          rolePermissionsData: [],
+          concurrencyStamp: row?.concurrencyStamp ?? ""
         }
       },
       width: "40%",
@@ -250,15 +250,18 @@ export function useRole(tableRef: Ref) {
       closeOnClickModal: false,
       contentRenderer: () => h(menuForm, { ref: formRef }),
       beforeSure: (done, { options }) => {
-        function chores() {
+        const curData = options.props.formInline as MenuFormItemProps;
+        async function chores() {
+          console.log(curData);
+          await updateRolePermissionMenu(curData);
+          message(`操作成功`, { type: "success" });
+          onSearch();
           done(); // 关闭弹框
         }
+        chores();
       }
     });
   }
-
-  /** 数据权限 可自行开发 */
-  // function handleDatabase() {}
 
   onMounted(() => {
     onSearch();

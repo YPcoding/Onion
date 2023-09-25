@@ -1,4 +1,5 @@
 ﻿using Domain.Entities;
+using Domain.Enums;
 
 namespace Application.Features.Roles.DTOs;
 
@@ -30,6 +31,7 @@ public class RolePermissionDto
     { 
         get 
         { 
+
             return SuperiorId; 
         } 
     }
@@ -41,4 +43,8 @@ public class RolePermissionDto
     /// 是否拥有
     /// </summary>
     public bool Has { get; set; }
+    /// <summary>
+    /// 权限类型
+    /// </summary>
+    public PermissionType Type { get; set; }
 }

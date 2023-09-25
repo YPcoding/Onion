@@ -176,29 +176,29 @@ public class ApplicationDbContextInitializer
             if (permissions.Any())
             {
 
-                permissions.ForEach(async permission=>{
-                    if (permission.Type ==PermissionType.Dot)
-                    {
-                        var superior = await _context.Permissions
-                          .Where(x => x.Group == permission.Group && x.Type == PermissionType.Page)
-                          .FirstOrDefaultAsync();
-                        if (superior != null) 
-                        {
-                            permission.SuperiorId = superior.Id;
-                        }
-                    }
-                    if (permission.Type == PermissionType.Page)
-                    {
-                        var superior = await _context.Permissions
-                          .Where(x => x.Group == permission.Group && x.Type == PermissionType.Menu)
-                          .FirstOrDefaultAsync();
-                        if (superior != null)
-                        {
-                            permission.SuperiorId = superior.Id;
-                        }
-                    }
+                //permissions.ForEach(async permission=>{
+                //    if (permission.Type ==PermissionType.Dot)
+                //    {
+                //        var superior = await _context.Permissions
+                //          .Where(x => x.Group == permission.Group && x.Type == PermissionType.Page)
+                //          .FirstOrDefaultAsync();
+                //        if (superior != null) 
+                //        {
+                //            permission.SuperiorId = superior.Id;
+                //        }
+                //    }
+                //    if (permission.Type == PermissionType.Page)
+                //    {
+                //        var superior = await _context.Permissions
+                //          .Where(x => x.Group == permission.Group && x.Type == PermissionType.Menu)
+                //          .FirstOrDefaultAsync();
+                //        if (superior != null)
+                //        {
+                //            permission.SuperiorId = superior.Id;
+                //        }
+                //    }
 
-                });//避免报外键的错误
+                //});//避免报外键的错误
                 _context.Permissions.AddRange(permissions);
                 await _context.SaveChangesAsync();
                 _logger.LogInformation($"成功添加权限数据");

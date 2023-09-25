@@ -103,6 +103,17 @@ public class RoleController : ApiControllerBase
     }
 
     /// <summary>
+    /// 修改角色菜单权限
+    /// </summary>
+    /// <returns></returns>
+    [HttpPut("Permission/Menu")]
+
+    public async Task<Result<bool>> UpdateRolePermissionMenu(UpdateRolePermissionMenuCommand command)
+    {
+        return await Mediator.Send(command);
+    }
+
+    /// <summary>
     /// 删除角色
     /// </summary>
     /// <returns></returns>
