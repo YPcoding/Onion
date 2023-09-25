@@ -96,7 +96,7 @@ public class AddUserCommandHandler : IRequestHandler<AddUserCommand, Result<long
     {
         var user = _mapper.Map<User>(request);
         user.PasswordHash = user.CreatePassword(request.Password);
-        user.ProfilePictureDataUrl = $"{_optSystemSettings.Value.HostDomainName}/Files/Image/2.png";
+        user.ProfilePictureDataUrl = $"{_optSystemSettings.Value.HostDomainName}/Image/2.png";
         user.AddDomainEvent(new CreatedEvent<User>(user));
         request?.RoleIds?.Distinct()?.ForEach(roleId =>
         {

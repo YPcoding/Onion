@@ -111,9 +111,9 @@ public class ApplicationDbContextInitializer
     private async Task TrySeedAsync()
     {
         // 默认用户
-        var administrator = new User { UserName = "admin", IsActive = true, Email = "761516331@qq.com", EmailConfirmed = true, ProfilePictureDataUrl = $"{_optSystemSettings.Value.HostDomainName}/Files/Image/2.png" };
+        var administrator = new User { UserName = "admin", IsActive = true, Email = "761516331@qq.com", EmailConfirmed = true, ProfilePictureDataUrl = $"{_optSystemSettings.Value.HostDomainName}/Image/2.png" };
         administrator.PasswordHash = administrator.CreatePassword("admin");
-        var user = new User { LockoutEnabled = true, UserName = "user", IsActive = true, Email = "1103354424@qq.com", EmailConfirmed = true, ProfilePictureDataUrl = $"{_optSystemSettings.Value.HostDomainName}/Files/Image/1.jpg" };
+        var user = new User { LockoutEnabled = true, UserName = "user", IsActive = true, Email = "1103354424@qq.com", EmailConfirmed = true, ProfilePictureDataUrl = $"{_optSystemSettings.Value.HostDomainName}/Image/1.jpg" };
         user.PasswordHash = user.CreatePassword("user");
         if (!await _context.Users.AnyAsync(x => x.UserName == "admin"))
         {

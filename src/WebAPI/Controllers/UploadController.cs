@@ -111,13 +111,23 @@ public class UploadController : ApiControllerBase
     /// </summary>
     /// <returns>返回base64字符串</returns>
     [HttpPost("ConvertImageToBase64")]
-    [AllowAnonymous]
     public async Task<Result<string>> ConvertImageToBase64(RequestImagePath request)
     {
-        var host = _optSystemSettings.Value.HostDomainName;
-        request.ImagePath = request.ImagePath.Replace($"{host}/", "");
-        byte[] imageBytes = System.IO.File.ReadAllBytes(request.ImagePath);
-        string base64String = Convert.ToBase64String(imageBytes);
-        return await Result<string>.SuccessAsync($"data:image/jpeg;base64,{base64String}");
+        using (var httpClient = new HttpClient())
+        {
+            // 设置超时时间（可选）
+            httpClient.Timeout = TimeSpan.FromSeconds(30);
+
+            if (Uri.TryCreate(request.ImagePath, UriKind.Absolute, out var uri) && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
+            {
+                byte[] imageBytes = await httpClient.GetByteArrayAsync(uri);
+                string base64String = Convert.ToBase64String(imageBytes);
+                return await Result<string>.SuccessAsync($"data:image/jpeg;base64,{base64String}");
+            }
+            else
+            {
+                return await Result<string>.FailureAsync(new string[] { "无效的图片URL" });
+            }
+        }
     }
 }

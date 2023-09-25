@@ -3,7 +3,6 @@ using Domain.Repositories;
 using Domain.Services;
 using Microsoft.Extensions.Options;
 using System.ComponentModel.DataAnnotations;
-using System.Security.Claims;
 
 namespace Application.Features.Auth.Commands;
 
