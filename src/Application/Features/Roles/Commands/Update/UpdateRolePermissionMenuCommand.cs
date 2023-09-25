@@ -56,23 +56,25 @@ public class UpdateRolePermissionCommandHandler : IRequestHandler<UpdateRolePerm
         && x.ConcurrencyStamp == request.ConcurrencyStamp, cancellationToken)
         ?? throw new NotFoundException($"数据【{request.RoleId}-{request.ConcurrencyStamp}】未找到");
 
-        var rolePermissions = await _context.RolePermissions.Where(x => x.RoleId == request.RoleId).ToListAsync();
-        if (rolePermissions.Any()) 
+        var rolePermissions = await _context.RolePermissions
+         .Where(x => x.RoleId == request.RoleId)
+         .ToListAsync(cancellationToken);
+
+        if (rolePermissions.Any())
         {
             _context.RolePermissions.RemoveRange(rolePermissions);
         }
-        request.PermissionIds.ForEach(async permissionId => 
+
+        var newRolePermissions = request.PermissionIds.Select(permissionId => new RolePermission
         {
-            await _context.RolePermissions.AddAsync(new RolePermission
-            {
-                Id = SnowFlake.GetInstance().GetLongId(),
-                RoleId = request.RoleId,
-                PermissionId = permissionId
-            });
-        });
+            Id = SnowFlake.GetInstance().GetLongId(),
+            RoleId = request.RoleId,
+            PermissionId = permissionId
+        }).ToList();
 
-
+        _context.RolePermissions.AddRange(newRolePermissions);
         _context.Roles.Update(role);
+
         var isSuccess = await _context.SaveChangesAsync(cancellationToken) > 0;
         return await Result<bool>.SuccessOrFailureAsync(isSuccess, isSuccess, new string[] { "操作失败" });
     }
