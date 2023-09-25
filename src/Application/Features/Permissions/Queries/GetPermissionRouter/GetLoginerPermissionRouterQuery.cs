@@ -10,7 +10,7 @@ namespace Application.Features.Permissions.Queries.GetByUserId;
 /// <summary>
 /// 获取登录者权限路由
 /// </summary>
-public class GetLoginerPermissionRouterQuery : IRequest<Result<List<PermissionRouterDto>>>
+public class GetLoginerPermissionRouterQuery : IRequest<Result<IEnumerable<PermissionRouterDto>>>
 {
     /// <summary>
     /// 用户唯一标识
@@ -23,7 +23,7 @@ public class GetLoginerPermissionRouterQuery : IRequest<Result<List<PermissionRo
 }
 
 public class GetLoginerPermissionRouterQueryHandler :
-     IRequestHandler<GetLoginerPermissionRouterQuery, Result<List<PermissionRouterDto>>>
+     IRequestHandler<GetLoginerPermissionRouterQuery, Result<IEnumerable<PermissionRouterDto>>>
 {
     private readonly IPermissionRepository _permissionRepository;
     private readonly IRoleRepository _roleRepository;
@@ -36,7 +36,7 @@ public class GetLoginerPermissionRouterQueryHandler :
         _permissionRepository = permissionRepository;
     }
 
-    public async Task<Result<List<PermissionRouterDto>>> Handle(GetLoginerPermissionRouterQuery request, CancellationToken cancellationToken)
+    public async Task<Result<IEnumerable<PermissionRouterDto>>> Handle(GetLoginerPermissionRouterQuery request, CancellationToken cancellationToken)
     {
         var permissions = await _permissionRepository.GetPermissionsByUserIdAsync(request.UserId);
 
@@ -67,7 +67,7 @@ public class GetLoginerPermissionRouterQueryHandler :
                         }
                     }).ToList()
             }).ToList();
-        return await Result<List<PermissionRouterDto>>.SuccessAsync(routers);
+        return await Result<IEnumerable<PermissionRouterDto>>.SuccessAsync(routers);
     }
 
     private async Task<string[]> GetRolesByPermissionIdAsync(long permissionId)
@@ -78,7 +78,7 @@ public class GetLoginerPermissionRouterQueryHandler :
         return Array.Empty<string>();
     }
 
-    private async Task<string[]> GetAuthsByPermissionIdAsync(List<Permission> permissions, long permissionId)
+    private async Task<string[]> GetAuthsByPermissionIdAsync(IEnumerable<Permission> permissions, long permissionId)
     {
         return await Task.Run(() =>
         {

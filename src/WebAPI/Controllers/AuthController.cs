@@ -99,7 +99,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [HttpGet("LoginerPermissionRouter")]
 
-        public async Task<Result<List<PermissionRouterDto>>> GetLoginerPermissionRouter()
+        public async Task<Result<IEnumerable<PermissionRouterDto>>> GetLoginerPermissionRouter()
         {
             return await Mediator.Send(new GetLoginerPermissionRouterQuery()
             {

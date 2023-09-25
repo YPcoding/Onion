@@ -79,7 +79,8 @@ public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRe
             x.Type == PermissionType.Dot &&           // 权限类型为 Dot
             !string.IsNullOrEmpty(x.Path) &&           // Path 不为空
             x.Path != "/" &&                           // Path 不为根路径
-            apiPath.StartsWith(x.Path)                 // apiPath 以 x.Path 开头
+            apiPath.StartsWith(x.Path) &&                // apiPath 以 x.Path 开头
+            !string.IsNullOrEmpty(x.HttpMethods)       // HttpMethods 不为空
         );
     }
 

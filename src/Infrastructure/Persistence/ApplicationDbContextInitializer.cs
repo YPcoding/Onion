@@ -68,7 +68,7 @@ public class ApplicationDbContextInitializer
         {
             int sort = 0;
             var pageId = SnowFlake.GetInstance().GetLongId();
-            var pagePath = "";
+            var pagePath = $"/{controller.ControllerName}";
             var name = "";
             if (controller.ControllerName == "User") 
             {
@@ -191,7 +191,7 @@ public class ApplicationDbContextInitializer
                     if (permission.Type == PermissionType.Page)
                     {
                         var superior = hasPermissions
-                          .Where(x => x.Group == permission.Group && x.Type == PermissionType.Menu)
+                          .Where(x => x.Group == "系统管理" && x.Superior == null && x.Type == PermissionType.Menu)
                           .FirstOrDefault();
                         if (superior != null)
                         {
@@ -211,7 +211,7 @@ public class ApplicationDbContextInitializer
         var administratorRolePermissions = await _context.RolePermissions.Where(x => x.RoleId == administratorRoleId).ToListAsync();
         var userRolePermissions = await _context.RolePermissions.Where(x => x.RoleId == userRoleId).ToListAsync();
         var notHaveAdministratorPermissions = permissions.Where(x => !administratorRolePermissions.Select(x => x.PermissionId).Contains(x.Id)).ToList();
-        var notHaveUserPermissions = permissions.Where(x => !userRolePermissions.Select(x => x.PermissionId).Contains(x.Id) && (x.HttpMethods == "GET" || x.Type == PermissionType.Page|| x.Type==PermissionType.Menu)).ToList();
+        var notHaveUserPermissions = permissions.Where(x => !userRolePermissions.Select(x => x.PermissionId).Contains(x.Id) && (x.HttpMethods == "GET" || x.Type == PermissionType.Page || x.Type == PermissionType.Menu)).ToList();
         if (notHaveAdministratorPermissions.Any())
         {
             var items = new List<RolePermission>();
