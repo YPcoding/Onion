@@ -15,6 +15,8 @@ import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { ref, reactive, toRaw, onMounted, onBeforeUnmount } from "vue";
 import { useTranslationLang } from "@/layout/hooks/useTranslationLang";
 import { useDataThemeChange } from "@/layout/hooks/useDataThemeChange";
+import { storageSession } from "@pureadmin/utils";
+import { usePermissionStoreHook } from "@/store/modules/permission";
 
 import dayIcon from "@/assets/svg/day.svg?component";
 import darkIcon from "@/assets/svg/dark.svg?component";
@@ -61,6 +63,9 @@ const onLogin = async (formEl: FormInstance | undefined) => {
               router.push(getTopMenu(true).path);
               message("登录成功", { type: "success" });
             });
+          } else {
+            loading.value = false;
+            message(res.errorMessage, { type: "error" });
           }
         });
     } else {

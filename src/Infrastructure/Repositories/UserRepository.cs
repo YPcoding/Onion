@@ -18,9 +18,8 @@ public class UserRepository : IUserRepository, IScopedDependency
 
     public async Task<User> AccessFailedAsync(User user)
     {
-        user.AccessFailedCount = user.AccessFailedCount + 1;
-        _dbContext.Users.Update(user);
-        await _dbContext.SaveChangesAsync();
+        user.LoginFailedIfExceedConntWillBeLock();
+        await UpdateAsync(user);
         return user;
     }
 
@@ -54,8 +53,7 @@ public class UserRepository : IUserRepository, IScopedDependency
         var user = await FindByIdAsync(userId);
         if (user == null) return false;
         user.ChangePassword(password);
-        _dbContext.Users.Update(user);
-        return await _dbContext.SaveChangesAsync() > 0;
+        return await UpdateAsync(user);
     }
 
     /// <summary>
@@ -76,15 +74,13 @@ public class UserRepository : IUserRepository, IScopedDependency
     {
         var user = await FindByIdAsync(userId);
         user!.PhoneNumberConfirmed = true;
-        _dbContext.Users.Update(user);
-        await _dbContext.SaveChangesAsync();
+        await UpdateAsync(user);
     }
 
     public async Task<User> CreateAsync(User user, string password)
     {
         user.PasswordHash = user.CreatePassword(password);
-        _dbContext.Users.Add(user);
-        await _dbContext.SaveChangesAsync();
+        await UpdateAsync(user);
         return user;
     }
 
@@ -137,11 +133,13 @@ public class UserRepository : IUserRepository, IScopedDependency
         return await _dbContext.SaveChangesAsync() > 0;
     }
 
-    public async Task<bool> UpdateUserAvatarUri(long userId, string avatarUri)
+    public async Task<bool> UpdateUserAvatarUri(User user)
     {
-        var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId);
-        if (user == null) return false;
-        user.ProfilePictureDataUrl = avatarUri;
+        return await UpdateAsync(user);
+    }
+
+    public async Task<bool> UpdateAsync(User user) 
+    {
         _dbContext.Users.Update(user);
         return await _dbContext.SaveChangesAsync() > 0;
     }

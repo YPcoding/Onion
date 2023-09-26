@@ -1,4 +1,6 @@
-﻿namespace Application.Features.Auth.DTOs
+﻿using Application.Features.Users.DTOs;
+
+namespace Application.Features.Auth.DTOs
 {
     /// <summary>
     /// 登录结果
@@ -9,6 +11,11 @@
         /// 用户名
         /// </summary>
         public string Username { get; set; }
+
+        /// <summary>
+        /// 用户信息
+        /// </summary>
+        public UserDto UserInfo { get; set; }
         
         /// <summary>
         /// 角色组

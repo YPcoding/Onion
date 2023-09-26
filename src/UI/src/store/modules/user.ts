@@ -16,7 +16,27 @@ export const useUserStore = defineStore({
     username:
       storageSession().getItem<DataInfo<number>>(sessionKey)?.username ?? "",
     // 页面级别权限
-    roles: storageSession().getItem<DataInfo<number>>(sessionKey)?.roles ?? []
+    roles: storageSession().getItem<DataInfo<number>>(sessionKey)?.roles ?? [],
+    //用户信息
+    userInfo: storageSession().getItem<DataInfo<number>>(sessionKey)
+      ?.userInfo ?? {
+      accessFailedCount: 0,
+      concurrencyStamp: "",
+      created: "",
+      email: "",
+      id: "",
+      isActive: null,
+      isLive: null,
+      lockoutEnabled: null,
+      lockoutEnd: "",
+      normalizedEmail: "",
+      normalizedUserName: "",
+      phoneNumberConfirmed: null,
+      profilePictureDataUrl: "",
+      twoFactorEnabled: null,
+      userId: "",
+      userName: ""
+    }
   }),
   actions: {
     /** 存储用户名 */
@@ -32,8 +52,10 @@ export const useUserStore = defineStore({
       return new Promise<UserResult>((resolve, reject) => {
         getLogin(data)
           .then(res => {
-            if (res) {
+            if (res.succeeded) {
               setToken(res.data);
+              resolve(res);
+            } else {
               resolve(res);
             }
           })

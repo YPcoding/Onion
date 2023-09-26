@@ -102,3 +102,10 @@ export const roleAssigning = (data?: object) => {
     data
   });
 };
+
+/** 锁定或解锁用户 */
+export const isUnLockUser = (data?: object) => {
+  return http.request<Result>("put", "/api/User/IsUnLock", {
+    data
+  });
+};

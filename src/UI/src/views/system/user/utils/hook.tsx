@@ -9,7 +9,8 @@ import {
   updateUserAvatar,
   resetPassword,
   getAllRoleByUserId,
-  roleAssigning
+  roleAssigning,
+  isUnLockUser
 } from "@/api/system/user";
 import { uploadEnclosure, convertImageToBase64 } from "@/api/upload";
 import { type PaginationProps } from "@pureadmin/table";
@@ -174,6 +175,7 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
           inactive-text="已锁定"
           inline-prompt
           style={switchStyle.value}
+          onChange={() => handleisUnLockUser(scope.row)}
         />
       )
     },
@@ -241,6 +243,24 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
     selectedNum.value = val.length;
     // 重置表格高度
     tableRef.value.setAdaptive();
+  }
+
+  async function handleisUnLockUser(row) {
+    const res = await isUnLockUser({
+      userId: row?.userId,
+      concurrencyStamp: row?.concurrencyStamp
+    });
+
+    const msg = res.succeeded
+      ? row?.lockoutEnabled
+        ? "锁定成功"
+        : "解锁成功"
+      : res.errorMessage;
+
+    message(msg, { type: res.succeeded ? "success" : "error" });
+    if (res.succeeded) {
+      onSearch();
+    }
   }
 
   async function openDialog(title = "新增", row?: FormItemProps) {

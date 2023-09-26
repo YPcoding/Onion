@@ -113,8 +113,14 @@ public interface IUserRepository : IScopedDependency
     /// <summary>
     /// 修改用户头像
     /// </summary>
-    /// <param name="userId">用户ID</param>
-    /// <param name="avatarUri">头像图片Uri</param>
+    /// <param name="user">用户信息</param>
     /// <returns></returns>
-    public Task<bool> UpdateUserAvatarUri(long userId, string avatarUri);
+    public Task<bool> UpdateUserAvatarUri(User user);
+
+    /// <summary>
+    /// 修改用户
+    /// </summary>
+    /// <param name="user">用户信息</param>
+    /// <returns></returns>
+    public Task<bool> UpdateAsync(User user);
 }

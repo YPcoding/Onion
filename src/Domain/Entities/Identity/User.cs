@@ -105,7 +105,7 @@ namespace Domain.Entities.Identity
         public bool IsActive { get; set; } = false;
 
         /// <summary>
-        /// 是否活跃
+        /// 是否在线
         /// </summary>
         public bool IsLive { get; set; } = false;
 
@@ -147,6 +147,56 @@ namespace Domain.Entities.Identity
         public bool CompareWithOldPassword (string password) 
         {
             return PasswordHash == CreatePassword(password);
+        }
+
+        /// <summary>
+        /// 是否激活
+        /// </summary>
+        public void IsActived() 
+        {
+            IsActive = !IsActive;
+        }
+
+        /// <summary>
+        /// 是否在线
+        /// </summary>
+        public void IsLived() 
+        {
+            IsLive = !IsLive;
+        }
+
+        /// <summary>
+        /// 登录失败超出次数锁定
+        /// </summary>
+        /// <param name="failedLimitCount">登录失败限制次数</param>
+        /// <param name="isLockoutEnabled">超出限制次数是否锁定</param>
+        /// <param name="lockDurationMinutes">锁定时长</param>
+        public void LoginFailedIfExceedConntWillBeLock(int failedLimitCount = 3, bool isLockoutEnabled = true, int lockDurationMinutes = 10)
+        {
+            AccessFailedCount += 1;
+            if (AccessFailedCount % failedLimitCount == 0)
+            {
+                LockoutEnabled = isLockoutEnabled;
+                LockoutEnd = DateTime.Now.AddMinutes(lockDurationMinutes);
+            }
+        }
+
+        /// <summary>
+        /// 锁定或解锁
+        /// </summary>
+        /// <param name="lockDurationMinutes">锁定时间</param>
+        public void IsUnLock(int lockDurationMinutes = 10)
+        {
+            if (!LockoutEnabled) 
+            {
+                LockoutEnabled = true;
+                LockoutEnd = DateTime.Now.AddMinutes(lockDurationMinutes);
+            }
+            else 
+            {
+                LockoutEnabled = false;
+                LockoutEnd = DateTime.Now;
+            }
         }
     }
 }

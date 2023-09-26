@@ -1,3 +1,4 @@
+import { T } from "@vueuse/motion/dist/nuxt-b4cb9b59";
 import { RouteRecordName } from "vue-router";
 
 export type cacheType = {
@@ -40,4 +41,22 @@ export type userType = {
   roles?: Array<string>;
   verifyCode?: string;
   currentPage?: number;
+  userInfo?: {
+    accessFailedCount: number;
+    concurrencyStamp: string;
+    created: string;
+    email: string;
+    id: string;
+    isActive: boolean;
+    isLive: boolean;
+    lockoutEnabled: boolean;
+    lockoutEnd: string;
+    normalizedEmail: string;
+    normalizedUserName: string;
+    phoneNumberConfirmed: boolean;
+    profilePictureDataUrl: string;
+    twoFactorEnabled: boolean;
+    userId: string;
+    userName: string;
+  };
 };

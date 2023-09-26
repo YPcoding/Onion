@@ -101,14 +101,14 @@ defineExpose({ getRef });
         </el-form-item>
       </re-col>
       <re-col :value="12" :xs="24" :sm="24">
-        <el-form-item label="用户状态">
+        <el-form-item label="激活">
           <el-switch
             v-model="newFormInline.isActive"
             inline-prompt
             :active-value="true"
             :inactive-value="false"
-            active-text="启用"
-            inactive-text="停用"
+            active-text="已激活"
+            inactive-text="未激活"
             :style="switchStyle"
           />
         </el-form-item>

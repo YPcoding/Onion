@@ -49,6 +49,16 @@ public class UserController : ApiControllerBase
     }
 
     /// <summary>
+    /// 锁定或解锁用户
+    /// </summary>
+    /// <returns></returns>
+    [HttpPut("IsUnLock")]
+    public async Task<Result<bool>> Is(IsUnLockUserCommand command)
+    {
+        return await Mediator.Send(command);
+    }
+
+    /// <summary>
     /// 获取所有用户
     /// </summary>
     /// <returns></returns>

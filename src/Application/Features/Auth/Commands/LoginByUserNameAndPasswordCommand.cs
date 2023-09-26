@@ -1,4 +1,5 @@
 ﻿using Application.Features.Auth.DTOs;
+using Application.Features.Users.DTOs;
 using Domain.Repositories;
 using Domain.Services;
 using Microsoft.Extensions.Options;
@@ -30,20 +31,26 @@ public class LoginByUserNameAndPasswordCommand : IRequest<Result<LoginResultDto>
 public class LoginByUserNameAndPasswordCommandHandler : IRequestHandler<LoginByUserNameAndPasswordCommand, Result<LoginResultDto>>
 {
     private readonly UserDomainService _userDomainService;
+    private readonly IUserRepository _userRepository;
     private readonly ITokenService _tokenService;
     private readonly IOptions<JwtSettings> _optJwtSettings;
     private readonly IRoleRepository _roleRepository;
+    private readonly IMapper _mapper;
 
     public LoginByUserNameAndPasswordCommandHandler(
         UserDomainService userDomainService,
         ITokenService tokenService,
         IOptions<JwtSettings> optJwtSettings,
-        IRoleRepository roleRepository)
+        IRoleRepository roleRepository,
+        IMapper mapper,
+        IUserRepository userRepository)
     {
         _userDomainService = userDomainService;
         _tokenService = tokenService;
         _optJwtSettings = optJwtSettings;
         _roleRepository = roleRepository;
+        _mapper = mapper;
+        _userRepository = userRepository;
     }
 
     /// <summary>
@@ -55,14 +62,32 @@ public class LoginByUserNameAndPasswordCommandHandler : IRequestHandler<LoginByU
     public async Task<Result<LoginResultDto>> Handle(LoginByUserNameAndPasswordCommand request, CancellationToken cancellationToken)
     {
         var user = await _userDomainService.LoginByUserNameAndPasswordAsync(request.UserName, request.Password);
-        if (user == null) return await Result<LoginResultDto>.FailureAsync(new string[] { "登录失败，用户名或密码错误" });
+
+        if (user == null)
+        {
+            return await Result<LoginResultDto>.FailureAsync(new string[] { "登录失败，用户名或密码错误" });
+        }
+
+        if (user.LockoutEnabled)
+        {
+            if (user.LockoutEnd > DateTime.Now)
+            {
+                return await Result<LoginResultDto>.FailureAsync(new string[] { "账号已被锁定", $"于{user.LockoutEnd.ToString()}解锁" });
+            }
+
+            user.IsUnLock();
+            await _userRepository.UpdateAsync(user);
+        }
 
         var claims = await _tokenService.CreateClaimsAsync(user.Id, user.UserName!);
         string token = await _tokenService.BuildAsync(claims, _optJwtSettings.Value);
-        var roles = await _roleRepository.GetUserRolesAsync(x=>x.UserRoles.Any(ur=>ur.UserId== user!.Id));
+
+        var roles = await _roleRepository.GetUserRolesAsync(x => x.UserRoles.Any(ur => ur.UserId == user.Id));
+
         var result = new LoginResultDto
         {
             Username = request.UserName,
+            UserInfo = _mapper.Map<UserDto>(user),
             Roles = roles?.Select(s => s.RoleCode.ToLower())?.ToArray() ?? Array.Empty<string>(),
             AccessToken = token,
             RefreshToken = token,

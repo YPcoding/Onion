@@ -2,6 +2,9 @@ import { http } from "@/utils/http";
 
 export type UserResult = {
   succeeded: boolean;
+  errors: Array<string>;
+  errorMessage: string;
+  code: number;
   data: {
     /** 用户名 */
     username: string;
