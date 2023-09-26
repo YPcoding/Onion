@@ -2,7 +2,6 @@
 using Domain.Entities.Identity;
 using Domain.Entities.Logger;
 using Infrastructure.Persistence.Extensions;
-using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
 namespace Infrastructure.Persistence;

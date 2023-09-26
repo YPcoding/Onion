@@ -34,7 +34,15 @@ public static class DependencyInjection
         {
             var databaseSettings = p.GetRequiredService<IOptions<DatabaseSettings>>().Value;
             m.AddInterceptors(p.GetServices<ISaveChangesInterceptor>());
+            m.AddInterceptors(new ExecutionTimeInterceptor());
             m.UseDatabase(databaseSettings.DBProvider, databaseSettings.ConnectionString);
+            // 配置 SQL 查询日志
+            m.UseLoggerFactory(LoggerFactory.Create(builder =>
+            {
+                builder
+                    .AddFilter((category, level) => category == DbLoggerCategory.Database.Command.Name && level == LogLevel.Information)
+                    .AddConsole();
+            }));
         });
         services.AddScoped<IDbContextFactory<ApplicationDbContext>, ContextFactory<ApplicationDbContext>>();
         services.AddTransient<IApplicationDbContext>(provider =>
