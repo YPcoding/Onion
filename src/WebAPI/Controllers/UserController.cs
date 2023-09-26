@@ -114,7 +114,6 @@ public class UserController : ApiControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpDelete("Delete")]
-
     public async Task<Result<bool>> Delete(DeleteUserCommand command)
     {
         return await Mediator.Send(command);

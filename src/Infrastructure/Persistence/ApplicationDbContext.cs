@@ -2,6 +2,7 @@
 using Domain.Entities.Identity;
 using Domain.Entities.Logger;
 using Infrastructure.Persistence.Extensions;
+using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
 namespace Infrastructure.Persistence;
@@ -27,6 +28,15 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         base.OnModelCreating(builder);
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         builder.ApplyGlobalFilters<ISoftDelete>(s => s.Deleted == null);
+
+        foreach (var entityType in builder.Model.GetEntityTypes())
+        {
+            foreach (var foreignKey in entityType.GetForeignKeys())
+            {
+                // 删除外键约束
+                foreignKey.DeleteBehavior = DeleteBehavior.NoAction;
+            }
+        }
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
