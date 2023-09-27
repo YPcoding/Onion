@@ -6,7 +6,6 @@ using Infrastructure.Persistence;
 using Masuit.Tools;
 using Masuit.Tools.Systems;
 using Microsoft.Extensions.Options;
-using SQLitePCL;
 using System.Linq.Dynamic.Core;
 using static Application.Common.Helper.WebApiDocHelper;
 

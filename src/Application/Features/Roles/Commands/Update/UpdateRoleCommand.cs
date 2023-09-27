@@ -1,8 +1,5 @@
 ﻿using Application.Features.Roles.Caching;
 using Domain.Entities;
-using Domain.Events;
-using Masuit.Tools;
-using Masuit.Tools.Systems;
 using System.ComponentModel.DataAnnotations;
 
 namespace Application.Features.Roles.Commands.Update;

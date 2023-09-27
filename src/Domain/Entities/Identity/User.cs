@@ -1,4 +1,5 @@
 ﻿using Masuit.Tools.Security;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Entities.Identity
@@ -6,6 +7,7 @@ namespace Domain.Entities.Identity
     /// <summary>
     ///用户表
     /// </summary>
+    [Description("用户管理")]
     public class User : BaseAuditableSoftDeleteEntity, IAuditTrial
     {
         public User()
@@ -17,6 +19,7 @@ namespace Domain.Entities.Identity
         /// <summary>
         /// 用户名
         /// </summary>
+        [Description("用户名")]
         public virtual string? UserName { get; set; }
 
         /// <summary>

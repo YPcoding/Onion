@@ -1,175 +1,19 @@
-using Application.Common.Interfaces;
-using Ardalis.Specification.EntityFrameworkCore;
-using Domain.Entities;
-using Domain.Entities.Identity;
-using Domain.Enums;
-using Masuit.Tools;
-using Masuit.Tools.Reflection;
-using Masuit.Tools.Systems;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using MiniExcelLibs;
-using System;
+ï»¿using System.Reflection;
 using System.Text;
-using static Application.Common.Helper.WebApiDocHelper;
-
-namespace WebAPI.Controllers;
 
 /// <summary>
-/// ²âÊÔ½Ó¿Ú
+/// ä»£ç ç”Ÿæˆå™¨
 /// </summary>
-public class WeatherForecastController : ApiControllerBase
+namespace Common.CodeGenPro
 {
-    private static readonly string[] Summaries = new[]
-    {
-        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-    };
-
-    private readonly ILogger<WeatherForecastController> _logger;
-    private readonly IApplicationDbContext _context;
-
-    public WeatherForecastController(
-        ILogger<WeatherForecastController> logger,
-        IApplicationDbContext context)
-    {
-        _logger = logger;
-        _context = context;
-    }
-
     /// <summary>
-    /// ½Ó¿Úµ÷ÊÔ
+    /// ç”ŸæˆCQRSä»£ç 
     /// </summary>
-    /// <returns></returns>
-    [HttpGet(Name = "GetWeatherForecast")]
-    [AllowAnonymous]
-    public async Task<int> Get()
+    public class GenerateCodeCQRS
     {
-        //List<ControllerInfo> controllers = GetWebApiControllersWithActions();
-        //var permissions = await _context.Permissions.ToListAsync();
-        //var menuGroups = controllers.GroupBy(x => x.Group).ToList();
-
-        //var permissionsToAdd = new List<Permission>();
-
-        //foreach (var permissionMenus in menuGroups)
-        //{
-        //    var permissionMenu = permissions
-        //        .Where(x => x.Group == permissionMenus.Key && x.SuperiorId == null)
-        //        .FirstOrDefault();
-        //    if (permissionMenu == null)
-        //    {
-        //        permissionMenu = new Permission();
-        //        if (permissionMenus.Key == "ÏµÍ³¹ÜÀí")
-        //        {
-        //            permissionMenu.Path = "/System";
-        //            permissionMenu.Id = SnowFlake.GetInstance().GetLongId();
-        //            var menu = new Permission("ÏµÍ³¹ÜÀí", "ÏµÍ³¹ÜÀí", $"{permissionMenu.Path.ToLower()}", 0, "", PermissionType.Menu, "", "lollipop")
-        //            {
-        //                Id = permissionMenu.Id
-        //            };
-        //            permissionsToAdd.Add(menu);
-        //        }
-        //        else
-        //        {
-        //            int count = permissions.GroupBy(x => x.Group).Count();
-        //            string path = permissionMenus?.FirstOrDefault()!.ControllerName.ToLower()!;
-        //            var menuId = SnowFlake.GetInstance().GetLongId();
-        //            var menu = new Permission(permissionMenus!.Key, permissionMenus.Key, $"/{path}", count++, "", PermissionType.Menu, "", "lollipop")
-        //            {
-        //                Id = menuId
-        //            };
-        //            permissionsToAdd.Add(menu);
-        //        }
-        //    }
-        //    foreach (var permissionPage in permissionMenus)
-        //    {
-        //        var pageId = SnowFlake.GetInstance().GetLongId();
-        //        var pagePath = $"{permissionMenu.Path?.ToLower()}/{permissionPage.ControllerName}/index";
-        //        var pageName = $"{permissionMenu.Path?.Replace("/", "")}{permissionPage.ControllerName}Page";
-        //        var page = new Permission(permissionPage.ControllerDescription, permissionPage.ControllerDescription, pagePath, 0, "", PermissionType.Page, pageName, "")
-        //        {
-        //            Id = pageId,
-        //            SuperiorId = permissionMenu.Id
-        //        };
-        //        var existPage = permissions
-        //        .Where(x => x.Code == page.Code && x.Type == PermissionType.Page)
-        //        .FirstOrDefault();
-        //        if (existPage == null)
-        //        {
-        //            existPage = new Permission();
-        //            existPage = page;
-        //            permissionsToAdd.Add(page);
-        //        }
-
-        //        foreach (var permissionDot in permissionPage.Actions)
-        //        {
-        //            var path = $"api/{permissionPage.ControllerName}/{permissionDot.Route}";
-        //            if (permissionDot.Description.IsNullOrEmpty()) continue;
-        //            var dot = new Permission(permissionPage.ControllerDescription, permissionDot.Description, path, 0, permissionDot.HttpMethods, PermissionType.Dot, "", "")
-        //            {
-        //                Id = SnowFlake.GetInstance().GetLongId(),
-        //                SuperiorId = existPage.Id
-        //            };
-        //            var existDot = permissions
-        //                .Where(x => x.Code == page.Code && x.Type == PermissionType.Dot)
-        //                .FirstOrDefault();
-        //            if (existDot == null)
-        //            {
-        //                permissionsToAdd.Add(dot);
-        //            }
-        //        }
-        //    }
-        //}
-
-        //if (permissionsToAdd.Any())
-        //{
-        //    foreach (var item in permissionsToAdd)
-        //    {
-        //        if (item.SuperiorId == 0)
-        //        {
-        //            item.SuperiorId = null;
-        //        }
-        //    }
-        //    await _context.Permissions.AddRangeAsync(permissionsToAdd);
-        //    await _context.SaveChangesAsync();
-        //}
-
-        // »ñÈ¡ÀàµÄÀàĞÍ
-        Type type = typeof(User);
-        // »ñÈ¡ÀàµÄËùÓĞÊôĞÔ
-        PropertyInfo[] properties = type.GetProperties();
-
-        // ±éÀúÊôĞÔ²¢Êä³öËüÃÇµÄÃû³ÆºÍÀàĞÍ
-        foreach (PropertyInfo property in properties)
+        public static string GenerateAddCommandCode(Type type, string nameSpace, string savePath)
         {
-            var a= property.PropertyType.Name;
-            var d = type.CustomAttributes?
-                .FirstOrDefault(x=>x.AttributeType.Name== "DescriptionAttribute")?
-                .ConstructorArguments?
-                .FirstOrDefault().Value;
-            Console.WriteLine($"ÊôĞÔÃû³Æ: {property.Name}, ÊôĞÔÀàĞÍ: {property.PropertyType}");
-        }
-
-        FieldInfo[] fields = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-
-        foreach (FieldInfo field in fields)
-        {
-            Console.WriteLine($"Field Name: {field.Name}, Field Type: {field.FieldType}");
-        }
-
-        GenerateCodeCQRS.GenerateControllerCode(type, "Application.Features");
-
-        return 0;
-    }
-
-    /// <summary>
-    /// Éú³ÉCQRS´úÂë
-    /// </summary>
-    public static class GenerateCodeCQRS
-    {
-        public static bool GenerateAddCommandCode(Type type, string nameSpace)
-        {
-            var filePath = $@"D:\Add{type.Name}Command.cs";
+            var filePath = $@"{savePath}\Add{type.Name}Command.cs";
             var desc = type.CustomAttributes?
                 .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
                 .ConstructorArguments?
@@ -185,7 +29,7 @@ using Microsoft.Extensions.Options;
 namespace {nameSpace}.{type.Name}s.Commands.Add;
 
 /// <summary>
-/// Ìí¼Ó{desc}
+/// æ·»åŠ {desc}
 /// </summary>
 [Map(typeof({type.Name}))]
 public class Add{type.Name}Command : IRequest<Result<long>>
@@ -193,7 +37,7 @@ public class Add{type.Name}Command : IRequest<Result<long>>
             var body = "";
             PropertyInfo[] properties = type.GetProperties();
 
-            // ±éÀúÊôĞÔ²¢Êä³öËüÃÇµÄÃû³ÆºÍÀàĞÍ
+            // éå†å±æ€§å¹¶è¾“å‡ºå®ƒä»¬çš„åç§°å’Œç±»å‹
             foreach (PropertyInfo property in properties)
             {
                 var propertyTypeName = property.PropertyType.Name;
@@ -229,10 +73,10 @@ public class Add{type.Name}Command : IRequest<Result<long>>
                         break;
                     default:
                         isBreak = true;
-                        break; 
+                        break;
                 }
                 if (isBreak) continue;
-                body += 
+                body +=
      $@"
         
         /// <summary>
@@ -242,13 +86,13 @@ public class Add{type.Name}Command : IRequest<Result<long>>
         public {propertyTypeName} {property.Name} {{ get; set; }}";
 
             }
-            body += 
+            body +=
     $@"
 }}";
 
-            var footer = 
+            var footer =
 $@"/// <summary>
-/// ´¦Àí³ÌĞò
+/// å¤„ç†ç¨‹åº
 /// </summary>
 public class Add{type.Name}CommandHandler : IRequestHandler<Add{type.Name}Command, Result<long>>
 {{
@@ -264,40 +108,38 @@ public class Add{type.Name}CommandHandler : IRequestHandler<Add{type.Name}Comman
     }}
 
     /// <summary>
-    /// ÒµÎñÂß¼­
+    /// ä¸šåŠ¡é€»è¾‘
     /// </summary>
-    /// <param name=""request"">ÇëÇó²ÎÊı</param>
-    /// <param name=""cancellationToken"">È¡Ïû±ê¼Ç</param>
-    /// <returns>·µ»Ø´¦Àí½á¹û</returns>
+    /// <param name=""request"">è¯·æ±‚å‚æ•°</param>
+    /// <param name=""cancellationToken"">å–æ¶ˆæ ‡è®°</param>
+    /// <returns>è¿”å›å¤„ç†ç»“æœ</returns>
     public async Task<Result<long>> Handle(Add{type.Name}Command request, CancellationToken cancellationToken)
     {{
         var {type.Name.ToLower()} = _mapper.Map<{type.Name}>(request);
         {type.Name.ToLower()}.AddDomainEvent(new CreatedEvent<{type.Name}>({type.Name.ToLower()}));
         await _context.{type.Name}s.AddAsync({type.Name.ToLower()});
         var isSuccess = await _context.SaveChangesAsync(cancellationToken) > 0;
-        return await Result<long>.SuccessOrFailureAsync({type.Name.ToLower()}.Id, isSuccess, new string[] {{ ""²Ù×÷Ê§°Ü"" }});
+        return await Result<long>.SuccessOrFailureAsync({type.Name.ToLower()}.Id, isSuccess, new string[] {{ ""æ“ä½œå¤±è´¥"" }});
     }}
 }}";
-
-
             var code = $"{header}{body}{footer}";
             using (FileStream fs = System.IO.File.Create(filePath))
             {
                 byte[] info = new UTF8Encoding(true).GetBytes(code);
                 fs.Write(info, 0, info.Length);
             }
-            return true;
+            return filePath;
         }
 
-        public static bool GenerateUpdateCommandCode(Type type, string nameSpace)
+        public static string GenerateUpdateCommandCode(Type type, string nameSpace, string savePath)
         {
-            var filePath = $@"D:\Update{type.Name}Command.cs";
+            var filePath = $@"{savePath}\Update{type.Name}Command.cs";
             var desc = type.CustomAttributes?
                 .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
                 .ConstructorArguments?
                 .FirstOrDefault().Value;
 
-            var header = 
+            var header =
 $@"using {nameSpace}.{type.Name}s.Caching;
 using Domain.Entities;
 using System.ComponentModel.DataAnnotations;
@@ -306,7 +148,7 @@ namespace {nameSpace}.{type.Name}s.Commands.Update;
 
 
 /// <summary>
-/// ĞŞ¸Ä{desc}
+/// ä¿®æ”¹{desc}
 /// </summary>
 [Map(typeof({type.Name}))]
 public class Update{type.Name}Command : IRequest<Result<long>>
@@ -315,7 +157,7 @@ public class Update{type.Name}Command : IRequest<Result<long>>
             var body = "";
             PropertyInfo[] properties = type.GetProperties();
 
-            // ±éÀúÊôĞÔ²¢Êä³öËüÃÇµÄÃû³ÆºÍÀàĞÍ
+            // éå†å±æ€§å¹¶è¾“å‡ºå®ƒä»¬çš„åç§°å’Œç±»å‹
             foreach (PropertyInfo property in properties)
             {
                 var propertyTypeName = property.PropertyType.Name;
@@ -365,7 +207,7 @@ public class Update{type.Name}Command : IRequest<Result<long>>
         public {propertyTypeName} {type.Name}{property.Name} {{ get; set; }}";
 
                 }
-                else 
+                else
                 {
                     body +=
      $@"
@@ -385,7 +227,7 @@ public class Update{type.Name}Command : IRequest<Result<long>>
             var footer = $@"
 
 /// <summary>
-/// ´¦Àí³ÌĞò
+/// å¤„ç†ç¨‹åº
 /// </summary>
 public class Update{type.Name}CommandHandler : IRequestHandler<Update{type.Name}Command, Result<long>>
 {{
@@ -401,22 +243,22 @@ public class Update{type.Name}CommandHandler : IRequestHandler<Update{type.Name}
     }}
 
     /// <summary>
-    /// ÒµÎñÂß¼­
+    /// ä¸šåŠ¡é€»è¾‘
     /// </summary>
-    /// <param name=""request"">ÇëÇó²ÎÊı</param>
-    /// <param name=""cancellationToken"">È¡Ïû±ê¼Ç</param>
-    /// <returns>·µ»Ø´¦Àí½á¹û</returns>
+    /// <param name=""request"">è¯·æ±‚å‚æ•°</param>
+    /// <param name=""cancellationToken"">å–æ¶ˆæ ‡è®°</param>
+    /// <returns>è¿”å›å¤„ç†ç»“æœ</returns>
     public async Task<Result<long>> Handle(Update{type.Name}Command request, CancellationToken cancellationToken)
     {{
         var {type.Name.ToLower()} = await _context.{type.Name}s
            .SingleOrDefaultAsync(x => x.Id == request.{type.Name}Id && x.ConcurrencyStamp == request.ConcurrencyStamp, cancellationToken)
-           ?? throw new NotFoundException($""Êı¾İ¡¾{{request.{type.Name}Id}}-{{request.ConcurrencyStamp}}¡¿Î´ÕÒµ½"");
+           ?? throw new NotFoundException($""æ•°æ®ã€{{request.{type.Name}Id}}-{{request.ConcurrencyStamp}}ã€‘æœªæ‰¾åˆ°"");
 
         {type.Name.ToLower()} = _mapper.Map(request, {type.Name.ToLower()});
         {type.Name.ToLower()}.AddDomainEvent(new UpdatedEvent<{type.Name}>({type.Name.ToLower()}));
         _context.{type.Name}s.Update({type.Name.ToLower()});
         var isSuccess = await _context.SaveChangesAsync(cancellationToken) > 0;
-        return await Result<long>.SuccessOrFailureAsync({type.Name.ToLower()}.Id, isSuccess, new string[] {{ ""²Ù×÷Ê§°Ü"" }});
+        return await Result<long>.SuccessOrFailureAsync({type.Name.ToLower()}.Id, isSuccess, new string[] {{ ""æ“ä½œå¤±è´¥"" }});
     }}
 }}
 ";
@@ -428,25 +270,25 @@ public class Update{type.Name}CommandHandler : IRequestHandler<Update{type.Name}
                 byte[] info = new UTF8Encoding(true).GetBytes(code);
                 fs.Write(info, 0, info.Length);
             }
-            return true;
+            return filePath;
         }
 
-        public static bool GenerateDeleteCommandCode(Type type, string nameSpace)
+        public static string GenerateDeleteCommandCode(Type type, string nameSpace, string savePath)
         {
-            var filePath = $@"D:\Delete{type.Name}Command.cs";
+            var filePath = $@"{savePath}\Delete{type.Name}Command.cs";
             var desc = type.CustomAttributes?
                 .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
                 .ConstructorArguments?
                 .FirstOrDefault().Value;
 
-            var header = 
+            var header =
 $@"using {nameSpace}.{type.Name}s.Caching;
 using Domain.Entities;
 
 namespace {nameSpace}.{type.Name}s.Commands.Delete;
 
 /// <summary>
-/// É¾³ı{desc}
+/// åˆ é™¤{desc}
 /// </summary>
 public class Delete{type.Name}Command : IRequest<Result<bool>>
 {{
@@ -454,9 +296,9 @@ public class Delete{type.Name}Command : IRequest<Result<bool>>
             var body =
 $@"  
         /// <summary>
-        /// Î¨Ò»±êÊ¶
+        /// å”¯ä¸€æ ‡è¯†
         /// </summary>
-        [Description(""Î¨Ò»±êÊ¶"")]
+        [Description(""å”¯ä¸€æ ‡è¯†"")]
         public List<long> {type.Name}Ids {{ get; set; }}";
             body +=
     $@"
@@ -465,7 +307,7 @@ $@"
             var footer = $@"
 
 /// <summary>
-/// ´¦Àí³ÌĞò
+/// å¤„ç†ç¨‹åº
 /// </summary>
 public class Delete{type.Name}CommandHandler : IRequestHandler<Delete{type.Name}Command, Result<bool>>
 {{
@@ -481,11 +323,11 @@ public class Delete{type.Name}CommandHandler : IRequestHandler<Delete{type.Name}
     }}
 
     /// <summary>
-    /// ÒµÎñÂß¼­
+    /// ä¸šåŠ¡é€»è¾‘
     /// </summary>
-    /// <param name=""request"">ÇëÇó²ÎÊı</param>
-    /// <param name=""cancellationToken"">È¡Ïû±ê¼Ç</param>
-    /// <returns>·µ»Ø´¦Àí½á¹û</returns>
+    /// <param name=""request"">è¯·æ±‚å‚æ•°</param>
+    /// <param name=""cancellationToken"">å–æ¶ˆæ ‡è®°</param>
+    /// <returns>è¿”å›å¤„ç†ç»“æœ</returns>
     public async Task<Result<bool>> Handle(Delete{type.Name}Command request, CancellationToken cancellationToken)
     {{
         var {type.Name.ToLower()}sToDelete = await _context.{type.Name}s
@@ -496,10 +338,10 @@ public class Delete{type.Name}CommandHandler : IRequestHandler<Delete{type.Name}
         {{
             _context.{type.Name}s.RemoveRange({type.Name.ToLower()}sToDelete);
             var isSuccess = await _context.SaveChangesAsync(cancellationToken) > 0;
-            return await Result<bool>.FailureAsync(new string[] {{ ""²Ù×÷Ê§°Ü"" }});
+            return await Result<bool>.FailureAsync(new string[] {{ ""æ“ä½œå¤±è´¥"" }});
         }}
 
-        return await Result<bool>.FailureAsync(new string[] {{ ""Ã»ÓĞÕÒµ½ĞèÒªÉ¾³ıµÄÊı¾İ"" }});
+        return await Result<bool>.FailureAsync(new string[] {{ ""æ²¡æœ‰æ‰¾åˆ°éœ€è¦åˆ é™¤çš„æ•°æ®"" }});
     }}
 }}";
             var code = $"{header}{body}{footer}";
@@ -508,18 +350,63 @@ public class Delete{type.Name}CommandHandler : IRequestHandler<Delete{type.Name}
                 byte[] info = new UTF8Encoding(true).GetBytes(code);
                 fs.Write(info, 0, info.Length);
             }
-            return true;
+            return filePath;
         }
 
-        public static bool GenerateControllerCode(Type type, string nameSpace)
+        public static string GenerateCachingCode(Type type, string nameSpace, string savePath)
         {
-            var filePath = $@"D:\{type.Name}Controller.cs";
+            return "";
+        }
+
+        public static string GenerateDTOsCode(Type type, string nameSpace, string savePath) 
+        {
+            return "";
+        }
+
+        public static string GenerateEventHandlersCode(Type type, string nameSpace, string savePath)
+        {
+            return "";
+        }
+
+        public static string GenerateQueriesGetAllCode(Type type, string nameSpace, string savePath)
+        {
+            return "";
+        }
+
+        public static string GenerateQueriesGetByIdCode(Type type, string nameSpace, string savePath)
+        {
+            return "";
+        }
+
+        public static string GenerateQueriesPaginationCode(Type type, string nameSpace, string savePath)
+        {
+            return "";
+        }
+
+        public static string GenerateSpecificationsFilterCode(Type type, string nameSpace, string savePath)
+        {
+            return "";
+        }
+
+        public static string GenerateSpecificationsPaginationSpecCode(Type type, string nameSpace, string savePath)
+        {
+            return "";
+        }
+
+        public static string GenerateSpecificationsByIdSpecCode(Type type, string nameSpace, string savePath)
+        {
+            return "";
+        }
+
+        public static string GenerateControllerCode(Type type, string nameSpace, string savePath)
+        {
+            var filePath = $@"{savePath}\{type.Name}Controller.cs";
             var desc = type.CustomAttributes?
                 .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
                 .ConstructorArguments?
                 .FirstOrDefault().Value;
 
-            var body = 
+            var body =
 $@"using {nameSpace}.{type.Name}s.DTOs;
 using {nameSpace}.{type.Name}s.Commands.Add;
 using {nameSpace}.{type.Name}s.Commands.Delete;
@@ -535,7 +422,7 @@ namespace WebAPI.Controllers;
 public class {type.Name}Controller : ApiControllerBase
 {{
     /// <summary>
-    /// ·ÖÒ³²éÑ¯
+    /// åˆ†é¡µæŸ¥è¯¢
     /// </summary>
     /// <returns></returns>
     [HttpPost(""PaginationQuery"")]
@@ -546,7 +433,7 @@ public class {type.Name}Controller : ApiControllerBase
     }}
 
     /// <summary>
-    /// ´´½¨{desc}
+    /// åˆ›å»º{desc}
     /// </summary>
     /// <returns></returns>
     [HttpPost(""Add"")]
@@ -557,7 +444,7 @@ public class {type.Name}Controller : ApiControllerBase
     }}
 
     /// <summary>
-    /// ĞŞ¸Ä{desc}
+    /// ä¿®æ”¹{desc}
     /// </summary>
     /// <returns></returns>
     [HttpPut(""Update"")]
@@ -567,7 +454,7 @@ public class {type.Name}Controller : ApiControllerBase
     }}
 
     /// <summary>
-    /// É¾³ı{desc}
+    /// åˆ é™¤{desc}
     /// </summary>
     /// <returns></returns>
     [HttpDelete(""Delete"")]
@@ -583,7 +470,38 @@ public class {type.Name}Controller : ApiControllerBase
                 byte[] info = new UTF8Encoding(true).GetBytes(code);
                 fs.Write(info, 0, info.Length);
             }
-            return true;
+            return filePath;
+        }
+    }
+
+    /// <summary>
+    /// ç”Ÿæˆå‰ç«¯Vueä»£ç 
+    /// </summary>
+    public class GenerateCodeVue
+    {
+        public static string GenerateHookCode(Type type, string nameSpace, string savePath) 
+        {
+            return "";
+        }
+
+        public static string GenerateRuleCode(Type type, string nameSpace, string savePath)
+        {
+            return "";
+        }
+
+        public static string GenerateTypesCode(Type type, string nameSpace, string savePath)
+        {
+            return "";
+        }
+
+        public static string GenerateFormCode(Type type, string nameSpace, string savePath)
+        {
+            return "";
+        }
+
+        public static string GenerateIndexCode(Type type, string nameSpace, string savePath)
+        {
+            return "";
         }
     }
 }
