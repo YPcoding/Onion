@@ -62,7 +62,8 @@ public class GetLoginerPermissionRouterQueryHandler :
                         {
                             Title = permission.Label!,
                             Roles = GetRolesByPermissionIdAsync(permission.Id).Result,//角色
-                            Auths = GetAuthsByPermissionIdAsync(permissions, permission.Id).Result //权限点
+                            Auths = permissions.Where(x => x.SuperiorId == permission.Id)
+                                    .Select(s => s.Code!.ToLower()).ToArray()
                         }
                     }).ToList()
             }).ToList();

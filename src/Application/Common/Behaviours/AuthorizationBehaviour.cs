@@ -1,3 +1,4 @@
+using AngleSharp.Text;
 using Domain.Entities;
 using Domain.Enums;
 using Domain.Services;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Options;
 
 namespace Application.Common.Behaviours;
 
@@ -19,15 +21,18 @@ public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRe
     private readonly ICurrentUserService _currentUserService;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly PermissionDomainService _permissionService;
+    private readonly IOptions<SystemSettings> _optSystemSettings;
 
     public AuthorizationBehaviour(
         ICurrentUserService currentUserService,
         IHttpContextAccessor httpContextAccessor,
-        PermissionDomainService permissionService)
+        PermissionDomainService permissionService,
+        IOptions<SystemSettings> optSystemSettings)
     {
         _currentUserService = currentUserService;
         _httpContextAccessor = httpContextAccessor;
         _permissionService = permissionService;
+        _optSystemSettings = optSystemSettings;
     }
 
     /// <summary>
@@ -40,6 +45,12 @@ public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRe
     /// <exception cref="ForbiddenAccessException">未授权时的异常处理</exception>
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
+        var isInPermissionWhiteList = _optSystemSettings.Value.PermissionWhiteListUserNames.Contains(_currentUserService.UserName!);
+        if (isInPermissionWhiteList)
+        {
+            return await next().ConfigureAwait(false);
+        }
+
         var httpContext = _httpContextAccessor.HttpContext;
         var routeData = httpContext?.GetRouteData();
         var controllerName = routeData?.Values["controller"]?.ToString();
