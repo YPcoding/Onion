@@ -5,9 +5,8 @@ using Domain.Enums;
 using Infrastructure.Persistence;
 using Masuit.Tools;
 using Masuit.Tools.Systems;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using System;
+using SQLitePCL;
 using System.Linq.Dynamic.Core;
 using static Application.Common.Helper.WebApiDocHelper;
 
@@ -196,6 +195,18 @@ public class ApplicationDbContextInitializer
                         if (superior != null)
                         {
                             permission.SuperiorId = superior.Id;
+
+                            var input = superior.Path!.Replace("/", "");
+                            var path = "";
+                            if (!string.IsNullOrEmpty(input))
+                            {
+                                char[] charArray = input.ToCharArray();
+                                charArray[0] = char.ToUpper(charArray[0]);
+                                path = new string(charArray);
+                            }
+                            permission.Description = $"{path}{permission.Path!.Replace("/", "")}Page";
+
+                            permission.Path = $"{superior.Path}{permission.Path!.ToLower()}/index";
                         }
                     }
 
