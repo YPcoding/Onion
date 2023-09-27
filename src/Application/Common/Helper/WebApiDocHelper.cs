@@ -12,6 +12,7 @@ public class WebApiDocHelper
     {
         public string ControllerName { get; set; }
         public string ControllerDescription { get; set; }
+        public string Group { get; set; }
         public List<ActionInfo> Actions { get; set; }
     }
 
@@ -37,12 +38,17 @@ public class WebApiDocHelper
 
         foreach (var controllerType in controllerTypes)
         {
+            var group = controllerType.CustomAttributes
+                .Where(x => x.AttributeType.Name == "DescriptionAttribute")
+                ?.FirstOrDefault()?.ConstructorArguments?
+                .FirstOrDefault().Value?.ToString() ?? "系统管理";
+
             var controllerInfo = new ControllerInfo
             {
                 ControllerName = controllerType.Name.Replace("Controller", ""),
+                Group = group,
                 Actions = new List<ActionInfo>()
             };
-
             var methods = controllerType.GetMethods(BindingFlags.Public | BindingFlags.Instance);
 
             foreach (var method in methods)

@@ -53,7 +53,7 @@ public class UserController : ApiControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpPut("IsUnLock")]
-    public async Task<Result<bool>> Is(IsUnLockUserCommand command)
+    public async Task<Result<bool>> IsUnLock(IsUnLockUserCommand command)
     {
         return await Mediator.Send(command);
     }

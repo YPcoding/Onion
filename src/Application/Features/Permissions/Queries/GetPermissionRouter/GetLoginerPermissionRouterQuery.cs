@@ -52,7 +52,7 @@ public class GetLoginerPermissionRouterQueryHandler :
                     Rank = menu.Sort,
                 },
                 Children = permissions
-                    .Where(p => p.Type == PermissionType.Page && !string.IsNullOrEmpty(p.Description))
+                    .Where(p => p.SuperiorId == menu.Id && p.Type == PermissionType.Page && !string.IsNullOrEmpty(p.Description))
                     .Select(permission => new PermissionRouterDto
                     {
                         Id = permission.Id,

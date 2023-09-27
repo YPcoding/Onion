@@ -1,6 +1,7 @@
 ﻿using Application.Features.AuditTrails.Queries.Pagination;
 using Domain.Entities.Audit;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel;
 
 namespace WebAPI.Controllers
 {
