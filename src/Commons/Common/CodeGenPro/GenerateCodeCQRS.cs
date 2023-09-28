@@ -11,6 +11,13 @@ namespace Common.CodeGenPro
     /// </summary>
     public class GenerateCodeCQRS
     {
+        public static Type GetTypeByFullClassName(string fullClassName = "Domain.Entities.Identity.User")
+        {
+            string className = fullClassName;
+            Assembly assembly = Assembly.Load(className.Split('.')[0].ToString());
+            return assembly.GetType(className)!;
+        }
+
         public static string GenerateAddCommandCode(Type type, string nameSpace, string savePath)
         {
             var filePath = $@"{savePath}\Add{type.Name}Command.cs";
@@ -355,47 +362,597 @@ public class Delete{type.Name}CommandHandler : IRequestHandler<Delete{type.Name}
 
         public static string GenerateCachingCode(Type type, string nameSpace, string savePath)
         {
-            return "";
+            var filePath = $@"{savePath}\{type.Name}CacheKey.cs";
+            var desc = type.CustomAttributes?
+                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+                .ConstructorArguments?
+                .FirstOrDefault().Value;
+
+            var body =
+$@"using Microsoft.Extensions.Primitives;
+
+namespace {nameSpace}.{type.Name}s.Caching;
+
+public static class {type.Name}CacheKey
+{{
+    public const string GetAllCacheKey = ""all-{type.Name}s"";
+    private static readonly TimeSpan RefreshInterval = TimeSpan.FromHours(1);
+    private static CancellationTokenSource _tokenSource;
+
+    public static string GetByIdCacheKey(long id)
+    {{
+        return $""Get{type.Name}ById,{{id}}"";
+    }}
+
+    static {type.Name}CacheKey()
+    {{
+        _tokenSource = new CancellationTokenSource(RefreshInterval);
+    }}
+
+    public static MemoryCacheEntryOptions MemoryCacheEntryOptions =>
+        new MemoryCacheEntryOptions().AddExpirationToken(new CancellationChangeToken(SharedExpiryTokenSource().Token));
+
+    public static string GetPaginationCacheKey(string parameters)
+    {{
+        return $""{type.Name}sWithPaginationQuery,{{parameters}}"";
+    }}
+
+    public static CancellationTokenSource SharedExpiryTokenSource()
+    {{
+        if (_tokenSource.IsCancellationRequested) _tokenSource = new CancellationTokenSource(RefreshInterval);
+        return _tokenSource;
+    }}
+
+    public static void Refresh()
+    {{
+        SharedExpiryTokenSource().Cancel();
+    }}
+}}
+";
+            var code = $"{body}";
+            using (FileStream fs = System.IO.File.Create(filePath))
+            {
+                byte[] info = new UTF8Encoding(true).GetBytes(code);
+                fs.Write(info, 0, info.Length);
+            }
+            return filePath;
         }
 
-        public static string GenerateDTOsCode(Type type, string nameSpace, string savePath) 
+        public static string GenerateDTOsCode(Type type, string nameSpace, string savePath)
         {
-            return "";
+            var filePath = $@"{savePath}\{type.Name}Dto.cs";
+            var desc = type.CustomAttributes?
+                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+                .ConstructorArguments?
+                .FirstOrDefault().Value;
+
+            var header =
+$@"using Domain.Entities;
+using Domain.Enums;
+using System.ComponentModel.DataAnnotations;
+
+namespace {nameSpace}.{type.Name}s.DTOs
+{{
+    [Map(typeof({type.Name}))]
+    public class {type.Name}Dto
+    {{
+";
+
+            var body =
+$@"     
+        /// <summary>
+        /// 唯一标识
+        /// </summary>
+        public long? Id {{ get; set; }}
+
+        /// <summary>
+        /// 唯一标识
+        /// </summary>
+        public long? {type.Name}Id 
+        {{
+            get 
+            {{
+                return Id;
+            }}
+        }}";
+
+            PropertyInfo[] properties = type.GetProperties();
+            string[] ignoreFields = new string[]
+            {
+                "Id",
+                "DeletedBy",
+                "Deleted",
+                "CreatedBy",
+                "LastModified",
+                "LastModifiedBy",
+                "LastModifiedBy",
+                "ConcurrencyStamp"
+            };
+
+            // 遍历属性并输出它们的名称和类型
+            foreach (PropertyInfo property in properties)
+            {
+                var propertyTypeName = property.PropertyType.Name;
+                var description = property.CustomAttributes?
+                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+                .ConstructorArguments?
+                .FirstOrDefault().Value;
+                if (ignoreFields.Contains(property.Name)) continue;
+                if (property.Name.Contains("Id")) continue;
+                if (propertyTypeName == type.Name) continue;
+
+                if (propertyTypeName == "String")
+                {
+                    propertyTypeName = "string";
+                }
+                if (propertyTypeName == "Boolean")
+                {
+                    propertyTypeName = "bool";
+                }
+                if (propertyTypeName == "Int32")
+                {
+                    propertyTypeName = "int";
+                }
+                if (propertyTypeName == "ICollection`1")
+                {
+                    continue;
+                }
+                if (propertyTypeName == "IReadOnlyCollection`1")
+                {
+                    continue;
+                }
+                if (propertyTypeName == "Nullable`1")
+                {
+                    string a = property.ToString();
+                    if (property.ToString().Contains("DateTimeOffset"))
+                    {
+                        propertyTypeName = "DateTimeOffset";
+                    }
+                    if (property.ToString().Contains("DateTime"))
+                    {
+                        propertyTypeName = "DateTime";
+                    }
+                    if (property.ToString().Contains("Int64"))
+                    {
+                        propertyTypeName = "long";
+                    }
+                }
+
+                body +=
+     $@"
+        
+        /// <summary>
+        /// {description}
+        /// </summary>
+        [Description(""{description}"")]
+        public {propertyTypeName}? {property.Name} {{ get; set; }}";
+
+            }
+
+
+
+            var footer =
+$@"
+
+        /// <summary>
+        /// 并发标记
+        /// </summary>
+        [Description(""并发标记"")]
+        public string? ConcurrencyStamp {{ get; set; }}
+    }}
+}}";
+            var code = $"{header}{body}{footer}";
+            using (FileStream fs = System.IO.File.Create(filePath))
+            {
+                byte[] info = new UTF8Encoding(true).GetBytes(code);
+                fs.Write(info, 0, info.Length);
+            }
+            return filePath;
+
         }
 
         public static string GenerateEventHandlersCode(Type type, string nameSpace, string savePath)
         {
-            return "";
+            var filePath = $@"{savePath}\{type.Name}CreatedEventHandler.cs";
+            var desc = type.CustomAttributes?
+                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+                .ConstructorArguments?
+                .FirstOrDefault().Value;
+
+            var body =
+$@"{nameSpace}.Features.{type.Name}s.EventHandlers;
+
+public class {type.Name}CreatedEventHandler : INotificationHandler<CreatedEvent<{type.Name}>>
+{{
+    private readonly ILogger<{type.Name}CreatedEventHandler> _logger;
+
+    public {type.Name}CreatedEventHandler(
+        ILogger<{type.Name}CreatedEventHandler> logger
+    )
+    {{
+        _logger = logger;
+    }}
+
+    public Task Handle(CreatedEvent<{type.Name}> notification, CancellationToken cancellationToken)
+    {{
+        return Task.CompletedTask;
+    }}
+}}
+";
+            var code = $"{body}";
+            using (FileStream fs = System.IO.File.Create(filePath))
+            {
+                byte[] info = new UTF8Encoding(true).GetBytes(code);
+                fs.Write(info, 0, info.Length);
+            }
+            return filePath;
         }
 
         public static string GenerateQueriesGetAllCode(Type type, string nameSpace, string savePath)
         {
-            return "";
+            var filePath = $@"{savePath}\GetAll{type.Name}Query.cs";
+            var desc = type.CustomAttributes?
+                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+                .ConstructorArguments?
+                .FirstOrDefault().Value;
+
+            var body =
+$@"using {nameSpace}.{type.Name}s.Caching;
+using {nameSpace}.{type.Name}s.DTOs;
+using AutoMapper.QueryableExtensions;
+
+namespace {nameSpace}.{type.Name}s.Queries.GetAll;
+
+public class GetAll{type.Name}sQuery : IRequest<Result<IEnumerable<{type.Name}Dto>>>
+{{
+}}
+
+public class GetAll{type.Name}sQueryHandler :
+    IRequestHandler<GetAll{type.Name}sQuery, Result<IEnumerable<{type.Name}Dto>>>
+{{
+    private readonly IApplicationDbContext _context;
+    private readonly IMapper _mapper;
+
+    public GetAll{type.Name}sQueryHandler(
+        IApplicationDbContext context,
+        IMapper mapper
+    )
+    {{
+        _context = context;
+        _mapper = mapper;
+    }}
+
+    public async Task<Result<IEnumerable<{type.Name}Dto>>> Handle(GetAll{type.Name}sQuery request, CancellationToken cancellationToken)
+    {{
+        var data = await _context.{type.Name}s
+            .ProjectTo<{type.Name}Dto>(_mapper.ConfigurationProvider)
+            .ToListAsync(cancellationToken);
+        return await Result<IEnumerable<{type.Name}Dto>>.SuccessAsync(data);
+    }}
+}}
+
+";
+            var code = $"{body}";
+            using (FileStream fs = System.IO.File.Create(filePath))
+            {
+                byte[] info = new UTF8Encoding(true).GetBytes(code);
+                fs.Write(info, 0, info.Length);
+            }
+            return filePath;
         }
 
         public static string GenerateQueriesGetByIdCode(Type type, string nameSpace, string savePath)
         {
-            return "";
+            var filePath = $@"{savePath}\Get{type.Name}QueryById.cs";
+            var desc = type.CustomAttributes?
+                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+                .ConstructorArguments?
+                .FirstOrDefault().Value;
+
+            var body =
+$@"using Application.Common.Extensions;
+using {nameSpace}.{type.Name}s.Caching;
+using {nameSpace}.{type.Name}s.DTOs;
+using {nameSpace}.{type.Name}s.Specifications;
+using AutoMapper.QueryableExtensions;
+using System.ComponentModel.DataAnnotations;
+
+namespace {nameSpace}.{type.Name}s.Queries.GetById;
+
+/// <summary>
+/// 通过唯一标识获取一条数据
+/// </summary>
+public class Get{type.Name}QueryById : IRequest<Result<{type.Name}Dto>>
+{{
+    /// <summary>
+    /// 唯一标识
+    /// </summary>
+    [Required(ErrorMessage = ""唯一标识必填的"")]
+    public long {type.Name}Id {{ get; set; }}
+}}
+
+/// <summary>
+/// 处理程序
+/// </summary>
+public class Get{type.Name}ByIdQueryHandler :IRequestHandler<Get{type.Name}QueryById, Result<{type.Name}Dto>>
+{{
+    private readonly IApplicationDbContext _context;
+    private readonly IMapper _mapper;
+
+    public Get{type.Name}ByIdQueryHandler(
+        IApplicationDbContext context,
+        IMapper mapper
+        )
+    {{
+        _context = context;
+        _mapper = mapper;
+    }}
+
+    /// <summary>
+    /// 业务逻辑
+    /// </summary>
+    /// <param name=""request"">请求参数</param>
+    /// <param name=""cancellationToken"">取消标记</param>
+    /// <returns>返回查询的一条数据</returns>
+    /// <exception cref=""NotFoundException"">未找到数据移除处理</exception>
+    public async Task<Result<{type.Name}Dto>> Handle(Get{type.Name}QueryById request, CancellationToken cancellationToken)
+    {{
+        var {type.Name.ToLower()} = await _context.{type.Name}s.ApplySpecification(new {type.Name}ByIdSpec(request.{type.Name}Id))
+                     .ProjectTo<{type.Name}Dto>(_mapper.ConfigurationProvider)
+                     .SingleOrDefaultAsync(cancellationToken) ?? throw new NotFoundException($""唯一标识: [{{request.{type.Name}Id}}] 未找到"");
+        return await Result<{type.Name}Dto>.SuccessAsync({type.Name.ToLower()});
+    }}
+}}
+";
+            var code = $"{body}";
+            using (FileStream fs = System.IO.File.Create(filePath))
+            {
+                byte[] info = new UTF8Encoding(true).GetBytes(code);
+                fs.Write(info, 0, info.Length);
+            }
+            return filePath;
         }
 
         public static string GenerateQueriesPaginationCode(Type type, string nameSpace, string savePath)
         {
-            return "";
+            var filePath = $@"{savePath}\{type.Name}sWithPaginationQuery.cs";
+            var desc = type.CustomAttributes?
+                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+                .ConstructorArguments?
+                .FirstOrDefault().Value;
+
+            var body =
+$@"using Application.Common.Extensions;
+using {nameSpace}.{type.Name}s.Caching;
+using {nameSpace}.{type.Name}s.DTOs;
+using {nameSpace}.{type.Name}s.Specifications;
+
+namespace {nameSpace}.{type.Name}s.Queries.Pagination;
+
+/// <summary>
+/// {desc}分页查询
+/// </summary>
+public class {type.Name}sWithPaginationQuery : {type.Name}AdvancedFilter, IRequest<Result<PaginatedData<{type.Name}Dto>>>
+{{
+    [JsonIgnore]
+    public {type.Name}AdvancedPaginationSpec Specification => new {type.Name}AdvancedPaginationSpec(this);
+}}
+
+/// <summary>
+/// 处理程序
+/// </summary>
+public class {type.Name}sWithPaginationQueryHandler :
+    IRequestHandler<{type.Name}sWithPaginationQuery, Result<PaginatedData<{type.Name}Dto>>>
+{{
+    private readonly IApplicationDbContext _context;
+    private readonly IMapper _mapper;
+    public {type.Name}sWithPaginationQueryHandler(
+        IApplicationDbContext context,
+        IMapper mapper)
+    {{
+        _context = context;
+        _mapper = mapper;
+    }}
+
+    /// <summary>
+    /// 业务逻辑
+    /// </summary>
+    /// <param name=""request"">请求参数</param>
+    /// <param name=""cancellationToken"">取消标记</param>
+    /// <returns>返回{desc}分页数据</returns>
+    public async Task<Result<PaginatedData<{type.Name}Dto>>> Handle(
+        {type.Name}sWithPaginationQuery request,
+        CancellationToken cancellationToken)
+    {{
+        var {type.Name.ToLower()}s = await _context.{type.Name}s
+            .OrderBy($""{{request.OrderBy}} {{request.SortDirection}}"")
+            .ProjectToPaginatedDataAsync<{type.Name}, {type.Name}Dto>(
+            request.Specification,
+            request.PageNumber,
+            request.PageSize,
+            _mapper.ConfigurationProvider,
+            cancellationToken);
+
+        return await Result<PaginatedData<{type.Name}Dto>>.SuccessAsync({type.Name.ToLower()}s);
+    }}
+}}
+";
+            var code = $"{body}";
+            using (FileStream fs = System.IO.File.Create(filePath))
+            {
+                byte[] info = new UTF8Encoding(true).GetBytes(code);
+                fs.Write(info, 0, info.Length);
+            }
+            return filePath;
         }
 
         public static string GenerateSpecificationsFilterCode(Type type, string nameSpace, string savePath)
         {
-            return "";
+            var filePath = $@"{savePath}\{type.Name}AdvancedFilter.cs";
+            var desc = type.CustomAttributes?
+                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+                .ConstructorArguments?
+                .FirstOrDefault().Value;
+
+            var header =
+$@"namespace {nameSpace}.{type.Name}s.Specifications;
+
+/// <summary>
+/// 高级查询
+/// </summary>
+public class {type.Name}AdvancedFilter : PaginationFilter
+{{";
+
+            var body = $@"";
+
+            PropertyInfo[] properties = type.GetProperties();
+            string[] ignoreFields = new string[]
+            {
+                "Id",
+                "DeletedBy",
+                "Deleted",
+                "CreatedBy",
+                "LastModified",
+                "LastModifiedBy",
+                "LastModifiedBy",
+                "ConcurrencyStamp"
+            };
+
+            // 遍历属性并输出它们的名称和类型
+            foreach (PropertyInfo property in properties)
+            {
+                var propertyTypeName = property.PropertyType.Name;
+                var description = property.CustomAttributes?
+                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+                .ConstructorArguments?
+                .FirstOrDefault().Value;
+                if (ignoreFields.Contains(property.Name)) continue;
+                if (property.Name.Contains("Id")) continue;
+                if (propertyTypeName == type.Name) continue;
+
+                if (propertyTypeName == "String")
+                {
+                    propertyTypeName = "string";
+                    body +=
+$@"       
+    /// <summary>
+    /// {description}
+    /// </summary>
+    [Description(""{description}"")]
+    public {propertyTypeName}? {property.Name} {{ get; set; }}
+";
+                }
+            }
+
+            var footer =
+$@"}}";
+            var code = $"{header}{body}{footer}";
+            using (FileStream fs = System.IO.File.Create(filePath))
+            {
+                byte[] info = new UTF8Encoding(true).GetBytes(code);
+                fs.Write(info, 0, info.Length);
+            }
+            return filePath;
         }
 
         public static string GenerateSpecificationsPaginationSpecCode(Type type, string nameSpace, string savePath)
         {
-            return "";
+
+            var filePath = $@"{savePath}\{type.Name}AdvancedPaginationSpec.cs";
+            var desc = type.CustomAttributes?
+                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+                .ConstructorArguments?
+                .FirstOrDefault().Value;
+
+            var header =
+$@"using Ardalis.Specification;
+using Masuit.Tools;
+
+namespace {nameSpace}.{type.Name}s.Specifications;
+
+public class {type.Name}AdvancedPaginationSpec : Specification<{type.Name}>
+{{
+    public {type.Name}AdvancedPaginationSpec({type.Name}AdvancedFilter filter)
+    {{
+        Query";
+
+            var body = $@"";
+
+            PropertyInfo[] properties = type.GetProperties();
+            string[] ignoreFields = new string[]
+            {
+                "Id",
+                "DeletedBy",
+                "Deleted",
+                "CreatedBy",
+                "LastModified",
+                "LastModifiedBy",
+                "LastModifiedBy",
+                "ConcurrencyStamp"
+            };
+
+            // 遍历属性并输出它们的名称和类型
+            foreach (PropertyInfo property in properties)
+            {
+                var propertyTypeName = property.PropertyType.Name;
+                var description = property.CustomAttributes?
+                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+                .ConstructorArguments?
+                .FirstOrDefault().Value;
+                if (ignoreFields.Contains(property.Name)) continue;
+                if (property.Name.Contains("Id")) continue;
+                if (propertyTypeName == type.Name) continue;
+
+                if (propertyTypeName == "String")
+                {
+                    propertyTypeName = "string";
+                    body +=
+$@"     
+            .Where(x => x.{property.Name} == filter.{property.Name}, !filter.{property.Name}.IsNullOrEmpty())
+";
+                }
+            }
+
+            var footer =
+$@"    }}
+}}";
+            var code = $"{header}{body}{footer}";
+            using (FileStream fs = System.IO.File.Create(filePath))
+            {
+                byte[] info = new UTF8Encoding(true).GetBytes(code);
+                fs.Write(info, 0, info.Length);
+            }
+            return filePath;
         }
 
         public static string GenerateSpecificationsByIdSpecCode(Type type, string nameSpace, string savePath)
         {
-            return "";
+            var filePath = $@"{savePath}\{type.Name}ByIdSpec.cs";
+            var desc = type.CustomAttributes?
+                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+                .ConstructorArguments?
+                .FirstOrDefault().Value;
+
+            var body =
+$@"using Ardalis.Specification;
+
+namespace {nameSpace}.{type.Name}s.Specifications;
+
+public class {type.Name}ByIdSpec : Specification<{type.Name}>
+{{
+    public {type.Name}ByIdSpec(long id)
+    {{
+        Query.Where(q => q.Id == id);
+    }}
+}}
+";
+            var code = $"{body}";
+            using (FileStream fs = System.IO.File.Create(filePath))
+            {
+                byte[] info = new UTF8Encoding(true).GetBytes(code);
+                fs.Write(info, 0, info.Length);
+            }
+            return filePath;
         }
 
         public static string GenerateControllerCode(Type type, string nameSpace, string savePath)
@@ -472,6 +1029,7 @@ public class {type.Name}Controller : ApiControllerBase
             }
             return filePath;
         }
+
     }
 
     /// <summary>
@@ -479,6 +1037,13 @@ public class {type.Name}Controller : ApiControllerBase
     /// </summary>
     public class GenerateCodeVue
     {
+        public static Type GetTypeByFullClassName(string fullClassName = "Domain.Entities.Identity.User")
+        {
+            string className = fullClassName;
+            Assembly assembly = Assembly.Load(className.Split('.')[0].ToString());
+            return assembly.GetType(className)!;
+        }
+
         public static string GenerateHookCode(Type type, string nameSpace, string savePath) 
         {
             return "";
