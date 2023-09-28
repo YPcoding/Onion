@@ -18,6 +18,20 @@ namespace Common.CodeGenPro
             return assembly.GetType(className)!;
         }
 
+        public static string RemoveSuffix(string input, string suffixToRemove)
+        {
+            if (input.EndsWith(suffixToRemove))
+            {
+                // 使用 Substring 方法删除后缀
+                return input.Substring(0, input.Length - suffixToRemove.Length);
+            }
+            else
+            {
+                // 如果没有匹配的后缀，返回原始字符串
+                return input;
+            }
+        }
+
         public static string GenerateCachingCode(Type type, string nameSpace, string savePath)
         {
             savePath = $"{savePath}\\{type.Name}s\\Caching";
@@ -30,7 +44,7 @@ namespace Common.CodeGenPro
 
             var body =
 $@"using Microsoft.Extensions.Primitives;
-
+using {RemoveSuffix($"{type.FullName}", $".{type.Name}")};
 namespace {nameSpace}.{type.Name}s.Caching;
 
 public static class {type.Name}CacheKey
@@ -90,6 +104,7 @@ public static class {type.Name}CacheKey
 
             var header =
 $@"using System.ComponentModel.DataAnnotations;
+using {RemoveSuffix($"{type.FullName}", $".{type.Name}")};
 using {nameSpace}.{type.Name}s.Caching;
 using Domain.Entities;
 using Masuit.Tools.Systems;
@@ -106,6 +121,18 @@ public class Add{type.Name}Command : IRequest<Result<long>>
             var body = "";
             PropertyInfo[] properties = type.GetProperties();
 
+            string[] ignoreFields = new string[]
+            {
+                "Id",
+                "DeletedBy",
+                "Deleted",
+                "CreatedBy",
+                "LastModified",
+                "LastModifiedBy",
+                "LastModifiedBy",
+                "ConcurrencyStamp"
+            };
+
             // 遍历属性并输出它们的名称和类型
             foreach (PropertyInfo property in properties)
             {
@@ -116,6 +143,7 @@ public class Add{type.Name}Command : IRequest<Result<long>>
                 .FirstOrDefault().Value;
                 bool isBreak = false;
                 if (property.Name.Contains("Id")) continue;
+                if (ignoreFields.Contains(property.Name)) continue;
 
                 switch (propertyTypeName)
                 {
@@ -212,6 +240,7 @@ public class Add{type.Name}CommandHandler : IRequestHandler<Add{type.Name}Comman
 
             var header =
 $@"using {nameSpace}.{type.Name}s.Caching;
+using {RemoveSuffix($"{type.FullName}", $".{type.Name}")};
 using Domain.Entities;
 using System.ComponentModel.DataAnnotations;
 
@@ -227,6 +256,15 @@ public class Update{type.Name}Command : IRequest<Result<long>>
 ";
             var body = "";
             PropertyInfo[] properties = type.GetProperties();
+            string[] ignoreFields = new string[]
+           {
+                "DeletedBy",
+                "Deleted",
+                "CreatedBy",
+                "LastModified",
+                "LastModifiedBy",
+                "LastModifiedBy",
+           };
 
             // 遍历属性并输出它们的名称和类型
             foreach (PropertyInfo property in properties)
@@ -237,6 +275,7 @@ public class Update{type.Name}Command : IRequest<Result<long>>
                 .ConstructorArguments?
                 .FirstOrDefault().Value;
                 bool isBreak = false;
+                if (ignoreFields.Contains(property.Name)) continue;
 
                 switch (propertyTypeName)
                 {
@@ -356,6 +395,7 @@ public class Update{type.Name}CommandHandler : IRequestHandler<Update{type.Name}
 
             var header =
 $@"using {nameSpace}.{type.Name}s.Caching;
+using {RemoveSuffix($"{type.FullName}", $".{type.Name}")};
 using Domain.Entities;
 
 namespace {nameSpace}.{type.Name}s.Commands.Delete;
@@ -411,7 +451,7 @@ public class Delete{type.Name}CommandHandler : IRequestHandler<Delete{type.Name}
         {{
             _context.{type.Name}s.RemoveRange({type.Name.ToLower()}sToDelete);
             var isSuccess = await _context.SaveChangesAsync(cancellationToken) > 0;
-            return await Result<bool>.FailureAsync(new string[] {{ ""操作失败"" }});
+            return await Result<bool>.SuccessOrFailureAsync(isSuccess, isSuccess,new string[] {{""操作失败""}});
         }}
 
         return await Result<bool>.FailureAsync(new string[] {{ ""没有找到需要删除的数据"" }});
@@ -439,6 +479,7 @@ public class Delete{type.Name}CommandHandler : IRequestHandler<Delete{type.Name}
             var header =
 $@"using Domain.Entities;
 using Domain.Enums;
+using {RemoveSuffix($"{type.FullName}", $".{type.Name}")};
 using System.ComponentModel.DataAnnotations;
 
 namespace {nameSpace}.{type.Name}s.DTOs
@@ -572,7 +613,8 @@ $@"
                 .FirstOrDefault().Value;
 
             var body =
-$@"{nameSpace}.Features.{type.Name}s.EventHandlers;
+$@"using {RemoveSuffix($"{type.FullName}", $".{type.Name}")};
+namespace {nameSpace}.{type.Name}s.EventHandlers;
 
 public class {type.Name}CreatedEventHandler : INotificationHandler<CreatedEvent<{type.Name}>>
 {{
@@ -613,6 +655,7 @@ public class {type.Name}CreatedEventHandler : INotificationHandler<CreatedEvent<
             var body =
 $@"using {nameSpace}.{type.Name}s.Caching;
 using {nameSpace}.{type.Name}s.DTOs;
+using {RemoveSuffix($"{type.FullName}", $".{type.Name}")};
 using AutoMapper.QueryableExtensions;
 
 namespace {nameSpace}.{type.Name}s.Queries.GetAll;
@@ -667,6 +710,7 @@ public class GetAll{type.Name}sQueryHandler :
 
             var body =
 $@"using Application.Common.Extensions;
+using {RemoveSuffix($"{type.FullName}", $".{type.Name}")};
 using {nameSpace}.{type.Name}s.Caching;
 using {nameSpace}.{type.Name}s.DTOs;
 using {nameSpace}.{type.Name}s.Specifications;
@@ -741,6 +785,7 @@ public class Get{type.Name}ByIdQueryHandler :IRequestHandler<Get{type.Name}Query
 
             var body =
 $@"using Application.Common.Extensions;
+using {RemoveSuffix($"{type.FullName}", $".{type.Name}")};
 using {nameSpace}.{type.Name}s.Caching;
 using {nameSpace}.{type.Name}s.DTOs;
 using {nameSpace}.{type.Name}s.Specifications;
@@ -815,7 +860,8 @@ public class {type.Name}sWithPaginationQueryHandler :
                 .FirstOrDefault().Value;
 
             var header =
-$@"namespace {nameSpace}.{type.Name}s.Specifications;
+$@"using {RemoveSuffix($"{type.FullName}", $".{type.Name}")};
+namespace {nameSpace}.{type.Name}s.Specifications;
 
 /// <summary>
 /// 高级查询
@@ -887,6 +933,7 @@ $@"}}";
 
             var header =
 $@"using Ardalis.Specification;
+using {RemoveSuffix($"{type.FullName}", $".{type.Name}")};
 using Masuit.Tools;
 
 namespace {nameSpace}.{type.Name}s.Specifications;
@@ -958,6 +1005,7 @@ $@";    }}
 
             var body =
 $@"using Ardalis.Specification;
+using {RemoveSuffix($"{type.FullName}", $".{type.Name}")};
 
 namespace {nameSpace}.{type.Name}s.Specifications;
 
@@ -980,9 +1028,19 @@ public class {type.Name}ByIdSpec : Specification<{type.Name}>
 
         public static string GenerateControllerCode(Type type, string nameSpace, string savePath)
         {
-            savePath = $"{savePath}\\{type.Name}s\\Specifications";
+            string fullPath = savePath;
+            string targetSubstring = "Onion\\src";
+            // 找到目标子字符串的索引
+            int index = fullPath.IndexOf(targetSubstring);
+            if (index != -1)
+            {
+                // 截取目标子字符串之前的部分
+                fullPath = fullPath.Substring(0, index);
+            }
+
+            savePath = $"{fullPath}{targetSubstring}\\WebAPI\\Controllers";
             Directory.CreateDirectory(savePath);
-            var filePath = $@"{savePath}\{type.Name}Controller.cs";
+            var filePath = $@"{savePath}\\{type.Name}Controller.cs";
             var desc = type.CustomAttributes?
                 .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
                 .ConstructorArguments?
@@ -994,6 +1052,7 @@ using {nameSpace}.{type.Name}s.Commands.Add;
 using {nameSpace}.{type.Name}s.Commands.Delete;
 using {nameSpace}.{type.Name}s.Commands.Update;
 using {nameSpace}.{type.Name}s.Queries.Pagination;
+using {RemoveSuffix($"{type.FullName}",$".{type.Name}")};
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers;

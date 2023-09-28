@@ -58,7 +58,7 @@ public class DeletePermissionCommandHandler : IRequestHandler<DeletePermissionCo
         {
             _context.Permissions.RemoveRange(permissionsToDelete);
             var isSuccess = await _context.SaveChangesAsync(cancellationToken) > 0;
-            return await Result<bool>.FailureAsync(new string[] { "操作失败" });
+            return await Result<bool>.SuccessOrFailureAsync(isSuccess, isSuccess, new string[] { "操作失败" });
         }
 
         return await Result<bool>.FailureAsync(new string[] { "没有找到需要删除的权限" });

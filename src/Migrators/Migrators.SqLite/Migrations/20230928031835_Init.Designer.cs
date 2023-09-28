@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Migrators.SqLite.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230926093313_Init")]
+    [Migration("20230928031835_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -335,6 +335,54 @@ namespace Migrators.SqLite.Migrations
                     b.ToTable("RolePermissions");
                 });
 
+            modelBuilder.Entity("Domain.Entities.TestTable", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("Created")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("DateTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("Deleted")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("Stuts")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TestTables");
+                });
+
             modelBuilder.Entity("Domain.Entities.UserRole", b =>
                 {
                     b.Property<long>("Id")
@@ -363,7 +411,7 @@ namespace Migrators.SqLite.Migrations
                     b.HasOne("Domain.Entities.Identity.User", "Owner")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("Owner");
                 });
@@ -372,7 +420,8 @@ namespace Migrators.SqLite.Migrations
                 {
                     b.HasOne("Domain.Entities.Identity.User", "Superior")
                         .WithMany()
-                        .HasForeignKey("SuperiorId");
+                        .HasForeignKey("SuperiorId")
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("Superior");
                 });
@@ -381,7 +430,8 @@ namespace Migrators.SqLite.Migrations
                 {
                     b.HasOne("Domain.Entities.Permission", "Superior")
                         .WithMany()
-                        .HasForeignKey("SuperiorId");
+                        .HasForeignKey("SuperiorId")
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("Superior");
                 });
@@ -391,13 +441,13 @@ namespace Migrators.SqLite.Migrations
                     b.HasOne("Domain.Entities.Permission", "Permission")
                         .WithMany("RolePermissions")
                         .HasForeignKey("PermissionId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.Role", "Role")
                         .WithMany("RolePermissions")
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Permission");
@@ -410,13 +460,13 @@ namespace Migrators.SqLite.Migrations
                     b.HasOne("Domain.Entities.Role", "Role")
                         .WithMany("UserRoles")
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.Identity.User", "User")
                         .WithMany("UserRoles")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Role");
