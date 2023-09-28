@@ -1,3 +1,4 @@
+
 //引入组件
 import dayjs from "dayjs";
 import {
@@ -15,13 +16,19 @@ import { addDialog } from "@/components/ReDialog";
 import editForm from "../form/index.vue";
 import { type Ref, h, ref, toRaw, computed, reactive, onMounted } from "vue";
 import { getAuths } from "@/router/utils";
-
 //功能
 export function useTestTable(tableRef: Ref, treeRef: Ref) {
   //常量
   const form = reactive({
+
     name: "",
+
+    description: "",
+
+    type: 0,
+
     stuts: null,
+
     orderBy: "Id",
     sortDirection: "Descending",
     pageNumber: 1,
@@ -39,7 +46,7 @@ export function useTestTable(tableRef: Ref, treeRef: Ref) {
     currentPage: 1,
     background: true
   });
-
+  
   //分页查询
   async function onSearch() {
     const { data } = await getTestTableList(toRaw(form));
@@ -66,13 +73,12 @@ export function useTestTable(tableRef: Ref, treeRef: Ref) {
     form.pageSize = val;
     onSearch();
   }
-
+  
   //跳到指定页码
   function handleCurrentChange(val: number) {
     form.pageNumber = val;
     onSearch();
   }
-
   //数据列表行
   const columns: TableColumnList = [
     {
@@ -95,27 +101,32 @@ export function useTestTable(tableRef: Ref, treeRef: Ref) {
         }
       }
     },
+
     {
       label: "名称",
       prop: "name",
       minWidth: 100
     },
+
     {
       label: "描述",
       prop: "description",
       minWidth: 100
     },
+
     {
       label: "时间",
       minWidth: 100,
       prop: "dateTime",
       formatter: ({ dateTime }) => dayjs(dateTime).format("YYYY-MM-DD HH:mm:ss")
     },
+
     {
       label: "类型",
       minWidth: 100,
-      prop: "type"
+      prop: "type",
     },
+
     {
       label: "状态",
       prop: "stuts",
@@ -135,12 +146,7 @@ export function useTestTable(tableRef: Ref, treeRef: Ref) {
         />
       )
     },
-    {
-      label: "创建时间",
-      minWidth: 100,
-      prop: "created",
-      formatter: ({ created }) => dayjs(created).format("YYYY-MM-DD HH:mm:ss")
-    },
+    
     {
       label: "操作",
       fixed: "right",
@@ -153,7 +159,6 @@ export function useTestTable(tableRef: Ref, treeRef: Ref) {
       }
     }
   ];
-
   //生命周期钩子函数
   onMounted(async () => {
     onSearch();
@@ -166,13 +171,18 @@ export function useTestTable(tableRef: Ref, treeRef: Ref) {
       props: {
         formInline: {
           title,
-          id: row?.id ?? "",
           testTableId: row?.testTableId ?? "",
+
           name: row?.name ?? "",
-          dateTime: row?.dateTime ?? null,
-          type: row?.type ?? "",
-          stuts: row?.stuts ?? true,
+
           description: row?.description ?? "",
+
+          dateTime: row?.dateTime ?? null,
+
+          type: row?.type ?? 0,
+
+          stuts: row?.stuts ?? true,
+
           concurrencyStamp: row?.concurrencyStamp ?? ""
         }
       },
@@ -214,9 +224,7 @@ export function useTestTable(tableRef: Ref, treeRef: Ref) {
   /** 批量删除 */
   async function onbatchDel() {
     const curSelected = tableRef.value.getTableRef().getSelectionRows();
-    await onbatchDeleteTestTable({
-      testTableIds: getKeyList(curSelected, "testTableId")
-    });
+    await onbatchDeleteTestTable({ testTableIds: getKeyList(curSelected, "id") });
     message(`删除成功`, { type: "success" });
     onSearch();
     tableRef.value.getTableRef().clearSelection();
@@ -240,6 +248,7 @@ export function useTestTable(tableRef: Ref, treeRef: Ref) {
   async function handleStutsOnChange(row) {
     message(`功能未实现`, { type: "success" });
   }
+
 
   //按钮样式类
   const buttonClass = computed(() => {

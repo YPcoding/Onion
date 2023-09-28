@@ -10,7 +10,7 @@ public class TestTableAdvancedPaginationSpec : Specification<TestTable>
     {
         Query     
             .Where(x => x.Name == filter.Name, !filter.Name.IsNullOrEmpty())
-
+     
             .Where(x => x.Description == filter.Description, !filter.Description.IsNullOrEmpty())
      
             .Where(x => x.Stuts  == filter.Stuts, filter.Stuts.HasValue)

@@ -1,20 +1,28 @@
-<script setup lang="ts">
+i<script setup lang="ts">
 import { ref } from "vue";
 import ReCol from "@/components/ReCol";
 import { formRules } from "../utils/rule";
 import { FormProps } from "../utils/types";
 import { usePublicHooks } from "../../hooks";
-
+                        
 const props = withDefaults(defineProps<FormProps>(), {
   formInline: () => ({
     /** 用于判断是`新增`还是`修改` */
     title: "新增",
     testTableId: "",
+
+                        
     name: "",
-    dateTime: "",
-    type: 0,
-    stuts: true,
+
     description: "",
+     
+    dateTime: "",
+     
+    type: 0,
+     
+    stuts: null,
+
+                        
     concurrencyStamp: ""
   })
 });
@@ -30,6 +38,7 @@ function getRef() {
 defineExpose({ getRef });
 </script>
 
+                        
 <template>
   <el-form
     ref="ruleFormRef"
@@ -38,8 +47,10 @@ defineExpose({ getRef });
     label-width="82px"
   >
     <el-row :gutter="30">
+
+                        
       <re-col :value="12" :xs="24" :sm="24">
-        <el-form-item label="名称" prop="name">
+        <el-form-item label="名称" prop="testTable">
           <el-input
             v-model="newFormInline.name"
             clearable
@@ -47,8 +58,9 @@ defineExpose({ getRef });
           />
         </el-form-item>
       </re-col>
+
       <re-col :value="12" :xs="24" :sm="24">
-        <el-form-item label="描述" prop="description">
+        <el-form-item label="描述" prop="testTable">
           <el-input
             v-model="newFormInline.description"
             clearable
@@ -56,8 +68,9 @@ defineExpose({ getRef });
           />
         </el-form-item>
       </re-col>
+
       <re-col :value="12" :xs="24" :sm="24">
-        <el-form-item label="时间" prop="dateTime">
+        <el-form-item label="时间" prop="testTable">
           <el-input
             v-model="newFormInline.dateTime"
             clearable
@@ -77,6 +90,7 @@ defineExpose({ getRef });
           />
         </el-form-item>
       </re-col>
+
       <re-col :value="12" :xs="24" :sm="24">
         <el-form-item label="状态">
           <el-switch
@@ -90,6 +104,8 @@ defineExpose({ getRef });
           />
         </el-form-item>
       </re-col>
+
+                        
     </el-row>
   </el-form>
 </template>

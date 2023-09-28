@@ -1,17 +1,18 @@
 interface FormItemProps {
   testTableId?: string;
-  id?: string;
   /** 用于判断是`新增`还是`修改` */
   title: string;
   name: string;
-  dateTime: string;
-  type: number;
-  stuts: boolean;
+
   description: string;
+
+  dateTime: string;
+
+  type: number;
+
+  stuts: boolean;
   concurrencyStamp: string;
-}
-interface FormProps {
-  formInline: FormItemProps;
+}interface FormProps {formInline: FormItemProps;
 }
 
-export type { FormItemProps, FormProps };
+export type {FormItemProps,FormProps};

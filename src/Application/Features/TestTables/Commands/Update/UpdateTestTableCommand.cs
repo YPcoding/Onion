@@ -27,6 +27,12 @@ public class UpdateTestTableCommand : IRequest<Result<long>>
         public string Description { get; set; }
         
         /// <summary>
+        /// 时间
+        /// </summary>
+        [Description("时间")]
+        public DateTime DateTime { get; set; }
+        
+        /// <summary>
         /// 类型
         /// </summary>
         [Description("类型")]

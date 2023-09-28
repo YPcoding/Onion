@@ -1,3 +1,4 @@
+
 <script setup lang="ts">
 import { ref } from "vue";
 import { useTestTable } from "./utils/hook";
@@ -39,6 +40,8 @@ const {
     class="flex justify-between"
     v-if="hasAuth('api:testtable:paginationquery')"
   >
+
+                        
     <div class="w-[calc(100%-0px)]">
       <el-form
         ref="formRef"
@@ -46,6 +49,8 @@ const {
         :model="form"
         class="search-form bg-bg_color w-[99/100] pl-8 pt-[12px]"
       >
+
+                        
         <el-form-item label="名称：" prop="name">
           <el-input
             v-model="form.name"
@@ -54,7 +59,17 @@ const {
             class="!w-[160px]"
           />
         </el-form-item>
-        <el-form-item label="状态：" prop="stuts">
+
+        <el-form-item label="描述：" prop="description">
+          <el-input
+            v-model="form.description"
+            placeholder="请输入描述"
+            clearable
+            class="!w-[160px]"
+          />
+        </el-form-item>
+
+<el-form-item label="状态：" prop="stuts">
           <el-select
             v-model="form.stuts"
             placeholder="请选状态"
@@ -65,6 +80,8 @@ const {
             <el-option label="否" :value="false" />
           </el-select>
         </el-form-item>
+
+                        
         <el-form-item>
           <el-button type="primary" @click="onSearch"> 搜索 </el-button>
           <el-button :icon="useRenderIcon(Refresh)" @click="resetForm(formRef)">
@@ -72,6 +89,7 @@ const {
           </el-button>
         </el-form-item>
       </el-form>
+
 
       <PureTableBar title="测试表管理" :columns="columns" @refresh="onSearch">
         <template #buttons>
@@ -147,7 +165,7 @@ const {
                 修改
               </el-button>
               <el-popconfirm
-                :title="`是否确认删除编号为${row.id}的这条数据`"
+                :title="`是否确认删除编号为${row.testTableId}的这条数据`"
                 @confirm="handleDelete(row)"
               >
                 <template #reference>

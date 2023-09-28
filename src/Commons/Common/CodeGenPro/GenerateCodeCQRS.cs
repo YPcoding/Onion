@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.IO;
+using System.Reflection;
 using System.Text;
 
 /// <summary>
@@ -1164,17 +1165,26 @@ public class {type.Name}Controller : ApiControllerBase
         }
         public static string GenerateApiCode(Type type, string nameSpace, string savePath)
         {
-            string fullPath = savePath;
-            string targetSubstring = "Onion\\src";
-            // 找到目标子字符串的索引
-            int index = fullPath.IndexOf(targetSubstring);
-            if (index != -1)
-            {
-                // 截取目标子字符串之前的部分
-                fullPath = fullPath.Substring(0, index);
-            }
+            string[] folders = savePath.Split(Path.DirectorySeparatorChar);
+            string lastFolder = folders[folders.Length - 1];
 
-            savePath = $"{fullPath}{targetSubstring}\\UI\\src\\api\\system";
+            if (savePath.Contains("Onion\\src"))
+            {
+                string fullPath = savePath;
+                string targetSubstring = "Onion\\src";
+                // 找到目标子字符串的索引
+                int index = fullPath.IndexOf(targetSubstring);
+                if (index != -1)
+                {
+                    // 截取目标子字符串之前的部分
+                    fullPath = fullPath.Substring(0, index);
+                }
+                savePath = $"{fullPath}\\{targetSubstring}\\UI\\src\\api\\{lastFolder}";
+            }
+            else 
+            {
+                savePath = $"{savePath}\\api\\";
+            }
             Directory.CreateDirectory(savePath);
             var filePath = $@"{savePath}\\{type.Name.ToLower()}.ts";
             var desc = type.CustomAttributes?
@@ -1255,17 +1265,11 @@ export const onbatchDelete{type.Name} = (data?: object) => {{
         }
         public static string GenerateHookCode(Type type, string nameSpace, string savePath) 
         {
-            string fullPath = savePath;
-            string targetSubstring = "Onion\\src";
-            // 找到目标子字符串的索引
-            int index = fullPath.IndexOf(targetSubstring);
-            if (index != -1)
-            {
-                // 截取目标子字符串之前的部分
-                fullPath = fullPath.Substring(0, index);
-            }
+            string[] folders = savePath.Split(Path.DirectorySeparatorChar);
+            string lastFolder = folders[folders.Length - 1];
 
-            savePath = $"{fullPath}{targetSubstring}\\UI\\src\\views\\system\\{type.Name.ToLower()}\\utils";
+            string fullPath = savePath;
+            savePath = $"{fullPath}\\{type.Name.ToLower()}\\utils";
             Directory.CreateDirectory(savePath);
             var filePath = $@"{savePath}\\hook.tsx";
             var desc = type.CustomAttributes?
@@ -1307,7 +1311,7 @@ import {{
   add{type.Name},
   update{type.Name},
   onbatchDelete{type.Name}
-}} from ""@/api/system/{type.Name.ToLower()}"";
+}} from ""@/api/{lastFolder}/{type.Name.ToLower()}"";
 import {{ type PaginationProps }} from ""@pureadmin/table"";
 import {{ usePublicHooks }} from ""../../hooks"";
 import {{ message }} from ""@/utils/message"";
@@ -1721,7 +1725,7 @@ $@"
   /** 批量删除 */
   async function onbatchDel() {{
     const curSelected = tableRef.value.getTableRef().getSelectionRows();
-    await onbatchDelete{type.Name}({{ userIds: getKeyList(curSelected, ""id"") }});
+    await onbatchDelete{type.Name}({{ {FirstCharToLowerCase(type.Name)}Ids: getKeyList(curSelected, ""id"") }});
     message(`删除成功`, {{ type: ""success"" }});
     onSearch();
     tableRef.value.getTableRef().clearSelection();
@@ -1817,16 +1821,7 @@ $@"
         public static string GenerateRuleCode(Type type, string nameSpace, string savePath)
         {
             string fullPath = savePath;
-            string targetSubstring = "Onion\\src";
-            // 找到目标子字符串的索引
-            int index = fullPath.IndexOf(targetSubstring);
-            if (index != -1)
-            {
-                // 截取目标子字符串之前的部分
-                fullPath = fullPath.Substring(0, index);
-            }
-
-            savePath = $"{fullPath}{targetSubstring}\\UI\\src\\views\\system\\{type.Name.ToLower()}\\utils";
+            savePath = $"{fullPath}\\{type.Name.ToLower()}\\utils";
             Directory.CreateDirectory(savePath);
             var filePath = $@"{savePath}\\rule.ts";
             var desc = type.CustomAttributes?
@@ -1920,16 +1915,7 @@ $@"}});";
         public static string GenerateTypesCode(Type type, string nameSpace, string savePath)
         {
             string fullPath = savePath;
-            string targetSubstring = "Onion\\src";
-            // 找到目标子字符串的索引
-            int index = fullPath.IndexOf(targetSubstring);
-            if (index != -1)
-            {
-                // 截取目标子字符串之前的部分
-                fullPath = fullPath.Substring(0, index);
-            }
-
-            savePath = $"{fullPath}{targetSubstring}\\UI\\src\\views\\system\\{type.Name.ToLower()}\\utils";
+            savePath = $"{fullPath}\\{type.Name.ToLower()}\\utils";
             Directory.CreateDirectory(savePath);
             var filePath = $@"{savePath}\\types.ts";
             var desc = type.CustomAttributes?
@@ -2026,16 +2012,7 @@ export type {{FormItemProps,FormProps}};";
         public static string GenerateFormCode(Type type, string nameSpace, string savePath)
         {
             string fullPath = savePath;
-            string targetSubstring = "Onion\\src";
-            // 找到目标子字符串的索引
-            int index = fullPath.IndexOf(targetSubstring);
-            if (index != -1)
-            {
-                // 截取目标子字符串之前的部分
-                fullPath = fullPath.Substring(0, index);
-            }
-
-            savePath = $"{fullPath}{targetSubstring}\\UI\\src\\views\\system\\{type.Name.ToLower()}\\form";
+            savePath = $"{fullPath}\\{type.Name.ToLower()}\\form";
             Directory.CreateDirectory(savePath);
             var filePath = $@"{savePath}\\index.vue";
             var desc = type.CustomAttributes?
@@ -2263,16 +2240,7 @@ $@"";
         public static string GenerateIndexCode(Type type, string nameSpace, string savePath)
         {
             string fullPath = savePath;
-            string targetSubstring = "Onion\\src";
-            // 找到目标子字符串的索引
-            int index = fullPath.IndexOf(targetSubstring);
-            if (index != -1)
-            {
-                // 截取目标子字符串之前的部分
-                fullPath = fullPath.Substring(0, index);
-            }
-
-            savePath = $"{fullPath}{targetSubstring}\\UI\\src\\views\\system\\{type.Name.ToLower()}\\";
+            savePath = $"{fullPath}\\{type.Name.ToLower()}\\";
             Directory.CreateDirectory(savePath);
             var filePath = $@"{savePath}index.vue";
             var desc = type.CustomAttributes?
