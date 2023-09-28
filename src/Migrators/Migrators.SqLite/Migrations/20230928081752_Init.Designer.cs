@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Migrators.SqLite.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230928031835_Init")]
+    [Migration("20230928081752_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -411,7 +411,7 @@ namespace Migrators.SqLite.Migrations
                     b.HasOne("Domain.Entities.Identity.User", "Owner")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Owner");
                 });
@@ -420,8 +420,7 @@ namespace Migrators.SqLite.Migrations
                 {
                     b.HasOne("Domain.Entities.Identity.User", "Superior")
                         .WithMany()
-                        .HasForeignKey("SuperiorId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .HasForeignKey("SuperiorId");
 
                     b.Navigation("Superior");
                 });
@@ -430,8 +429,7 @@ namespace Migrators.SqLite.Migrations
                 {
                     b.HasOne("Domain.Entities.Permission", "Superior")
                         .WithMany()
-                        .HasForeignKey("SuperiorId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .HasForeignKey("SuperiorId");
 
                     b.Navigation("Superior");
                 });
@@ -441,13 +439,13 @@ namespace Migrators.SqLite.Migrations
                     b.HasOne("Domain.Entities.Permission", "Permission")
                         .WithMany("RolePermissions")
                         .HasForeignKey("PermissionId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.Role", "Role")
                         .WithMany("RolePermissions")
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Permission");
@@ -460,13 +458,13 @@ namespace Migrators.SqLite.Migrations
                     b.HasOne("Domain.Entities.Role", "Role")
                         .WithMany("UserRoles")
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.Identity.User", "User")
                         .WithMany("UserRoles")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Role");
