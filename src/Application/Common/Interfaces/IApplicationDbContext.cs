@@ -1,6 +1,4 @@
-﻿using Domain.Entities;
-using Domain.Entities.Audit;
-using Domain.Entities.GenerateCode;
+﻿using Domain.Entities.Audit;
 using Domain.Entities.Logger;
 
 namespace Application.Common.Interfaces;

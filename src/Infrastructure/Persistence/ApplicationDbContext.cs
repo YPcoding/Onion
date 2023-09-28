@@ -1,5 +1,4 @@
 ﻿using Domain.Entities;
-using Domain.Entities.GenerateCode;
 using Domain.Entities.Identity;
 using Domain.Entities.Logger;
 using Infrastructure.Persistence.Extensions;
