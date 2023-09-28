@@ -1296,7 +1296,8 @@ export const onbatchDelete{type.Name} = (data?: object) => {{
 
             //引入组件
             import =
-$@"//引入组件
+$@"
+//引入组件
 import dayjs from ""dayjs"";
 import {{
   get{type.Name}List,
@@ -1316,7 +1317,8 @@ import {{ getAuths }} from ""@/router/utils"";";
 
             //Hook功能
             hookFunction = 
-$@"//功能
+$@"
+//功能
 export function useTestTable(tableRef: Ref, treeRef: Ref) {{
 ";
             constDefineHeader = 
@@ -1353,7 +1355,7 @@ $@"  //常量
                 switch (propertyTypeName)
                 {
                     case "String":
-                        propertyTypeName = @"""";
+                        propertyTypeName = @"""""";
                         break;
                     case "Boolean":
                         propertyTypeName = @"null";
@@ -1465,6 +1467,9 @@ $@"
                 .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
                 .ConstructorArguments?
                 .FirstOrDefault().Value;
+                bool isBreak = false;
+                if (property.Name.Contains("Id")) continue;
+                if (ignoreFields.Contains(property.Name)) continue;
 
                 switch (propertyTypeName)
                 {
@@ -1481,6 +1486,7 @@ $@"
                     case "Boolean":
                         columnsBody +=
 $@"
+    {{
       label: ""{description}"",
       prop: ""{FirstCharToLowerCase(property.Name)}"",
       minWidth: 100,
@@ -1598,13 +1604,16 @@ $@"
                 .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
                 .ConstructorArguments?
                 .FirstOrDefault().Value;
+                bool isBreak = false;
+                if (property.Name.Contains("Id")) continue;
+                if (ignoreFields.Contains(property.Name)) continue;
 
                 switch (propertyTypeName)
                 {
                     case "String":
                         openDialogBody +=
 $@"
-          {FirstCharToLowerCase(property.Name)}: row?.{FirstCharToLowerCase(property.Name)} ?? "",
+          {FirstCharToLowerCase(property.Name)}: row?.{FirstCharToLowerCase(property.Name)} ?? """",
 ";
                         break;
                     case "Boolean":
@@ -1624,7 +1633,7 @@ $@"
                         {
                             openDialogBody +=
 $@"
-          {FirstCharToLowerCase(property.Name)}Id: row?.{FirstCharToLowerCase(property.Name)}Id ?? "",
+          {FirstCharToLowerCase(property.Name)}Id: row?.{FirstCharToLowerCase(property.Name)}Id ?? """",
 ";
                         }
                         else 
