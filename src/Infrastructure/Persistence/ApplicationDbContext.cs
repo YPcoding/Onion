@@ -1,4 +1,5 @@
 ﻿using Domain.Entities;
+using Domain.Entities.GenerateCode;
 using Domain.Entities.Identity;
 using Domain.Entities.Logger;
 using Infrastructure.Persistence.Extensions;
@@ -21,6 +22,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<UserRole> UserRoles { get; set; }
     public DbSet<Permission> Permissions { get; set; }
     public DbSet<RolePermission> RolePermissions { get; set; }
+    public DbSet<TestTable> TestTables { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

@@ -12,6 +12,11 @@ public static class DependencyInjection
     /// </summary>
     public static string MatchAssemblies = "^Application.|^Domain.|^Infrastructure.|^WebAPI.";
 
+    /// <summary>
+    /// 自动依赖注入
+    /// </summary>
+    /// <param name="services"></param>
+    /// <returns></returns>
     public static IServiceCollection AddWebAPIServices(this IServiceCollection services)
     {
         #region 依赖注入       

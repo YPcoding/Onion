@@ -11,15 +11,77 @@ namespace Common.CodeGenPro
     /// </summary>
     public class GenerateCodeCQRS
     {
-        public static Type GetTypeByFullClassName(string fullClassName = "Domain.Entities.Identity.User")
+        public static Type GetTypeByFullClassName(string fullClassName)
         {
             string className = fullClassName;
             Assembly assembly = Assembly.Load(className.Split('.')[0].ToString());
             return assembly.GetType(className)!;
         }
 
+        public static string GenerateCachingCode(Type type, string nameSpace, string savePath)
+        {
+            savePath = $"{savePath}\\{type.Name}s\\Caching";
+            Directory.CreateDirectory(savePath);
+            var filePath = $@"{savePath}\{type.Name}CacheKey.cs";
+            var desc = type.CustomAttributes?
+                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+                .ConstructorArguments?
+                .FirstOrDefault().Value;
+
+            var body =
+$@"using Microsoft.Extensions.Primitives;
+
+namespace {nameSpace}.{type.Name}s.Caching;
+
+public static class {type.Name}CacheKey
+{{
+    public const string GetAllCacheKey = ""all-{type.Name}s"";
+    private static readonly TimeSpan RefreshInterval = TimeSpan.FromHours(1);
+    private static CancellationTokenSource _tokenSource;
+
+    public static string GetByIdCacheKey(long id)
+    {{
+        return $""Get{type.Name}ById,{{id}}"";
+    }}
+
+    static {type.Name}CacheKey()
+    {{
+        _tokenSource = new CancellationTokenSource(RefreshInterval);
+    }}
+
+    public static MemoryCacheEntryOptions MemoryCacheEntryOptions =>
+        new MemoryCacheEntryOptions().AddExpirationToken(new CancellationChangeToken(SharedExpiryTokenSource().Token));
+
+    public static string GetPaginationCacheKey(string parameters)
+    {{
+        return $""{type.Name}sWithPaginationQuery,{{parameters}}"";
+    }}
+
+    public static CancellationTokenSource SharedExpiryTokenSource()
+    {{
+        if (_tokenSource.IsCancellationRequested) _tokenSource = new CancellationTokenSource(RefreshInterval);
+        return _tokenSource;
+    }}
+
+    public static void Refresh()
+    {{
+        SharedExpiryTokenSource().Cancel();
+    }}
+}}
+";
+            var code = $"{body}";
+            using (FileStream fs = System.IO.File.Create(filePath))
+            {
+                byte[] info = new UTF8Encoding(true).GetBytes(code);
+                fs.Write(info, 0, info.Length);
+            }
+            return filePath;
+        }
+
         public static string GenerateAddCommandCode(Type type, string nameSpace, string savePath)
         {
+            savePath = $"{savePath}\\{type.Name}s\\Commands\\Add";
+            Directory.CreateDirectory(savePath);
             var filePath = $@"{savePath}\Add{type.Name}Command.cs";
             var desc = type.CustomAttributes?
                 .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
@@ -140,6 +202,8 @@ public class Add{type.Name}CommandHandler : IRequestHandler<Add{type.Name}Comman
 
         public static string GenerateUpdateCommandCode(Type type, string nameSpace, string savePath)
         {
+            savePath = $"{savePath}\\{type.Name}s\\Commands\\Update";
+            Directory.CreateDirectory(savePath);
             var filePath = $@"{savePath}\Update{type.Name}Command.cs";
             var desc = type.CustomAttributes?
                 .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
@@ -282,6 +346,8 @@ public class Update{type.Name}CommandHandler : IRequestHandler<Update{type.Name}
 
         public static string GenerateDeleteCommandCode(Type type, string nameSpace, string savePath)
         {
+            savePath = $"{savePath}\\{type.Name}s\\Commands\\Delete";
+            Directory.CreateDirectory(savePath);
             var filePath = $@"{savePath}\Delete{type.Name}Command.cs";
             var desc = type.CustomAttributes?
                 .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
@@ -360,66 +426,10 @@ public class Delete{type.Name}CommandHandler : IRequestHandler<Delete{type.Name}
             return filePath;
         }
 
-        public static string GenerateCachingCode(Type type, string nameSpace, string savePath)
-        {
-            var filePath = $@"{savePath}\{type.Name}CacheKey.cs";
-            var desc = type.CustomAttributes?
-                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-                .ConstructorArguments?
-                .FirstOrDefault().Value;
-
-            var body =
-$@"using Microsoft.Extensions.Primitives;
-
-namespace {nameSpace}.{type.Name}s.Caching;
-
-public static class {type.Name}CacheKey
-{{
-    public const string GetAllCacheKey = ""all-{type.Name}s"";
-    private static readonly TimeSpan RefreshInterval = TimeSpan.FromHours(1);
-    private static CancellationTokenSource _tokenSource;
-
-    public static string GetByIdCacheKey(long id)
-    {{
-        return $""Get{type.Name}ById,{{id}}"";
-    }}
-
-    static {type.Name}CacheKey()
-    {{
-        _tokenSource = new CancellationTokenSource(RefreshInterval);
-    }}
-
-    public static MemoryCacheEntryOptions MemoryCacheEntryOptions =>
-        new MemoryCacheEntryOptions().AddExpirationToken(new CancellationChangeToken(SharedExpiryTokenSource().Token));
-
-    public static string GetPaginationCacheKey(string parameters)
-    {{
-        return $""{type.Name}sWithPaginationQuery,{{parameters}}"";
-    }}
-
-    public static CancellationTokenSource SharedExpiryTokenSource()
-    {{
-        if (_tokenSource.IsCancellationRequested) _tokenSource = new CancellationTokenSource(RefreshInterval);
-        return _tokenSource;
-    }}
-
-    public static void Refresh()
-    {{
-        SharedExpiryTokenSource().Cancel();
-    }}
-}}
-";
-            var code = $"{body}";
-            using (FileStream fs = System.IO.File.Create(filePath))
-            {
-                byte[] info = new UTF8Encoding(true).GetBytes(code);
-                fs.Write(info, 0, info.Length);
-            }
-            return filePath;
-        }
-
         public static string GenerateDTOsCode(Type type, string nameSpace, string savePath)
         {
+            savePath = $"{savePath}\\{type.Name}s\\DTOs";
+            Directory.CreateDirectory(savePath);
             var filePath = $@"{savePath}\{type.Name}Dto.cs";
             var desc = type.CustomAttributes?
                 .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
@@ -553,6 +563,8 @@ $@"
 
         public static string GenerateEventHandlersCode(Type type, string nameSpace, string savePath)
         {
+            savePath = $"{savePath}\\{type.Name}s\\EventHandlers";
+            Directory.CreateDirectory(savePath);
             var filePath = $@"{savePath}\{type.Name}CreatedEventHandler.cs";
             var desc = type.CustomAttributes?
                 .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
@@ -590,6 +602,8 @@ public class {type.Name}CreatedEventHandler : INotificationHandler<CreatedEvent<
 
         public static string GenerateQueriesGetAllCode(Type type, string nameSpace, string savePath)
         {
+            savePath = $"{savePath}\\{type.Name}s\\Queries\\GetAll";
+            Directory.CreateDirectory(savePath);
             var filePath = $@"{savePath}\GetAll{type.Name}Query.cs";
             var desc = type.CustomAttributes?
                 .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
@@ -643,6 +657,8 @@ public class GetAll{type.Name}sQueryHandler :
 
         public static string GenerateQueriesGetByIdCode(Type type, string nameSpace, string savePath)
         {
+            savePath = $"{savePath}\\{type.Name}s\\Queries\\GetById";
+            Directory.CreateDirectory(savePath);
             var filePath = $@"{savePath}\Get{type.Name}QueryById.cs";
             var desc = type.CustomAttributes?
                 .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
@@ -715,6 +731,8 @@ public class Get{type.Name}ByIdQueryHandler :IRequestHandler<Get{type.Name}Query
 
         public static string GenerateQueriesPaginationCode(Type type, string nameSpace, string savePath)
         {
+            savePath = $"{savePath}\\{type.Name}s\\Queries\\Pagination";
+            Directory.CreateDirectory(savePath);
             var filePath = $@"{savePath}\{type.Name}sWithPaginationQuery.cs";
             var desc = type.CustomAttributes?
                 .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
@@ -788,6 +806,8 @@ public class {type.Name}sWithPaginationQueryHandler :
 
         public static string GenerateSpecificationsFilterCode(Type type, string nameSpace, string savePath)
         {
+            savePath = $"{savePath}\\{type.Name}s\\Specifications";
+            Directory.CreateDirectory(savePath);
             var filePath = $@"{savePath}\{type.Name}AdvancedFilter.cs";
             var desc = type.CustomAttributes?
                 .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
@@ -857,7 +877,8 @@ $@"}}";
 
         public static string GenerateSpecificationsPaginationSpecCode(Type type, string nameSpace, string savePath)
         {
-
+            savePath = $"{savePath}\\{type.Name}s\\Specifications";
+            Directory.CreateDirectory(savePath);
             var filePath = $@"{savePath}\{type.Name}AdvancedPaginationSpec.cs";
             var desc = type.CustomAttributes?
                 .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
@@ -914,7 +935,7 @@ $@"
             }
 
             var footer =
-$@"    }}
+$@";    }}
 }}";
             var code = $"{header}{body}{footer}";
             using (FileStream fs = System.IO.File.Create(filePath))
@@ -927,6 +948,8 @@ $@"    }}
 
         public static string GenerateSpecificationsByIdSpecCode(Type type, string nameSpace, string savePath)
         {
+            savePath = $"{savePath}\\{type.Name}s\\Specifications";
+            Directory.CreateDirectory(savePath);
             var filePath = $@"{savePath}\{type.Name}ByIdSpec.cs";
             var desc = type.CustomAttributes?
                 .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
@@ -957,6 +980,8 @@ public class {type.Name}ByIdSpec : Specification<{type.Name}>
 
         public static string GenerateControllerCode(Type type, string nameSpace, string savePath)
         {
+            savePath = $"{savePath}\\{type.Name}s\\Specifications";
+            Directory.CreateDirectory(savePath);
             var filePath = $@"{savePath}\{type.Name}Controller.cs";
             var desc = type.CustomAttributes?
                 .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
@@ -1029,7 +1054,6 @@ public class {type.Name}Controller : ApiControllerBase
             }
             return filePath;
         }
-
     }
 
     /// <summary>
