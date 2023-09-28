@@ -115,6 +115,62 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
+        /// 生成前端代码
+        /// </summary>
+        /// <param name="generateCode">参数</param>
+        /// <returns></returns>
+        [HttpPost("Frontend")]
+        public Result<IEnumerable<string>> GenerateFrontendCode(GenerateCode generateCode)
+        {
+            var filePaths = new List<string>();
+
+            if (generateCode.Type == GenerateCodeType.Api || generateCode.Type == GenerateCodeType.GenerateAll)
+            {
+                filePaths.Add(GenerateCodeVue.GenerateApiCode(
+                    GenerateCodeCQRS.GetTypeByFullClassName(generateCode.FullClassName),
+                    generateCode.NameSpace,
+                    generateCode.SavePath));
+            }
+            if (generateCode.Type == GenerateCodeType.Hook || generateCode.Type == GenerateCodeType.GenerateAll)
+            {
+                filePaths.Add(GenerateCodeVue.GenerateHookCode(
+                    GenerateCodeCQRS.GetTypeByFullClassName(generateCode.FullClassName),
+                    generateCode.NameSpace,
+                    generateCode.SavePath));
+            }
+            if (generateCode.Type == GenerateCodeType.Update || generateCode.Type == GenerateCodeType.GenerateAll)
+            {
+                filePaths.Add(GenerateCodeVue.GenerateRuleCode(
+                    GenerateCodeCQRS.GetTypeByFullClassName(generateCode.FullClassName),
+                    generateCode.NameSpace,
+                    generateCode.SavePath));
+            }
+            if (generateCode.Type == GenerateCodeType.Delete || generateCode.Type == GenerateCodeType.GenerateAll)
+            {
+                filePaths.Add(GenerateCodeVue.GenerateTypesCode(
+                    GenerateCodeCQRS.GetTypeByFullClassName(generateCode.FullClassName),
+                    generateCode.NameSpace,
+                    generateCode.SavePath));
+            }
+            if (generateCode.Type == GenerateCodeType.DTOs || generateCode.Type == GenerateCodeType.GenerateAll)
+            {
+                filePaths.Add(GenerateCodeVue.GenerateFormCode(
+                    GenerateCodeCQRS.GetTypeByFullClassName(generateCode.FullClassName),
+                    generateCode.NameSpace,
+                    generateCode.SavePath));
+            }
+            if (generateCode.Type == GenerateCodeType.Index || generateCode.Type == GenerateCodeType.GenerateAll)
+            {
+                filePaths.Add(GenerateCodeVue.GenerateIndexCode(
+                    GenerateCodeCQRS.GetTypeByFullClassName(generateCode.FullClassName),
+                    generateCode.NameSpace,
+                    generateCode.SavePath));
+            }
+
+            return Result<IEnumerable<string>>.Success(filePaths);
+        }
+
+        /// <summary>
         /// 生成代码参数
         /// </summary>
         public class GenerateCode

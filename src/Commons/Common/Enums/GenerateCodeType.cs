@@ -76,5 +76,35 @@ public enum GenerateCodeType : byte
     /// 控制器
     /// </summary>
     [Description(@"控制器")]
-    Controller
+    Controller,
+    /// <summary>
+    /// Api
+    /// </summary>
+    [Description(@"Api")]
+    Api,
+    /// <summary>
+    /// Hook
+    /// </summary>
+    [Description(@"Hook")]
+    Hook,
+    /// <summary>
+    /// Rule
+    /// </summary>
+    [Description(@"Rule")]
+    Rule,
+    /// <summary>
+    /// Types
+    /// </summary>
+    [Description(@"Types")]
+    Types,
+    /// <summary>
+    /// Form
+    /// </summary>
+    [Description(@"Form")]
+    Form,
+    /// <summary>
+    /// Index
+    /// </summary>
+    [Description(@"Index")]
+    Index,
 }
