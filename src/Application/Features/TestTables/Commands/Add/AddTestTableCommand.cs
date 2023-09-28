@@ -1,3 +1,10 @@
+using System.ComponentModel.DataAnnotations;
+using Domain.Entities;
+using Application.Features.TestTables.Caching;
+using Domain.Entities;
+using Masuit.Tools.Systems;
+using Microsoft.Extensions.Options;
+
 namespace Application.Features.TestTables.Commands.Add;
 
 /// <summary>
@@ -6,6 +13,7 @@ namespace Application.Features.TestTables.Commands.Add;
 [Map(typeof(TestTable))]
 public class AddTestTableCommand : IRequest<Result<long>>
 {
+        
         /// <summary>
         /// 名称
         /// </summary>
@@ -19,9 +27,9 @@ public class AddTestTableCommand : IRequest<Result<long>>
         public string Description { get; set; }
         
         /// <summary>
-        /// Type
+        /// 类型
         /// </summary>
-        [Description("Type")]
+        [Description("类型")]
         public int Type { get; set; }
         
         /// <summary>
@@ -30,7 +38,6 @@ public class AddTestTableCommand : IRequest<Result<long>>
         [Description("状态")]
         public bool Stuts { get; set; }
 }
-
 /// <summary>
 /// 处理程序
 /// </summary>

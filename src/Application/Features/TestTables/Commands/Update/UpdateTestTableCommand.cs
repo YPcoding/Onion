@@ -27,9 +27,9 @@ public class UpdateTestTableCommand : IRequest<Result<long>>
         public string Description { get; set; }
         
         /// <summary>
-        /// Type
+        /// 类型
         /// </summary>
-        [Description("Type")]
+        [Description("类型")]
         public int Type { get; set; }
         
         /// <summary>

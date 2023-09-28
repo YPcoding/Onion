@@ -1,6 +1,7 @@
 ﻿using System.Formats.Tar;
 using System.Reflection;
 using System.Reflection.PortableExecutable;
+using System.Runtime.Serialization.Formatters;
 using System.Text;
 
 /// <summary>
@@ -911,6 +912,18 @@ $@"
     public {propertyTypeName}? {property.Name} {{ get; set; }}
 ";
                 }
+                if (propertyTypeName == "Boolean")
+                {
+                    propertyTypeName = "bool";
+                    body +=
+$@"       
+    /// <summary>
+    /// {description}
+    /// </summary>
+    [Description(""{description}"")]
+    public {propertyTypeName}? {property.Name} {{ get; set; }}
+";
+                }
             }
 
             var footer =
@@ -982,12 +995,12 @@ $@"
             .Where(x => x.{property.Name} == filter.{property.Name}, !filter.{property.Name}.IsNullOrEmpty())
 ";
                 }
-                if (propertyTypeName == "String")
+                if (propertyTypeName == "Boolean")
                 {
-                    propertyTypeName = "string";
+                    propertyTypeName = "bool";
                     body +=
 $@"     
-            .Where(x => x.{property.Name} == filter.{property.Name}, !filter.{property.Name}.IsNullOrEmpty())
+            .Where(x => x.{property.Name}  == filter.{property.Name}, filter.{property.Name}.HasValue)
 ";
                 }
             }
@@ -1148,9 +1161,19 @@ public class {type.Name}Controller : ApiControllerBase
         }
         public static string GenerateApiCode(Type type, string nameSpace, string savePath)
         {
-            savePath = $"{savePath}\\{type.Name}s\\Caching";
+            string fullPath = savePath;
+            string targetSubstring = "Onion\\src";
+            // 找到目标子字符串的索引
+            int index = fullPath.IndexOf(targetSubstring);
+            if (index != -1)
+            {
+                // 截取目标子字符串之前的部分
+                fullPath = fullPath.Substring(0, index);
+            }
+
+            savePath = $"{fullPath}{targetSubstring}\\UI\\src\\api\\system";
             Directory.CreateDirectory(savePath);
-            var filePath = $@"{savePath}\{type.Name}CacheKey.cs";
+            var filePath = $@"{savePath}\\{type.Name.ToLower()}.ts";
             var desc = type.CustomAttributes?
                 .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
                 .ConstructorArguments?
@@ -1229,9 +1252,19 @@ export const onbatchDelete{type.Name} = (data?: object) => {{
         }
         public static string GenerateHookCode(Type type, string nameSpace, string savePath) 
         {
-            savePath = $"{savePath}\\{type.Name}s\\Commands\\Add";
+            string fullPath = savePath;
+            string targetSubstring = "Onion\\src";
+            // 找到目标子字符串的索引
+            int index = fullPath.IndexOf(targetSubstring);
+            if (index != -1)
+            {
+                // 截取目标子字符串之前的部分
+                fullPath = fullPath.Substring(0, index);
+            }
+
+            savePath = $"{fullPath}{targetSubstring}\\UI\\src\\views\\system\\{type.Name.ToLower()}\\utils";
             Directory.CreateDirectory(savePath);
-            var filePath = $@"{savePath}\Add{type.Name}Command.cs";
+            var filePath = $@"{savePath}\\hook.tsx";
             var desc = type.CustomAttributes?
                 .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
                 .ConstructorArguments?
@@ -1756,9 +1789,19 @@ $@"
         }
         public static string GenerateRuleCode(Type type, string nameSpace, string savePath)
         {
-            savePath = $"{savePath}\\{type.Name}s\\Commands\\Add";
+            string fullPath = savePath;
+            string targetSubstring = "Onion\\src";
+            // 找到目标子字符串的索引
+            int index = fullPath.IndexOf(targetSubstring);
+            if (index != -1)
+            {
+                // 截取目标子字符串之前的部分
+                fullPath = fullPath.Substring(0, index);
+            }
+
+            savePath = $"{fullPath}{targetSubstring}\\UI\\src\\views\\system\\{type.Name.ToLower()}\\utils";
             Directory.CreateDirectory(savePath);
-            var filePath = $@"{savePath}\Add{type.Name}Command.cs";
+            var filePath = $@"{savePath}\\rule.ts";
             var desc = type.CustomAttributes?
                 .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
                 .ConstructorArguments?
@@ -1849,9 +1892,19 @@ $@"}});";
         }
         public static string GenerateTypesCode(Type type, string nameSpace, string savePath)
         {
-            savePath = $"{savePath}\\{type.Name}s\\Commands\\Add";
+            string fullPath = savePath;
+            string targetSubstring = "Onion\\src";
+            // 找到目标子字符串的索引
+            int index = fullPath.IndexOf(targetSubstring);
+            if (index != -1)
+            {
+                // 截取目标子字符串之前的部分
+                fullPath = fullPath.Substring(0, index);
+            }
+
+            savePath = $"{fullPath}{targetSubstring}\\UI\\src\\views\\system\\{type.Name.ToLower()}\\utils";
             Directory.CreateDirectory(savePath);
-            var filePath = $@"{savePath}\Add{type.Name}Command.cs";
+            var filePath = $@"{savePath}\\types.ts";
             var desc = type.CustomAttributes?
                 .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
                 .ConstructorArguments?
@@ -1945,12 +1998,499 @@ export type {{FormItemProps,FormProps}};";
         }
         public static string GenerateFormCode(Type type, string nameSpace, string savePath)
         {
-            return "";
-        }
+            string fullPath = savePath;
+            string targetSubstring = "Onion\\src";
+            // 找到目标子字符串的索引
+            int index = fullPath.IndexOf(targetSubstring);
+            if (index != -1)
+            {
+                // 截取目标子字符串之前的部分
+                fullPath = fullPath.Substring(0, index);
+            }
 
+            savePath = $"{fullPath}{targetSubstring}\\UI\\src\\views\\system\\{type.Name.ToLower()}\\form";
+            Directory.CreateDirectory(savePath);
+            var filePath = $@"{savePath}\\index.vue";
+            var desc = type.CustomAttributes?
+                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+                .ConstructorArguments?
+                .FirstOrDefault().Value;
+
+            PropertyInfo[] properties = type.GetProperties();
+
+            string[] ignoreFields = new string[]
+            {
+                "Id",
+                "DeletedBy",
+                "Deleted",
+                "CreatedBy",
+                "LastModified",
+                "LastModifiedBy",
+                "LastModifiedBy",
+                "ConcurrencyStamp"
+            };
+
+            var formPropsHeader = "";
+            var formPropsBody = "";
+            var formPropsFooter = "";
+            var formHeader = "";
+            var formBody = "";
+            var formFooter = "";
+
+
+            var header =
+$@"i<script setup lang=""ts"">
+import {{ ref }} from ""vue"";
+import ReCol from ""@/components/ReCol"";
+import {{ formRules }} from ""../utils/rule"";
+import {{ FormProps }} from ""../utils/types"";
+import {{ usePublicHooks }} from ""../../hooks"";";
+
+            formPropsHeader = 
+$@"
+const props = withDefaults(defineProps<FormProps>(), {{
+  formInline: () => ({{
+    /** 用于判断是`新增`还是`修改` */
+    title: ""新增"",
+    {FirstCharToLowerCase(type.Name)}Id: """",
+";
+
+
+            // 遍历属性并输出它们的名称和类型
+            foreach (PropertyInfo property in properties)
+            {
+                var propertyTypeName = property.PropertyType.Name;
+                var description = property.CustomAttributes?
+                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+                .ConstructorArguments?
+                .FirstOrDefault().Value;
+                if (property.Name.Contains("Id")) continue;
+                if (ignoreFields.Contains(property.Name)) continue;
+
+                if (propertyTypeName == "String")
+                {
+                    formPropsBody +=
+$@"
+    {FirstCharToLowerCase(type.Name)}: """",
+";
+                }
+                if (propertyTypeName == "Boolean")
+                {
+                    formPropsBody +=
+$@"     
+    {FirstCharToLowerCase(type.Name)}: null,
+";
+                }
+                if (propertyTypeName == "DateTime")
+                {
+                    formPropsBody +=
+$@"     
+    {FirstCharToLowerCase(type.Name)}: """",
+";
+                }
+                if (propertyTypeName == "Int32" || propertyTypeName == "Int64") 
+                {
+                    formPropsBody +=
+$@"     
+    {FirstCharToLowerCase(type.Name)}: 0,
+";
+                }
+
+            }
+
+            formPropsFooter = 
+$@"
+    concurrencyStamp: """"
+  }})
+}});
+
+const ruleFormRef = ref();
+const {{ switchStyle }} = usePublicHooks();
+const newFormInline = ref(props.formInline);
+
+function getRef() {{
+  return ruleFormRef.value;
+}}
+
+defineExpose({{ getRef }});
+</script>
+";
+
+            formHeader += 
+$@"
+<template>
+  <el-form
+    ref=""ruleFormRef""
+    :model=""newFormInline""
+    :rules=""formRules""
+    label-width=""82px""
+  >
+    <el-row :gutter=""30"">
+";
+
+            // 遍历属性并输出它们的名称和类型
+            foreach (PropertyInfo property in properties)
+            {
+                var propertyTypeName = property.PropertyType.Name;
+                var description = property.CustomAttributes?
+                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+                .ConstructorArguments?
+                .FirstOrDefault().Value;
+                if (property.Name.Contains("Id")) continue;
+                if (ignoreFields.Contains(property.Name)) continue;
+
+                if (propertyTypeName == "String")
+                {
+                    formBody +=
+$@"
+      <re-col :value=""12"" :xs=""24"" :sm=""24"">
+        <el-form-item label=""{description}"" prop=""{FirstCharToLowerCase(type.Name)}"">
+          <el-input
+            v-model=""newFormInline.{FirstCharToLowerCase(type.Name)}""
+            clearable
+            placeholder=""请输入{description}""
+          />
+        </el-form-item>
+      </re-col>
+";
+                }
+                if (propertyTypeName == "Boolean")
+                {
+                    formBody +=
+$@"
+      <re-col :value=""12"" :xs=""24"" :sm=""24"">
+        <el-form-item label=""{description}"">
+          <el-switch
+            v-model=""newFormInline.{FirstCharToLowerCase(type.Name)}""
+            inline-prompt
+            :active-value=""true""
+            :inactive-value=""false""
+            active-text=""是""
+            inactive-text=""否""
+            :style=""switchStyle""
+          />
+        </el-form-item>
+      </re-col>
+";
+                }
+                if (propertyTypeName == "DateTime")
+                {
+                    formBody +=
+$@"
+      <re-col :value=""12"" :xs=""24"" :sm=""24"">
+        <el-form-item label=""{description}"" prop=""{FirstCharToLowerCase(type.Name)}"">
+          <el-input
+            v-model=""newFormInline.{FirstCharToLowerCase(type.Name)}""
+            clearable
+            placeholder=""请输入{description}""
+            type=""date""
+          />
+        </el-form-item>
+      </re-col>
+";
+                }
+                if (propertyTypeName == "Int32" || propertyTypeName == "Int64")
+                {
+                    formPropsBody +=
+$@"
+      <re-col :value=""12"" :xs=""24"" :sm=""24"">
+        <el-form-item label=""类型"" prop=""type"">
+          <el-input
+            v-model=""newFormInline.type""
+            clearable
+            placeholder=""请输入类型""
+            type=""number""
+          />
+        </el-form-item>
+      </re-col>
+";
+                }
+
+            }
+
+            formFooter += 
+$@"
+    </el-row>
+  </el-form>
+</template>
+";
+
+           var body = $@"
+                        {formPropsHeader}
+                        {formPropsBody}
+                        {formPropsFooter}
+                        {formHeader}
+                        {formBody}
+                        {formFooter}";
+            var footer =
+$@"";
+            var code = $"{header}{body}{footer}";
+            using (FileStream fs = System.IO.File.Create(filePath))
+            {
+                byte[] info = new UTF8Encoding(true).GetBytes(code);
+                fs.Write(info, 0, info.Length);
+            }
+            return filePath;
+        }
         public static string GenerateIndexCode(Type type, string nameSpace, string savePath)
         {
-            return "";
+            string fullPath = savePath;
+            string targetSubstring = "Onion\\src";
+            // 找到目标子字符串的索引
+            int index = fullPath.IndexOf(targetSubstring);
+            if (index != -1)
+            {
+                // 截取目标子字符串之前的部分
+                fullPath = fullPath.Substring(0, index);
+            }
+
+            savePath = $"{fullPath}{targetSubstring}\\UI\\src\\views\\system\\{type.Name.ToLower()}\\";
+            Directory.CreateDirectory(savePath);
+            var filePath = $@"{savePath}index.vue";
+            var desc = type.CustomAttributes?
+                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+                .ConstructorArguments?
+                .FirstOrDefault().Value;
+
+            PropertyInfo[] properties = type.GetProperties();
+
+            string[] ignoreFields = new string[]
+            {
+                "Id",
+                "DeletedBy",
+                "Deleted",
+                "CreatedBy",
+                "LastModified",
+                "LastModifiedBy",
+                "LastModifiedBy",
+                "ConcurrencyStamp"
+            };
+
+            var formSearchHeader = "";
+            var formSearchBody = "";
+            var formSearchFooter = "";
+
+            var header =
+$@"
+const formRef = ref();
+const tableRef = ref();
+const {{
+  form,
+  loading,
+  columns,
+  dataList,
+  pagination,
+  selectedNum,
+  onSearch,
+  resetForm,
+  onbatchDel,
+  openDialog,
+  handleDelete,
+  handleSizeChange,
+  onSelectionCancel,
+  handleCurrentChange,
+  handleSelectionChange
+}} = use{type.Name}(tableRef, treeRef);
+</script>
+<template>
+  <div
+    class=""flex justify-between""
+    v-if=""hasAuth('api:{type.Name.ToLower()}:paginationquery')""
+  >
+";
+
+            formSearchHeader =
+$@"
+    <div class=""w-[calc(100%-0px)]"">
+      <el-form
+        ref=""formRef""
+        :inline=""true""
+        :model=""form""
+        class=""search-form bg-bg_color w-[99/100] pl-8 pt-[12px]""
+      >
+";
+            // 遍历属性并输出它们的名称和类型
+            foreach (PropertyInfo property in properties)
+            {
+                var propertyTypeName = property.PropertyType.Name;
+                var description = property.CustomAttributes?
+                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+                .ConstructorArguments?
+                .FirstOrDefault().Value;
+                if (property.Name.Contains("Id")) continue;
+                if (ignoreFields.Contains(property.Name)) continue;
+
+                if (propertyTypeName == "String")
+                {
+                    formSearchBody +=
+$@"
+        <el-form-item label=""{description}："" prop=""{FirstCharToLowerCase(property.Name)}"">
+          <el-input
+            v-model=""form.{FirstCharToLowerCase(property.Name)}""
+            placeholder=""请输入{description}""
+            clearable
+            class=""!w-[160px]""
+          />
+        </el-form-item>
+";
+                }
+                if (propertyTypeName == "Boolean")
+                {
+                    formSearchBody +=
+$@"
+<el-form-item label=""{description}："" prop=""{FirstCharToLowerCase(property.Name)}"">
+          <el-select
+            v-model=""form.{FirstCharToLowerCase(property.Name)}""
+            placeholder=""请选{description}""
+            clearable
+            class=""!w-[160px]""
+          >
+            <el-option label=""是"" :value=""true"" />
+            <el-option label=""否"" :value=""false"" />
+          </el-select>
+        </el-form-item>
+";
+                }               
+            }
+            formSearchFooter += 
+$@"
+        <el-form-item>
+          <el-button type=""primary"" @click=""onSearch""> 搜索 </el-button>
+          <el-button :icon=""useRenderIcon(Refresh)"" @click=""resetForm(formRef)"">
+            重置
+          </el-button>
+        </el-form-item>
+      </el-form>
+";
+
+            var body = $@"
+                        {formSearchHeader}
+                        {formSearchBody}
+                        {formSearchFooter}";
+            var footer =
+$@"
+
+      <PureTableBar title=""{desc}管理"" :columns=""columns"" @refresh=""onSearch"">
+        <template #buttons>
+          <el-button
+            type=""primary""
+            :icon=""useRenderIcon(AddFill)""
+            @click=""openDialog()""
+            v-if=""hasAuth('api:{type.Name.ToLower()}:add')""
+          >
+            新增
+          </el-button>
+        </template>
+        <template v-slot=""{{ size, dynamicColumns }}"">
+          <div
+            v-if=""selectedNum > 0""
+            v-motion-fade
+            class=""bg-[var(--el-fill-color-light)] w-full h-[46px] mb-2 pl-4 flex items-center""
+          >
+            <div class=""flex-auto"">
+              <span
+                style=""font-size: var(--el-font-size-base)""
+                class=""text-[rgba(42,46,54,0.5)] dark:text-[rgba(220,220,242,0.5)]""
+              >
+                已选 {{{{ selectedNum }}}} 项
+              </span>
+              <el-button type=""primary"" text @click=""onSelectionCancel"">
+                取消选择
+              </el-button>
+            </div>
+            <el-popconfirm title=""是否确认删除?"" @confirm=""onbatchDel"">
+              <template #reference>
+                <el-button
+                  type=""danger""
+                  text
+                  class=""mr-1""
+                  v-if=""hasAuth('api:{type.Name.ToLower()}:delete')""
+                >
+                  批量删除
+                </el-button>
+              </template>
+            </el-popconfirm>
+          </div>
+          <pure-table
+            row-key=""id""
+            ref=""tableRef""
+            adaptive
+            align-whole=""center""
+            table-layout=""auto""
+            :loading=""loading""
+            :size=""size""
+            :data=""dataList""
+            :columns=""dynamicColumns""
+            :pagination=""pagination""
+            :paginationSmall=""size === 'small' ? true : false""
+            :header-cell-style=""{{
+              background: 'var(--el-fill-color-light)',
+              color: 'var(--el-text-color-primary)'
+            }}""
+            @selection-change=""handleSelectionChange""
+            @page-size-change=""handleSizeChange""
+            @page-current-change=""handleCurrentChange""
+          >
+            <template #operation=""{{ row }}"">
+              <el-button
+                class=""reset-margin""
+                link
+                type=""primary""
+                :size=""size""
+                :icon=""useRenderIcon(EditPen)""
+                @click=""openDialog('编辑', row)""
+                v-if=""hasAuth('api:{type.Name.ToLower()}:update')""
+              >
+                修改
+              </el-button>
+              <el-popconfirm
+                :title=""`是否确认删除编号为${{row.{type.Name.ToLower()}Id}}的这条数据`""
+                @confirm=""handleDelete(row)""
+              >
+                <template #reference>
+                  <el-button
+                    class=""reset-margin""
+                    link
+                    type=""primary""
+                    :size=""size""
+                    :icon=""useRenderIcon(Delete)""
+                    v-if=""hasAuth('api:{type.Name.ToLower()}:delete')""
+                  >
+                    删除
+                  </el-button>
+                </template>
+              </el-popconfirm>
+            </template>
+          </pure-table>
+        </template>
+      </PureTableBar>
+    </div>
+  </div>
+</template>
+
+<style scoped lang=""scss"">
+:deep(.el-dropdown-menu__item i) {{
+  margin: 0;
+}}
+
+:deep(.el-button:focus-visible) {{
+  outline: none;
+}}
+
+.search-form {{
+  :deep(.el-form-item) {{
+    margin-bottom: 12px;
+  }}
+}}
+</style>
+";
+            var code = $"{header}{body}{footer}";
+            using (FileStream fs = System.IO.File.Create(filePath))
+            {
+                byte[] info = new UTF8Encoding(true).GetBytes(code);
+                fs.Write(info, 0, info.Length);
+            }
+            return filePath;
         }
     }
 }

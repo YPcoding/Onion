@@ -3,11 +3,10 @@ import { ref } from "vue";
 import { useTestTable } from "./utils/hook";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { PureTableBar } from "@/components/RePureTableBar";
-import { hasAuth, getAuths } from "@/router/utils";
+import { hasAuth } from "@/router/utils";
 
 import Delete from "@iconify-icons/ep/delete";
 import EditPen from "@iconify-icons/ep/edit-pen";
-import Search from "@iconify-icons/ep/search";
 import Refresh from "@iconify-icons/ep/refresh";
 import AddFill from "@iconify-icons/ri/add-circle-line";
 
@@ -24,7 +23,6 @@ const {
   dataList,
   pagination,
   selectedNum,
-  buttonClass,
   onSearch,
   resetForm,
   onbatchDel,

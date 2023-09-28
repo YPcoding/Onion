@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import ReCol from "../../../../components/ReCol";
+import ReCol from "@/components/ReCol";
 import { formRules } from "../utils/rule";
 import { FormProps } from "../utils/types";
 import { usePublicHooks } from "../../hooks";
