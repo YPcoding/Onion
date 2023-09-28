@@ -2071,32 +2071,33 @@ const props = withDefaults(defineProps<FormProps>(), {{
                 {
                     formPropsBody +=
 $@"
-    {FirstCharToLowerCase(type.Name)}: """",
+    {FirstCharToLowerCase(property.Name)}: """",
 ";
                 }
                 if (propertyTypeName == "Boolean")
                 {
                     formPropsBody +=
 $@"     
-    {FirstCharToLowerCase(type.Name)}: null,
+    {FirstCharToLowerCase(property.Name)}: null,
 ";
                 }
                 if (propertyTypeName == "DateTime")
                 {
                     formPropsBody +=
 $@"     
-    {FirstCharToLowerCase(type.Name)}: """",
+    {FirstCharToLowerCase(property.Name)}: """",
 ";
                 }
                 if (propertyTypeName == "Int32" || propertyTypeName == "Int64") 
                 {
                     formPropsBody +=
 $@"     
-    {FirstCharToLowerCase(type.Name)}: 0,
+    {FirstCharToLowerCase(property.Name)}: 0,
 ";
                 }
 
             }
+
 
             formPropsFooter = 
 $@"
@@ -2146,7 +2147,7 @@ $@"
       <re-col :value=""12"" :xs=""24"" :sm=""24"">
         <el-form-item label=""{description}"" prop=""{FirstCharToLowerCase(type.Name)}"">
           <el-input
-            v-model=""newFormInline.{FirstCharToLowerCase(type.Name)}""
+            v-model=""newFormInline.{FirstCharToLowerCase(property.Name)}""
             clearable
             placeholder=""请输入{description}""
           />
@@ -2161,7 +2162,7 @@ $@"
       <re-col :value=""12"" :xs=""24"" :sm=""24"">
         <el-form-item label=""{description}"">
           <el-switch
-            v-model=""newFormInline.{FirstCharToLowerCase(type.Name)}""
+            v-model=""newFormInline.{FirstCharToLowerCase(property.Name)}""
             inline-prompt
             :active-value=""true""
             :inactive-value=""false""
@@ -2180,7 +2181,7 @@ $@"
       <re-col :value=""12"" :xs=""24"" :sm=""24"">
         <el-form-item label=""{description}"" prop=""{FirstCharToLowerCase(type.Name)}"">
           <el-input
-            v-model=""newFormInline.{FirstCharToLowerCase(type.Name)}""
+            v-model=""newFormInline.{FirstCharToLowerCase(property.Name)}""
             clearable
             placeholder=""请输入{description}""
             type=""date""
@@ -2191,12 +2192,12 @@ $@"
                 }
                 if (propertyTypeName == "Int32" || propertyTypeName == "Int64")
                 {
-                    formPropsBody +=
+                    formBody +=
 $@"
       <re-col :value=""12"" :xs=""24"" :sm=""24"">
         <el-form-item label=""类型"" prop=""type"">
           <el-input
-            v-model=""newFormInline.type""
+            v-model=""newFormInline.{FirstCharToLowerCase(property.Name)}""
             clearable
             placeholder=""请输入类型""
             type=""number""
@@ -2272,6 +2273,22 @@ $@"";
 
             var header =
 $@"
+<script setup lang=""ts"">
+import {{ ref }} from ""vue"";
+import {{ use{type.Name} }} from ""./utils/hook"";
+import {{ useRenderIcon }} from ""@/components/ReIcon/src/hooks"";
+import {{ PureTableBar }} from ""@/components/RePureTableBar"";
+import {{ hasAuth }} from ""@/router/utils"";
+
+import Delete from ""@iconify-icons/ep/delete"";
+import EditPen from ""@iconify-icons/ep/edit-pen"";
+import Refresh from ""@iconify-icons/ep/refresh"";
+import AddFill from ""@iconify-icons/ri/add-circle-line"";
+
+defineOptions({{
+  name: ""TestTable""
+}});
+const treeRef = ref();
 const formRef = ref();
 const tableRef = ref();
 const {{
