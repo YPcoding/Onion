@@ -1,7 +1,4 @@
-﻿using System.Formats.Tar;
-using System.Reflection;
-using System.Reflection.PortableExecutable;
-using System.Runtime.Serialization.Formatters;
+﻿using System.Reflection;
 using System.Text;
 
 /// <summary>
@@ -162,6 +159,9 @@ public class Add{type.Name}Command : IRequest<Result<long>>
                     case "Int64":
                         propertyTypeName = "long";
                         break;
+                    case "DateTime":
+                        propertyTypeName = "DateTime";
+                        break;
                     case "ICollection`1":
                         isBreak = true;
                         break;
@@ -294,6 +294,9 @@ public class Update{type.Name}Command : IRequest<Result<long>>
                         break;
                     case "Int64":
                         propertyTypeName = "long";
+                        break;
+                    case "DateTime":
+                        propertyTypeName = "DateTime";
                         break;
                     case "ICollection`1":
                         isBreak = true;
@@ -1458,6 +1461,20 @@ $@"
       fixed: ""left"",
       reserveSelection: true // 数据刷新后保留选项
     }},
+    {{
+      label: ""编号"",
+      prop: ""id"", // 假设 id 包含19位的雪花ID
+      width: 102,
+      formatter: row => {{
+        if (typeof row.id === ""string"" && row.id.length === 19) {{
+          // 如果 id 是字符串且长度为19，截取后10位并显示
+          return row.id.substr(9); // 从第9位开始截取后10位
+        }} else {{
+          // 如果不符合要求，直接显示原始值
+          return row.id;
+        }}
+      }}
+    }},
 ";
             // 遍历属性并输出它们的名称和类型
             foreach (PropertyInfo property in properties)
@@ -1495,8 +1512,8 @@ $@"
           size={{scope.props.size === ""small"" ? ""small"" : ""default""}}
           loading={{switchLoadMap.value[scope.index]?.loading}}
           v-model={{scope.row.{FirstCharToLowerCase(property.Name)}}}
-          active-value={{false}}
-          inactive-value={{true}}
+          active-value={{true}}
+          inactive-value={{false}}
           active-text=""是""
           inactive-text=""否""
           inline-prompt
@@ -1577,7 +1594,18 @@ $@"
             }
 
             columnsFooter = 
-$@"
+$@"    
+    {{
+      label: ""操作"",
+      fixed: ""right"",
+      width: 180,
+      slot: ""operation"",
+      hide: () => {{
+        // 判断权限是否可以显示操作栏
+        const auths = [""api:{type.Name.ToLower()}:update"", ""api:{type.Name.ToLower()}:delete""];
+        return !usePublicHooks().hasAuthIntersection(getAuths(), auths);
+      }}
+    }}
   ];";
             onMounted += 
 $@"
@@ -1595,6 +1623,7 @@ $@"
       props: {{
         formInline: {{
           title,
+          {FirstCharToLowerCase(type.Name)}Id: row?.{FirstCharToLowerCase(type.Name)}Id ?? """",
 ";
             // 遍历属性并输出它们的名称和类型
             foreach (PropertyInfo property in properties)
@@ -1604,7 +1633,6 @@ $@"
                 .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
                 .ConstructorArguments?
                 .FirstOrDefault().Value;
-                bool isBreak = false;
                 if (property.Name.Contains("Id")) continue;
                 if (ignoreFields.Contains(property.Name)) continue;
 
@@ -1629,20 +1657,10 @@ $@"
 ";
                         break;
                     case "Int64":
-                        if (property.Name == "Id")
-                        {
-                            openDialogBody +=
-$@"
-          {FirstCharToLowerCase(property.Name)}Id: row?.{FirstCharToLowerCase(property.Name)}Id ?? """",
-";
-                        }
-                        else 
-                        {
-                            openDialogBody +=
+                        openDialogBody +=
 $@"
           {FirstCharToLowerCase(property.Name)}: row?.{FirstCharToLowerCase(property.Name)} ?? null,
 ";
-                        }
                         break;
                     case "DateTime":
                         openDialogBody +=
@@ -1693,7 +1711,7 @@ $@"
 $@"
   //删除
   async function handleDelete(row) {{
-    await onbatchDelete{type.Name}({{ {FirstCharToLowerCase(type.Name)}Ids: [row.id] }});
+    await onbatchDelete{type.Name}({{ {FirstCharToLowerCase(type.Name)}Ids: [row.{FirstCharToLowerCase(type.Name)}Id] }});
     message(`删除成功`, {{ type: ""success"" }});
     onSearch();
   }}
@@ -2470,7 +2488,7 @@ $@"
                 修改
               </el-button>
               <el-popconfirm
-                :title=""`是否确认删除编号为${{row.{type.Name.ToLower()}Id}}的这条数据`""
+                :title=""`是否确认删除编号为${{row.{FirstCharToLowerCase(type.Name)}Id}}的这条数据`""
                 @confirm=""handleDelete(row)""
               >
                 <template #reference>
