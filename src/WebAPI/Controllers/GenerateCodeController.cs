@@ -138,21 +138,21 @@ namespace WebAPI.Controllers
                     generateCode.NameSpace,
                     generateCode.SavePath));
             }
-            if (generateCode.Type == GenerateCodeType.Update || generateCode.Type == GenerateCodeType.GenerateAll)
+            if (generateCode.Type == GenerateCodeType.Rule || generateCode.Type == GenerateCodeType.GenerateAll)
             {
                 filePaths.Add(GenerateCodeVue.GenerateRuleCode(
                     GenrateCodeHelper.GetTypeByFullClassName(generateCode.FullClassName),
                     generateCode.NameSpace,
                     generateCode.SavePath));
             }
-            if (generateCode.Type == GenerateCodeType.Delete || generateCode.Type == GenerateCodeType.GenerateAll)
+            if (generateCode.Type == GenerateCodeType.Types || generateCode.Type == GenerateCodeType.GenerateAll)
             {
                 filePaths.Add(GenerateCodeVue.GenerateTypesCode(
                     GenrateCodeHelper.GetTypeByFullClassName(generateCode.FullClassName),
                     generateCode.NameSpace,
                     generateCode.SavePath));
             }
-            if (generateCode.Type == GenerateCodeType.DTOs || generateCode.Type == GenerateCodeType.GenerateAll)
+            if (generateCode.Type == GenerateCodeType.Form || generateCode.Type == GenerateCodeType.GenerateAll)
             {
                 filePaths.Add(GenerateCodeVue.GenerateFormCode(
                     GenrateCodeHelper.GetTypeByFullClassName(generateCode.FullClassName),

@@ -15,7 +15,7 @@ public class GenrateCodeHelper
     /// <param name="typeName"></param>
     /// <param name="excludeTypeName"></param>
     /// <returns></returns>
-    public static bool ShouldGenerateToString(string typeName, IEnumerable<string>? excludeTypeName = null)
+    public static bool IgnoreGenerateToString(string typeName, IEnumerable<string>? excludeTypeName = null)
     {
         if (typeName == null) return false;
 
@@ -34,7 +34,7 @@ public class GenrateCodeHelper
 
         if (excludeTypeName != null && excludeTypeName.Any())
         {
-            ignoreTypeNames.RemoveAll(x => excludeTypeName.Contains(x));
+            ignoreTypeNames= ignoreTypeNames.Where(x => !excludeTypeName.Contains(x)).ToList();
         }
 
         return ignoreTypeNames.Contains(typeName);
@@ -256,7 +256,7 @@ public class Add{typeName}Command : IRequest<Result<long>>
             .FirstOrDefault().Value;
 
             if (propertyName.Contains("Id")) continue;
-            if (GenrateCodeHelper.ShouldGenerateToString(propertyName)) continue;
+            if (GenrateCodeHelper.IgnoreGenerateToString(propertyName)) continue;
 
             body +=
  $@"
@@ -313,9 +313,9 @@ public class Add{typeName}CommandHandler : IRequestHandler<Add{typeName}Command,
     public static string GenerateUpdateCommandCode(Type type, string nameSpace, string savePath)
     {
         var typeName = type.Name;
-        savePath = $"{savePath}\\{typeName}s\\Commands\\Update";
+        savePath = Path.Combine(savePath, $"{typeName}s", "Commands", "Update");
         Directory.CreateDirectory(savePath);
-        var filePath = $@"{savePath}\Update{typeName}Command.cs";
+        var filePath = Path.Combine(savePath, $"Update{typeName}Command.cs");
         var desc = GenrateCodeHelper.GetTypeDescription(type);
 
         var header =
@@ -336,59 +336,21 @@ public class Update{typeName}Command : IRequest<Result<long>>
 ";
         var body = "";
         PropertyInfo[] properties = type.GetProperties();
-        string[] ignoreFields = new string[]
-       {
-            "DeletedBy",
-            "Deleted",
-            "CreatedBy",
-            "LastModified",
-            "LastModifiedBy",
-            "LastModifiedBy",
-       };
 
         // 遍历属性并输出它们的名称和类型
         foreach (PropertyInfo property in properties)
         {
-            var propertyTypeName = property.PropertyType.Name;
+            string propertyTypeName = GenrateCodeHelper.GetCSharpTypeName(property.PropertyType);
+            string propertyName = property.Name;
+
             var description = property.CustomAttributes?
             .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
             .ConstructorArguments?
             .FirstOrDefault().Value;
-            bool isBreak = false;
-            if (ignoreFields.Contains(property.Name)) continue;
 
-            switch (propertyTypeName)
-            {
-                case "String":
-                    propertyTypeName = "string";
-                    break;
-                case "Boolean":
-                    propertyTypeName = "bool";
-                    break;
-                case "Int32":
-                    propertyTypeName = "int";
-                    break;
-                case "Int64":
-                    propertyTypeName = "long";
-                    break;
-                case "DateTime":
-                    propertyTypeName = "DateTime";
-                    break;
-                case "ICollection`1":
-                    isBreak = true;
-                    break;
-                case "Nullable`1":
-                    isBreak = true;
-                    break;
-                case "IReadOnlyCollection`1":
-                    isBreak = true;
-                    break;
-                default:
-                    isBreak = true;
-                    break;
-            }
-            if (isBreak) continue;
-            if (property.Name == "Id")
+            if (GenrateCodeHelper.IgnoreGenerateToString(propertyName, new string[] { "Id", "ConcurrencyStamp" })) continue;
+
+            if (propertyName == "Id")
             {
                 body +=
  $@"
@@ -397,7 +359,7 @@ public class Update{typeName}Command : IRequest<Result<long>>
         /// {description}
         /// </summary>
         [Description(""{description}"")]
-        public {propertyTypeName} {typeName}{property.Name} {{ get; set; }}";
+        public {propertyTypeName} {typeName}{propertyName} {{ get; set; }}";
 
             }
             else
@@ -409,7 +371,7 @@ public class Update{typeName}Command : IRequest<Result<long>>
         /// {description}
         /// </summary>
         [Description(""{description}"")]
-        public {propertyTypeName} {property.Name} {{ get; set; }}";
+        public {propertyTypeName} {propertyName} {{ get; set; }}";
 
             }
         }
@@ -448,7 +410,7 @@ public class Update{typeName}CommandHandler : IRequestHandler<Update{typeName}Co
            ?? throw new NotFoundException($""数据【{{request.{typeName}Id}}-{{request.ConcurrencyStamp}}】未找到"");
 
         {typeName.ToLower()} = _mapper.Map(request, {typeName.ToLower()});
-        {typeName.ToLower()}.AddDomainEvent(new UpdatedEvent<{typeName}>({typeName.ToLower()}));
+        //{typeName.ToLower()}.AddDomainEvent(new UpdatedEvent<{typeName}>({typeName.ToLower()}));
         _context.{typeName}s.Update({typeName.ToLower()});
         var isSuccess = await _context.SaveChangesAsync(cancellationToken) > 0;
         return await Result<long>.SuccessOrFailureAsync({typeName.ToLower()}.Id, isSuccess, new string[] {{ ""操作失败"" }});
@@ -458,20 +420,16 @@ public class Update{typeName}CommandHandler : IRequestHandler<Update{typeName}Co
 
 
         var code = $"{header}{body}{footer}";
-        using (FileStream fs = System.IO.File.Create(filePath))
-        {
-            byte[] info = new UTF8Encoding(true).GetBytes(code);
-            fs.Write(info, 0, info.Length);
-        }
+        GenrateCodeHelper.SaveTextToFile(code, filePath);
         return filePath;
     }
 
     public static string GenerateDeleteCommandCode(Type type, string nameSpace, string savePath)
     {
         var typeName = type.Name;
-        savePath = $"{savePath}\\{typeName}s\\Commands\\Delete";
+        savePath = Path.Combine(savePath, $"{typeName}s", "Commands", "Delete");
         Directory.CreateDirectory(savePath);
-        var filePath = $@"{savePath}\Delete{typeName}Command.cs";
+        string filePath = Path.Combine(savePath, $"Delete{typeName}Command.cs");
         var desc = GenrateCodeHelper.GetTypeDescription(type);
 
         var header =
@@ -546,9 +504,9 @@ public class Delete{typeName}CommandHandler : IRequestHandler<Delete{typeName}Co
     public static string GenerateDTOsCode(Type type, string nameSpace, string savePath)
     {
         var typeName = type.Name;
-        savePath = $"{savePath}\\{typeName}s\\DTOs";
+        savePath = Path.Combine(savePath, $"{typeName}s", "DTOs");
         Directory.CreateDirectory(savePath);
-        var filePath = $@"{savePath}\{typeName}Dto.cs";
+        string filePath = Path.Combine(savePath, $"{typeName}Dto.cs");
         var desc = GenrateCodeHelper.GetTypeDescription(type);
 
         var header =
@@ -561,92 +519,42 @@ namespace {nameSpace}.{typeName}s.DTOs
 {{
     [Map(typeof({typeName}))]
     public class {typeName}Dto
-    {{
-";
+    {{";
 
-        var body =
+        var body =$@"";
+        PropertyInfo[] properties = type.GetProperties();
+        // 遍历属性并输出它们的名称和类型
+        foreach (PropertyInfo property in properties)
+        {
+            string propertyTypeName = GenrateCodeHelper.GetCSharpTypeName(property.PropertyType);
+            string propertyName = property.Name;
+
+            var description = property.CustomAttributes?
+            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+            .ConstructorArguments?
+            .FirstOrDefault().Value;
+            if (GenrateCodeHelper.IgnoreGenerateToString(propertyName, new string[] { "Id", "ConcurrencyStamp" })) continue;
+
+            if (propertyName == "Id") 
+            {
+                body +=
 $@"     
-        /// <summary>
-        /// 唯一标识
-        /// </summary>
-        public long? Id {{ get; set; }}
 
         /// <summary>
-        /// 唯一标识
+        /// {description}
         /// </summary>
-        public long? {typeName}Id 
+        public {propertyTypeName}? {typeName}Id 
         {{
             get 
             {{
                 return Id;
             }}
         }}";
-
-        PropertyInfo[] properties = type.GetProperties();
-        string[] ignoreFields = new string[]
-        {
-            "Id",
-            "DeletedBy",
-            "Deleted",
-            "CreatedBy",
-            "LastModified",
-            "LastModifiedBy",
-            "LastModifiedBy",
-            "ConcurrencyStamp"
-        };
-
-        // 遍历属性并输出它们的名称和类型
-        foreach (PropertyInfo property in properties)
-        {
-            var propertyTypeName = property.PropertyType.Name;
-            var description = property.CustomAttributes?
-            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-            .ConstructorArguments?
-            .FirstOrDefault().Value;
-            if (ignoreFields.Contains(property.Name)) continue;
-            if (property.Name.Contains("Id")) continue;
-            if (propertyTypeName == typeName) continue;
-
-            if (propertyTypeName == "String")
-            {
-                propertyTypeName = "string";
-            }
-            if (propertyTypeName == "Boolean")
-            {
-                propertyTypeName = "bool";
-            }
-            if (propertyTypeName == "Int32")
-            {
-                propertyTypeName = "int";
-            }
-            if (propertyTypeName == "ICollection`1")
-            {
-                continue;
-            }
-            if (propertyTypeName == "IReadOnlyCollection`1")
-            {
-                continue;
-            }
-            if (propertyTypeName == "Nullable`1")
-            {
-                string a = property.ToString();
-                if (property.ToString().Contains("DateTimeOffset"))
-                {
-                    propertyTypeName = "DateTimeOffset";
-                }
-                if (property.ToString().Contains("DateTime"))
-                {
-                    propertyTypeName = "DateTime";
-                }
-                if (property.ToString().Contains("Int64"))
-                {
-                    propertyTypeName = "long";
-                }
             }
 
             body +=
- $@"
-        
+ $@"    
+
         /// <summary>
         /// {description}
         /// </summary>
@@ -655,16 +563,8 @@ $@"
 
         }
 
-
-
         var footer =
 $@"
-
-        /// <summary>
-        /// 并发标记
-        /// </summary>
-        [Description(""并发标记"")]
-        public string? ConcurrencyStamp {{ get; set; }}
     }}
 }}";
         var code = $"{header}{body}{footer}";
@@ -676,10 +576,9 @@ $@"
     public static string GenerateEventHandlersCode(Type type, string nameSpace, string savePath)
     {
         var typeName = type.Name;
-        savePath = $"{savePath}\\{typeName}s\\EventHandlers";
+        savePath = Path.Combine(savePath, $"{typeName}s", "EventHandlers");
         Directory.CreateDirectory(savePath);
-        var filePath = $@"{savePath}\{typeName}CreatedEventHandler.cs";
-        var desc = GenrateCodeHelper.GetTypeDescription(type);
+        string filePath = Path.Combine(savePath, $"{typeName}CreatedEventHandler.cs");
 
         var body =
 $@"using {GenrateCodeHelper.RemoveSuffix($"{type.FullName}", $".{typeName}")};
@@ -710,10 +609,9 @@ public class {typeName}CreatedEventHandler : INotificationHandler<CreatedEvent<{
     public static string GenerateQueriesGetAllCode(Type type, string nameSpace, string savePath)
     {
         var typeName = type.Name;
-        savePath = $"{savePath}\\{typeName}s\\Queries\\GetAll";
+        savePath = Path.Combine(savePath, $"{typeName}s", "Queries", "GetAll");
         Directory.CreateDirectory(savePath);
-        var filePath = $@"{savePath}\GetAll{typeName}Query.cs";
-        var desc = GenrateCodeHelper.GetTypeDescription(type);
+        string filePath = Path.Combine(savePath, $"GetAll{typeName}Query.cs");
 
         var body =
 $@"using {nameSpace}.{typeName}s.Caching;
@@ -760,10 +658,10 @@ public class GetAll{typeName}sQueryHandler :
     public static string GenerateQueriesGetByIdCode(Type type, string nameSpace, string savePath)
     {
         var typeName = type.Name;
-        savePath = $"{savePath}\\{typeName}s\\Queries\\GetById";
+
+        savePath = Path.Combine(savePath, $"{typeName}s", "Queries", "GetById");
         Directory.CreateDirectory(savePath);
-        var filePath = $@"{savePath}\Get{typeName}QueryById.cs";
-        var desc = GenrateCodeHelper.GetTypeDescription(type);
+        string filePath = Path.Combine(savePath, $"Get{typeName}QueryById.cs");
 
         var body =
 $@"using Application.Common.Extensions;
@@ -829,9 +727,9 @@ public class Get{typeName}ByIdQueryHandler :IRequestHandler<Get{typeName}QueryBy
     public static string GenerateQueriesPaginationCode(Type type, string nameSpace, string savePath)
     {
         var typeName = type.Name;
-        savePath = $"{savePath}\\{typeName}s\\Queries\\Pagination";
+        savePath = Path.Combine(savePath, $"{typeName}s", "Queries", "Pagination");
         Directory.CreateDirectory(savePath);
-        var filePath = $@"{savePath}\{typeName}sWithPaginationQuery.cs";
+        string filePath = Path.Combine(savePath, $"{typeName}sWithPaginationQuery.cs");
         var desc = GenrateCodeHelper.GetTypeDescription(type);
 
         var body =
@@ -1051,10 +949,10 @@ $@";    }}
     public static string GenerateSpecificationsByIdSpecCode(Type type, string nameSpace, string savePath)
     {
         var typeName = type.Name;
-        savePath = $"{savePath}\\{typeName}s\\Specifications";
+        // 使用 Path.Combine 构建目录路径
+        savePath = Path.Combine(savePath, $"{typeName}s", "Specifications");
         Directory.CreateDirectory(savePath);
-        var filePath = $@"{savePath}\{typeName}ByIdSpec.cs";
-        var desc = GenrateCodeHelper.GetTypeDescription(type);
+        string filePath = Path.Combine(savePath, $"{typeName}ByIdSpec.cs");
 
         var body =
 $@"using Ardalis.Specification;
@@ -1088,9 +986,9 @@ public class {typeName}ByIdSpec : Specification<{typeName}>
             fullPath = fullPath.Substring(0, index);
         }
 
-        savePath = $"{fullPath}{targetSubstring}\\WebAPI\\Controllers";
-        Directory.CreateDirectory(savePath);
-        var filePath = $@"{savePath}\\{typeName}Controller.cs";
+        string directoryPath = Path.Combine(fullPath, targetSubstring, "WebAPI\\Controllers");
+        Directory.CreateDirectory(directoryPath);
+        string filePath = Path.Combine(directoryPath, $"{typeName}Controller.cs");
         var desc = GenrateCodeHelper.GetTypeDescription(type);
 
         var body =
@@ -1279,9 +1177,11 @@ export const onbatchDelete{typeName} = (data?: object) => {{
         string lastFolder = folders[folders.Length - 1];
 
         string fullPath = savePath;
-        savePath = $"{fullPath}\\{typeName.ToLower()}\\utils";
+        // 构建目录路径
+        savePath = Path.Combine(fullPath, typeName.ToLower(), "utils");
         Directory.CreateDirectory(savePath);
-        var filePath = $@"{savePath}\\hook.tsx";
+        string filePath = Path.Combine(savePath, "hook.tsx");
+        // 构建文件路径
         var desc = GenrateCodeHelper.GetTypeDescription(type);
 
         var import = "";//引入组件
@@ -1825,13 +1725,11 @@ $@"
     {
         var typeName = type.Name;
         string fullPath = savePath;
-        savePath = $"{fullPath}\\{typeName.ToLower()}\\utils";
+
+        savePath = Path.Combine(fullPath, typeName.ToLower(), "utils");
         Directory.CreateDirectory(savePath);
-        var filePath = $@"{savePath}\\rule.ts";
-        var desc = type.CustomAttributes?
-            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-            .ConstructorArguments?
-            .FirstOrDefault().Value;
+        string filePath = Path.Combine(savePath, "rule.ts");
+        var desc = GenrateCodeHelper.GetTypeDescription(type);
 
         var header =
 $@"import {{ reactive }} from ""vue"";
@@ -1916,13 +1814,12 @@ $@"}});";
     {
         var typeName = type.Name;
         string fullPath = savePath;
-        savePath = $"{fullPath}\\{typeName.ToLower()}\\utils";
+        // 构建目录路径
+        savePath = Path.Combine(fullPath, typeName.ToLower(), "utils");
         Directory.CreateDirectory(savePath);
-        var filePath = $@"{savePath}\\types.ts";
-        var desc = type.CustomAttributes?
-            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-            .ConstructorArguments?
-            .FirstOrDefault().Value;
+        // 构建文件路径
+        string filePath = Path.Combine(savePath, "types.ts");
+        var desc = GenrateCodeHelper.GetTypeDescription(type);
 
         var header =
 $@"interface FormItemProps {{
@@ -2010,9 +1907,11 @@ export type {{FormItemProps,FormProps}};";
     {
         var typeName = type.Name;
         string fullPath = savePath;
-        savePath = $"{fullPath}\\{typeName.ToLower()}\\form";
+        // 构建目录路径
+        savePath = Path.Combine(fullPath, typeName.ToLower(), "form");
         Directory.CreateDirectory(savePath);
-        var filePath = $@"{savePath}\\index.vue";
+        // 构建文件路径
+        string filePath = Path.Combine(savePath, "index.vue");
         var desc = GenrateCodeHelper.GetTypeDescription(type);
 
         PropertyInfo[] properties = type.GetProperties();
@@ -2231,9 +2130,11 @@ $@"";
     {
         var typeName = type.Name;
         string fullPath = savePath;
-        savePath = $"{fullPath}\\{typeName.ToLower()}\\";
+        // 构建目录路径
+        savePath = Path.Combine(fullPath, typeName.ToLower());
         Directory.CreateDirectory(savePath);
-        var filePath = $@"{savePath}index.vue";
+        // 构建文件路径
+        string filePath = Path.Combine(savePath, "index.vue");
         var desc = GenrateCodeHelper.GetTypeDescription(type);
 
         PropertyInfo[] properties = type.GetProperties();
