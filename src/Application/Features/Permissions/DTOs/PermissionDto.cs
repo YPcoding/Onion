@@ -108,5 +108,10 @@ namespace Application.Features.Permissions.DTOs
         /// </summary>
         [Required(ErrorMessage = "并发标记必填的")]
         public string ConcurrencyStamp { get; set; }
+
+        /// <summary>
+        /// 创建时间
+        /// </summary>
+        public DateTime? Created { get; set;}
     }
 }

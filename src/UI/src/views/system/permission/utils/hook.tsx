@@ -92,9 +92,8 @@ export function usePermission() {
     {
       label: "创建时间",
       minWidth: 180,
-      prop: "createTime",
-      formatter: ({ createTime }) =>
-        dayjs(createTime).format("YYYY-MM-DD HH:mm:ss")
+      prop: "created",
+      formatter: ({ created }) => dayjs(created).format("YYYY-MM-DD HH:mm:ss")
     },
     {
       label: "操作",
