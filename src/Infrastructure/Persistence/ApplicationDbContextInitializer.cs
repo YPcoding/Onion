@@ -1,4 +1,5 @@
 ﻿using Application.Common.Configurations;
+using Application.Services;
 using Domain.Entities;
 using Domain.Entities.Identity;
 using Domain.Enums;
@@ -7,7 +8,6 @@ using Masuit.Tools;
 using Masuit.Tools.Systems;
 using Microsoft.Extensions.Options;
 using System.Linq.Dynamic.Core;
-using static Application.Common.Helper.WebApiDocHelper;
 
 namespace CInfrastructure.Persistence;
 public class ApplicationDbContextInitializer
@@ -15,16 +15,20 @@ public class ApplicationDbContextInitializer
     private readonly ILogger<ApplicationDbContextInitializer> _logger;
     private readonly ApplicationDbContext _context;
     private readonly IOptions<SystemSettings> _optSystemSettings;
+    private readonly SystemService _systemService;
 
     public ApplicationDbContextInitializer(
         ILogger<ApplicationDbContextInitializer> logger,
         ApplicationDbContext context,
-        IOptions<SystemSettings> optSystemSettings)
+        IOptions<SystemSettings> optSystemSettings,
+        SystemService systemService)
     {
         _logger = logger;
         _context = context;
         _optSystemSettings = optSystemSettings;
+        _systemService = systemService;
     }
+
     public async Task InitialiseAsync()
     {
         try
@@ -40,6 +44,7 @@ public class ApplicationDbContextInitializer
             throw;
         }
     }
+
     public async Task SeedAsync()
     {
         try
@@ -53,62 +58,10 @@ public class ApplicationDbContextInitializer
             throw;
         }
     }
-    private static List<Permission> GetAllPermissions()
-    {
-        List<ControllerInfo> controllers = GetWebApiControllersWithActions();
-        var allPermissions = new List<Permission>();
-        var menuId = SnowFlake.GetInstance().GetLongId();
-        var menu = new Permission("系统管理", "系统管理", "/system", 0, "", PermissionType.Menu, "", "lollipop")
-        {
-            Id = menuId
-        };
-        foreach (var controller in controllers)
-        {
-            int sort = 0;
-            var pageId = SnowFlake.GetInstance().GetLongId();
-            var pagePath = $"/{controller.ControllerName}";
-            var name = "";
-            if (controller.ControllerName == "User") 
-            {
-                pagePath = "/system/user/index";
-                name = "SystemUserPage";
-            }
-            if (controller.ControllerName == "Role")
-            {
-                pagePath = "/system/role/index";
-                name = "SystemRolePage";
-            }
-            if (controller.ControllerName == "Permission")
-            {
-                pagePath = "/system/permission/index";
-                name = "SystemPermissionPage";
-            }
-            var page = new Permission(controller.ControllerDescription, controller.ControllerDescription, pagePath, 0, "", PermissionType.Page, name, "")
-            {
-                Id = pageId,
-                SuperiorId = menuId
-            };
-            allPermissions.Add(page);
-            foreach (var action in controller.Actions)
-            {
-                var path = $"api/{controller.ControllerName}/{action.Route}";
-                if (action.Description.IsNullOrEmpty()) continue;
-                var permission = new Permission(controller.ControllerDescription, action.Description, path, sort++, action.HttpMethods, PermissionType.Dot, "", "")
-                {
-                    Id = SnowFlake.GetInstance().GetLongId(),
-                    SuperiorId = pageId
-                };
-                allPermissions.Add(permission);
-            }
-            sort = 0;
-        }
-        allPermissions.Add(menu);
-        return allPermissions;
-    }
 
     private async Task TrySeedAsync()
     {
-        // 默认用户
+        // 生成默认用户
         var administrator = new User { UserName = "admin", IsActive = true, Email = "761516331@qq.com", EmailConfirmed = true, ProfilePictureDataUrl = $"{_optSystemSettings.Value.HostDomainName}/Image/2.png" };
         administrator.PasswordHash = administrator.CreatePassword("admin");
         var user = new User { LockoutEnabled = true, UserName = "user", IsActive = true, Email = "1103354424@qq.com", EmailConfirmed = true, ProfilePictureDataUrl = $"{_optSystemSettings.Value.HostDomainName}/Image/1.jpg" };
@@ -126,7 +79,7 @@ public class ApplicationDbContextInitializer
             _logger.LogInformation($"成功添加普通用户数据");
         }
 
-        // 默认角色
+        // 生成默认角色
         var administratorRole = new Role() { RoleName = "超级管理员", RoleCode = "Administrator", Description = "拥有系统所有权限", IsActive = true };
         var userRole = new Role() { RoleName = "普通用户", RoleCode = "Common", Description = "拥有系统所有查询功能", IsActive = true };
         if (!await _context.Roles.AnyAsync(x => x.RoleCode == "Administrator"))
@@ -142,7 +95,7 @@ public class ApplicationDbContextInitializer
             _logger.LogInformation($"成功添加普通用户角色数据");
         }
 
-        // 默认用户角色
+        // 为用户添加角色
         var administratorRoleId = (await _context.Roles.FirstOrDefaultAsync(x => x.RoleCode == "Administrator"))?.Id;
         var administratorId = (await _context.Users.FirstOrDefaultAsync(x => x.UserName == "admin"))?.Id;
         var userRoleId = (await _context.Roles.FirstOrDefaultAsync(x => x.RoleCode == "Common"))?.Id;
@@ -162,62 +115,18 @@ public class ApplicationDbContextInitializer
             _logger.LogInformation($"成功添加普通用户角色数据");
         }
 
-        // 默认权限
-        var permissions = GetAllPermissions();
-        if (permissions.Any())
+        // 生成权限
+        var excludePermissions = await _context.Permissions.ToListAsync();
+        var generatePermissions = _systemService.GenerateMenus(excludePermissions);
+        if (generatePermissions.Any())
         {
-            var hasPermissions = await _context.Permissions.ToListAsync();
-            if (hasPermissions.Any())
-            {
-                permissions = permissions.Where(x => !hasPermissions.Select(s => s.Code).Contains(x.Code)).ToList();
-            }
-            if (permissions.Any())
-            {
-                //避免报外键的错误
-                permissions.ForEach(permission =>
-                {
-                    if (permission.Type == PermissionType.Dot)
-                    {
-                        var superior = hasPermissions
-                          .Where(x => x.Group == permission.Group && x.Type == PermissionType.Page)
-                          .FirstOrDefault();
-                        if (superior != null)
-                        {
-                            permission.SuperiorId = superior.Id;
-                        }
-                    }
-                    if (permission.Type == PermissionType.Page)
-                    {
-                        var superior = hasPermissions
-                          .Where(x => x.Group == "系统管理" && x.Superior == null && x.Type == PermissionType.Menu)
-                          .FirstOrDefault();
-                        if (superior != null)
-                        {
-                            permission.SuperiorId = superior.Id;
-
-                            var input = superior.Path!.Replace("/", "");
-                            var path = "";
-                            if (!string.IsNullOrEmpty(input))
-                            {
-                                char[] charArray = input.ToCharArray();
-                                charArray[0] = char.ToUpper(charArray[0]);
-                                path = new string(charArray);
-                            }
-                            permission.Description = $"{path}{permission.Path!.Replace("/", "")}Page";
-
-                            permission.Path = $"{superior.Path}{permission.Path!.ToLower()}/index";
-                        }
-                    }
-
-                });
-                _context.Permissions.AddRange(permissions);
-                await _context.SaveChangesAsync();
-                _logger.LogInformation($"成功添加权限数据");
-            }
+            _context.Permissions.AddRange(generatePermissions);
+            await _context.SaveChangesAsync();
+            _logger.LogInformation($"成功添加权限数据");
         }
 
-        // 默认角色权限
-        permissions = await _context.Permissions.ToListAsync();
+        // 添加角色权限
+        var permissions = await _context.Permissions.ToListAsync();
         var administratorRolePermissions = await _context.RolePermissions.Where(x => x.RoleId == administratorRoleId).ToListAsync();
         var userRolePermissions = await _context.RolePermissions.Where(x => x.RoleId == userRoleId).ToListAsync();
         var notHaveAdministratorPermissions = permissions.Where(x => !administratorRolePermissions.Select(x => x.PermissionId).Contains(x.Id)).ToList();

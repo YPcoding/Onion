@@ -1,0 +1,129 @@
+﻿using Application.Common.Helper;
+using Common.Extensions;
+using Masuit.Tools;
+using Masuit.Tools.Systems;
+using System;
+
+namespace Application.Services;
+
+public class SystemService : IScopedDependency
+{
+    public class SystemMenuSetting
+    {
+        public string Grop { get; set; }
+        public string Label { get; set; }
+        public string Path { get; set; }
+        public string Icon { get; set; }
+    }
+
+    public IEnumerable<Permission> GenerateMenus(IEnumerable<Permission>? excludeMenus)
+    {
+        var apis = WebApiDocHelper.GetWebApiControllersWithActions();
+        var grops = apis.GroupBy(g => g.Group);
+        var allPermissions = new List<Permission>();
+
+        IEnumerable<SystemMenuSetting> settings = new List<SystemMenuSetting>
+        {
+            new SystemMenuSetting { Grop="系统管理", Label="系统管理", Path="/system", Icon="lollipop" },
+            new SystemMenuSetting { Grop="系统日志", Label="系统日志", Path="/log", Icon="lollipop" }
+        };
+
+        var hiddenPages = new List<string>()
+        {
+            "授权管理",
+            "代码生成",
+            "文件上传管理",
+            "测试接口"
+        };
+
+        foreach (var menu in grops)
+        {
+            var setting = settings.FirstOrDefault(x => x.Grop == menu.Key)!;
+            if (setting == null) 
+            {
+                setting = new SystemMenuSetting()
+                {
+                    Grop = menu.Key,
+                    Label = menu.Key,
+                    Path = $"/{menu?.FirstOrDefault()?.ControllerName?.ToLower()}",
+                    Icon = "lollipop",
+                };
+            }
+            var menuId = SnowFlake.GetInstance().GetLongId();
+            allPermissions.Add(new Permission($"{setting.Grop}", $"{setting.Label}", $"{setting.Path}", 0, "", PermissionType.Menu, "", $"{setting.Icon}")
+            {
+                Id = menuId
+            });
+
+            foreach (var page in menu)
+            {
+                var pageId = SnowFlake.GetInstance().GetLongId();
+                var pagePath = $"{setting.Path}/{page.ControllerName.ToLower()}/index";
+                var name = $"{setting.Path.Replace("/", "").ToTitleCase()}{page.ControllerName}Page";
+                allPermissions.Add(new Permission(page.ControllerDescription, page.ControllerDescription, pagePath, 0, "", PermissionType.Page, name, "")
+                {
+                    Id = pageId,
+                    SuperiorId = menuId
+                });
+
+                foreach (var dot in page.Actions)
+                {
+                    var path = $"api/{page.ControllerName}/{dot.Route}";
+                    if (dot.Description.IsNullOrEmpty()) continue;
+                    allPermissions.Add(new Permission(page.ControllerDescription, dot.Description, path, 0, dot.HttpMethods, PermissionType.Dot, "", "")
+                    {
+                        Id = SnowFlake.GetInstance().GetLongId(),
+                        SuperiorId = pageId
+                    });
+                }
+            }
+        }
+
+        if (excludeMenus != null && excludeMenus.Any())
+        {
+            allPermissions = allPermissions.Where(x => !excludeMenus.Select(s => s.Code).Contains(x.Code)).ToList();
+        }
+
+        if (allPermissions != null && excludeMenus != null
+           && allPermissions.Any() && excludeMenus.Any())
+        {
+            //避免重复添加
+            allPermissions.ForEach(permission =>
+            {
+                if (permission.Type == PermissionType.Dot)
+                {
+                    var permissionDotToReplaceSuperior = excludeMenus
+                      .Where(x => x.Group == permission.Group && x.Type == PermissionType.Page)
+                      .FirstOrDefault();
+                    if (permissionDotToReplaceSuperior != null)
+                    {
+                        permission.SuperiorId = permissionDotToReplaceSuperior.Id;
+                    }
+                }
+                if (permission.Type == PermissionType.Page)
+                {
+                    var permissionPageToReplaceSuperior = excludeMenus
+                      .Where(x => permission.Code!.StartsWith(x.Code!) && x.Superior == null && x.Type == PermissionType.Menu)
+                      .FirstOrDefault();
+                    if (permissionPageToReplaceSuperior != null)
+                    {
+                        permission.SuperiorId = permissionPageToReplaceSuperior.Id;
+                    }
+                }
+            });
+        }
+
+        if (hiddenPages.Any()) 
+        {
+            allPermissions?.ForEach(p => 
+            {
+                if (hiddenPages.Contains(p.Label!))
+                {
+                    p.Hidden = true;
+                }
+            });
+        }
+
+        return allPermissions ?? new List<Permission>();
+    }
+}
