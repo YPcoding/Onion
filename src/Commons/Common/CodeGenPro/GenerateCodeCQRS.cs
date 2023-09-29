@@ -162,20 +162,6 @@ public class GenerateCodeCQRS
         return assembly.GetType(className)!;
     }
 
-    public static string RemoveSuffix(string input, string suffixToRemove)
-    {
-        if (input.EndsWith(suffixToRemove))
-        {
-            // 使用 Substring 方法删除后缀
-            return input.Substring(0, input.Length - suffixToRemove.Length);
-        }
-        else
-        {
-            // 如果没有匹配的后缀，返回原始字符串
-            return input;
-        }
-    }
-
     public static string GenerateCachingCode(Type type, string nameSpace, string savePath)
     {
         savePath = $"{savePath}\\{type.Name}s\\Caching";
@@ -188,7 +174,7 @@ public class GenerateCodeCQRS
 
         var body =
 $@"using Microsoft.Extensions.Primitives;
-using {RemoveSuffix($"{type.FullName}", $".{type.Name}")};
+using {GenrateCodeHelper.RemoveSuffix($"{type.FullName}", $".{type.Name}")};
 namespace {nameSpace}.{type.Name}s.Caching;
 
 public static class {type.Name}CacheKey
@@ -248,7 +234,7 @@ public static class {type.Name}CacheKey
 
         var header =
 $@"using System.ComponentModel.DataAnnotations;
-using {RemoveSuffix($"{type.FullName}", $".{type.Name}")};
+using {GenrateCodeHelper.RemoveSuffix($"{type.FullName}", $".{type.Name}")};
 using {nameSpace}.{type.Name}s.Caching;
 using Domain.Entities;
 using Masuit.Tools.Systems;
@@ -388,7 +374,7 @@ public class Add{type.Name}CommandHandler : IRequestHandler<Add{type.Name}Comman
 
         var header =
 $@"using {nameSpace}.{type.Name}s.Caching;
-using {RemoveSuffix($"{type.FullName}", $".{type.Name}")};
+using {GenrateCodeHelper.RemoveSuffix($"{type.FullName}", $".{type.Name}")};
 using Domain.Entities;
 using System.ComponentModel.DataAnnotations;
 
@@ -546,7 +532,7 @@ public class Update{type.Name}CommandHandler : IRequestHandler<Update{type.Name}
 
         var header =
 $@"using {nameSpace}.{type.Name}s.Caching;
-using {RemoveSuffix($"{type.FullName}", $".{type.Name}")};
+using {GenrateCodeHelper.RemoveSuffix($"{type.FullName}", $".{type.Name}")};
 using Domain.Entities;
 
 namespace {nameSpace}.{type.Name}s.Commands.Delete;
@@ -630,7 +616,7 @@ public class Delete{type.Name}CommandHandler : IRequestHandler<Delete{type.Name}
         var header =
 $@"using Domain.Entities;
 using Domain.Enums;
-using {RemoveSuffix($"{type.FullName}", $".{type.Name}")};
+using {GenrateCodeHelper.RemoveSuffix($"{type.FullName}", $".{type.Name}")};
 using System.ComponentModel.DataAnnotations;
 
 namespace {nameSpace}.{type.Name}s.DTOs
@@ -764,7 +750,7 @@ $@"
             .FirstOrDefault().Value;
 
         var body =
-$@"using {RemoveSuffix($"{type.FullName}", $".{type.Name}")};
+$@"using {GenrateCodeHelper.RemoveSuffix($"{type.FullName}", $".{type.Name}")};
 namespace {nameSpace}.{type.Name}s.EventHandlers;
 
 public class {type.Name}CreatedEventHandler : INotificationHandler<CreatedEvent<{type.Name}>>
@@ -806,7 +792,7 @@ public class {type.Name}CreatedEventHandler : INotificationHandler<CreatedEvent<
         var body =
 $@"using {nameSpace}.{type.Name}s.Caching;
 using {nameSpace}.{type.Name}s.DTOs;
-using {RemoveSuffix($"{type.FullName}", $".{type.Name}")};
+using {GenrateCodeHelper.RemoveSuffix($"{type.FullName}", $".{type.Name}")};
 using AutoMapper.QueryableExtensions;
 
 namespace {nameSpace}.{type.Name}s.Queries.GetAll;
@@ -861,7 +847,7 @@ public class GetAll{type.Name}sQueryHandler :
 
         var body =
 $@"using Application.Common.Extensions;
-using {RemoveSuffix($"{type.FullName}", $".{type.Name}")};
+using {GenrateCodeHelper.RemoveSuffix($"{type.FullName}", $".{type.Name}")};
 using {nameSpace}.{type.Name}s.Caching;
 using {nameSpace}.{type.Name}s.DTOs;
 using {nameSpace}.{type.Name}s.Specifications;
@@ -936,7 +922,7 @@ public class Get{type.Name}ByIdQueryHandler :IRequestHandler<Get{type.Name}Query
 
         var body =
 $@"using Application.Common.Extensions;
-using {RemoveSuffix($"{type.FullName}", $".{type.Name}")};
+using {GenrateCodeHelper.RemoveSuffix($"{type.FullName}", $".{type.Name}")};
 using {nameSpace}.{type.Name}s.Caching;
 using {nameSpace}.{type.Name}s.DTOs;
 using {nameSpace}.{type.Name}s.Specifications;
@@ -1011,7 +997,7 @@ public class {type.Name}sWithPaginationQueryHandler :
             .FirstOrDefault().Value;
 
         var header =
-$@"using {RemoveSuffix($"{type.FullName}", $".{type.Name}")};
+$@"using {GenrateCodeHelper.RemoveSuffix($"{type.FullName}", $".{type.Name}")};
 namespace {nameSpace}.{type.Name}s.Specifications;
 
 /// <summary>
@@ -1096,7 +1082,7 @@ $@"}}";
 
         var header =
 $@"using Ardalis.Specification;
-using {RemoveSuffix($"{type.FullName}", $".{type.Name}")};
+using {GenrateCodeHelper.RemoveSuffix($"{type.FullName}", $".{type.Name}")};
 using Masuit.Tools;
 
 namespace {nameSpace}.{type.Name}s.Specifications;
@@ -1176,7 +1162,7 @@ $@";    }}
 
         var body =
 $@"using Ardalis.Specification;
-using {RemoveSuffix($"{type.FullName}", $".{type.Name}")};
+using {GenrateCodeHelper.RemoveSuffix($"{type.FullName}", $".{type.Name}")};
 
 namespace {nameSpace}.{type.Name}s.Specifications;
 
@@ -1223,7 +1209,7 @@ using {nameSpace}.{type.Name}s.Commands.Add;
 using {nameSpace}.{type.Name}s.Commands.Delete;
 using {nameSpace}.{type.Name}s.Commands.Update;
 using {nameSpace}.{type.Name}s.Queries.Pagination;
-using {RemoveSuffix($"{type.FullName}", $".{type.Name}")};
+using {GenrateCodeHelper.RemoveSuffix($"{type.FullName}", $".{type.Name}")};
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers;

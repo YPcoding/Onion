@@ -22,91 +22,91 @@ namespace WebAPI.Controllers
             if (generateCode.Type == GenerateCodeType.Caching || generateCode.Type == GenerateCodeType.GenerateAll) 
             {
                 filePaths.Add(GenerateCodeCQRS.GenerateCachingCode(
-                    GenerateCodeCQRS.GetTypeByFullClassName(generateCode.FullClassName), 
+                    GenrateCodeHelper.GetTypeByFullClassName(generateCode.FullClassName), 
                     generateCode.NameSpace, 
                     generateCode.SavePath));
             }
             if (generateCode.Type == GenerateCodeType.Add || generateCode.Type == GenerateCodeType.GenerateAll)
             {
                 filePaths.Add(GenerateCodeCQRS.GenerateAddCommandCode(
-                    GenerateCodeCQRS.GetTypeByFullClassName(generateCode.FullClassName),
+                    GenrateCodeHelper.GetTypeByFullClassName(generateCode.FullClassName),
                     generateCode.NameSpace,
                     generateCode.SavePath));
             }
             if (generateCode.Type == GenerateCodeType.Update || generateCode.Type == GenerateCodeType.GenerateAll)
             {
                 filePaths.Add(GenerateCodeCQRS.GenerateUpdateCommandCode(
-                    GenerateCodeCQRS.GetTypeByFullClassName(generateCode.FullClassName),
+                    GenrateCodeHelper.GetTypeByFullClassName(generateCode.FullClassName),
                     generateCode.NameSpace,
                     generateCode.SavePath));
             }
             if (generateCode.Type == GenerateCodeType.Delete || generateCode.Type == GenerateCodeType.GenerateAll)
             {
                 filePaths.Add(GenerateCodeCQRS.GenerateDeleteCommandCode(
-                    GenerateCodeCQRS.GetTypeByFullClassName(generateCode.FullClassName),
+                    GenrateCodeHelper.GetTypeByFullClassName(generateCode.FullClassName),
                     generateCode.NameSpace,
                     generateCode.SavePath));
             }
             if (generateCode.Type == GenerateCodeType.DTOs || generateCode.Type == GenerateCodeType.GenerateAll)
             {
                 filePaths.Add(GenerateCodeCQRS.GenerateDTOsCode(
-                    GenerateCodeCQRS.GetTypeByFullClassName(generateCode.FullClassName),
+                    GenrateCodeHelper.GetTypeByFullClassName(generateCode.FullClassName),
                     generateCode.NameSpace,
                     generateCode.SavePath));
             }
             if (generateCode.Type == GenerateCodeType.EventHandlers || generateCode.Type == GenerateCodeType.GenerateAll)
             {
                 filePaths.Add(GenerateCodeCQRS.GenerateEventHandlersCode(
-                    GenerateCodeCQRS.GetTypeByFullClassName(generateCode.FullClassName),
+                    GenrateCodeHelper.GetTypeByFullClassName(generateCode.FullClassName),
                     generateCode.NameSpace,
                     generateCode.SavePath));
             }
             if (generateCode.Type == GenerateCodeType.GetAll || generateCode.Type == GenerateCodeType.GenerateAll)
             {
                 filePaths.Add(GenerateCodeCQRS.GenerateQueriesGetAllCode(
-                     GenerateCodeCQRS.GetTypeByFullClassName(generateCode.FullClassName),
+                     GenrateCodeHelper.GetTypeByFullClassName(generateCode.FullClassName),
                     generateCode.NameSpace,
                     generateCode.SavePath));
             }
             if (generateCode.Type == GenerateCodeType.GetById || generateCode.Type == GenerateCodeType.GenerateAll)
             {
                 filePaths.Add(GenerateCodeCQRS.GenerateQueriesGetByIdCode(
-                     GenerateCodeCQRS.GetTypeByFullClassName(generateCode.FullClassName),
+                     GenrateCodeHelper.GetTypeByFullClassName(generateCode.FullClassName),
                     generateCode.NameSpace,
                     generateCode.SavePath));
             }
             if (generateCode.Type == GenerateCodeType.Pagination || generateCode.Type == GenerateCodeType.GenerateAll)
             {
                 filePaths.Add(GenerateCodeCQRS.GenerateQueriesPaginationCode(
-                    GenerateCodeCQRS.GetTypeByFullClassName(generateCode.FullClassName),
+                    GenrateCodeHelper.GetTypeByFullClassName(generateCode.FullClassName),
                     generateCode.NameSpace,
                     generateCode.SavePath));
             }
             if (generateCode.Type == GenerateCodeType.AdvancedFilter || generateCode.Type == GenerateCodeType.GenerateAll)
             {
                 filePaths.Add(GenerateCodeCQRS.GenerateSpecificationsFilterCode(
-                    GenerateCodeCQRS.GetTypeByFullClassName(generateCode.FullClassName),
+                    GenrateCodeHelper.GetTypeByFullClassName(generateCode.FullClassName),
                     generateCode.NameSpace,
                     generateCode.SavePath));
             }
             if (generateCode.Type == GenerateCodeType.AdvancedPaginationSpec || generateCode.Type == GenerateCodeType.GenerateAll)
             {
                 filePaths.Add(GenerateCodeCQRS.GenerateSpecificationsPaginationSpecCode(
-                     GenerateCodeCQRS.GetTypeByFullClassName(generateCode.FullClassName),
+                     GenrateCodeHelper.GetTypeByFullClassName(generateCode.FullClassName),
                     generateCode.NameSpace,
                     generateCode.SavePath));
             }
             if (generateCode.Type == GenerateCodeType.ByIdSpec || generateCode.Type == GenerateCodeType.GenerateAll)
             {
                 filePaths.Add(GenerateCodeCQRS.GenerateSpecificationsByIdSpecCode(
-                     GenerateCodeCQRS.GetTypeByFullClassName(generateCode.FullClassName),
+                     GenrateCodeHelper.GetTypeByFullClassName(generateCode.FullClassName),
                     generateCode.NameSpace,
                     generateCode.SavePath));
             }
             if (generateCode.Type == GenerateCodeType.Controller || generateCode.Type == GenerateCodeType.GenerateAll)
             {
                 filePaths.Add(GenerateCodeCQRS.GenerateControllerCode(
-                     GenerateCodeCQRS.GetTypeByFullClassName(generateCode.FullClassName),
+                     GenrateCodeHelper.GetTypeByFullClassName(generateCode.FullClassName),
                     generateCode.NameSpace,
                     generateCode.SavePath));
             }
@@ -127,42 +127,42 @@ namespace WebAPI.Controllers
             if (generateCode.Type == GenerateCodeType.Api || generateCode.Type == GenerateCodeType.GenerateAll)
             {
                 filePaths.Add(GenerateCodeVue.GenerateApiCode(
-                    GenerateCodeCQRS.GetTypeByFullClassName(generateCode.FullClassName),
+                    GenrateCodeHelper.GetTypeByFullClassName(generateCode.FullClassName),
                     generateCode.NameSpace,
                     generateCode.SavePath));
             }
             if (generateCode.Type == GenerateCodeType.Hook || generateCode.Type == GenerateCodeType.GenerateAll)
             {
                 filePaths.Add(GenerateCodeVue.GenerateHookCode(
-                    GenerateCodeCQRS.GetTypeByFullClassName(generateCode.FullClassName),
+                    GenrateCodeHelper.GetTypeByFullClassName(generateCode.FullClassName),
                     generateCode.NameSpace,
                     generateCode.SavePath));
             }
             if (generateCode.Type == GenerateCodeType.Update || generateCode.Type == GenerateCodeType.GenerateAll)
             {
                 filePaths.Add(GenerateCodeVue.GenerateRuleCode(
-                    GenerateCodeCQRS.GetTypeByFullClassName(generateCode.FullClassName),
+                    GenrateCodeHelper.GetTypeByFullClassName(generateCode.FullClassName),
                     generateCode.NameSpace,
                     generateCode.SavePath));
             }
             if (generateCode.Type == GenerateCodeType.Delete || generateCode.Type == GenerateCodeType.GenerateAll)
             {
                 filePaths.Add(GenerateCodeVue.GenerateTypesCode(
-                    GenerateCodeCQRS.GetTypeByFullClassName(generateCode.FullClassName),
+                    GenrateCodeHelper.GetTypeByFullClassName(generateCode.FullClassName),
                     generateCode.NameSpace,
                     generateCode.SavePath));
             }
             if (generateCode.Type == GenerateCodeType.DTOs || generateCode.Type == GenerateCodeType.GenerateAll)
             {
                 filePaths.Add(GenerateCodeVue.GenerateFormCode(
-                    GenerateCodeCQRS.GetTypeByFullClassName(generateCode.FullClassName),
+                    GenrateCodeHelper.GetTypeByFullClassName(generateCode.FullClassName),
                     generateCode.NameSpace,
                     generateCode.SavePath));
             }
             if (generateCode.Type == GenerateCodeType.Index || generateCode.Type == GenerateCodeType.GenerateAll)
             {
                 filePaths.Add(GenerateCodeVue.GenerateIndexCode(
-                    GenerateCodeCQRS.GetTypeByFullClassName(generateCode.FullClassName),
+                    GenrateCodeHelper.GetTypeByFullClassName(generateCode.FullClassName),
                     generateCode.NameSpace,
                     generateCode.SavePath));
             }
