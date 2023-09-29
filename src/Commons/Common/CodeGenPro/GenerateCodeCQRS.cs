@@ -165,31 +165,29 @@ public class GenerateCodeCQRS
 {
     public static string GenerateCachingCode(Type type, string nameSpace, string savePath)
     {
-        savePath = $"{savePath}\\{type.Name}s\\Caching";
+        var typeName = type.Name;
+        savePath = Path.Combine(savePath, $"{typeName}s", "Caching");
         Directory.CreateDirectory(savePath);
-        var filePath = $@"{savePath}\{type.Name}CacheKey.cs";
-        var desc = type.CustomAttributes?
-            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-            .ConstructorArguments?
-            .FirstOrDefault().Value;
+        var filePath = Path.Combine(savePath, $"{typeName}CacheKey.cs");
+        var desc = GenrateCodeHelper.GetTypeDescription(type);
 
         var body =
 $@"using Microsoft.Extensions.Primitives;
-using {GenrateCodeHelper.RemoveSuffix($"{type.FullName}", $".{type.Name}")};
-namespace {nameSpace}.{type.Name}s.Caching;
+using {GenrateCodeHelper.RemoveSuffix($"{type.FullName}", $".{typeName}")};
+namespace {nameSpace}.{typeName}s.Caching;
 
-public static class {type.Name}CacheKey
+public static class {typeName}CacheKey
 {{
-    public const string GetAllCacheKey = ""all-{type.Name}s"";
+    public const string GetAllCacheKey = ""all-{typeName}s"";
     private static readonly TimeSpan RefreshInterval = TimeSpan.FromHours(1);
     private static CancellationTokenSource _tokenSource;
 
     public static string GetByIdCacheKey(long id)
     {{
-        return $""Get{type.Name}ById,{{id}}"";
+        return $""Get{typeName}ById,{{id}}"";
     }}
 
-    static {type.Name}CacheKey()
+    static {typeName}CacheKey()
     {{
         _tokenSource = new CancellationTokenSource(RefreshInterval);
     }}
@@ -199,7 +197,7 @@ public static class {type.Name}CacheKey
 
     public static string GetPaginationCacheKey(string parameters)
     {{
-        return $""{type.Name}sWithPaginationQuery,{{parameters}}"";
+        return $""{typeName}sWithPaginationQuery,{{parameters}}"";
     }}
 
     public static CancellationTokenSource SharedExpiryTokenSource()
@@ -222,9 +220,9 @@ public static class {type.Name}CacheKey
     public static string GenerateAddCommandCode(Type type, string nameSpace, string savePath)
     {
         var typeName = type.Name;
-        string commandFolder = Path.Combine(savePath, $"{type.Name}s", "Commands", "Add");
+        string commandFolder = Path.Combine(savePath, $"{typeName}s", "Commands", "Add");
         Directory.CreateDirectory(commandFolder);
-        string filePath = Path.Combine(commandFolder, $"Add{type.Name}Command.cs");
+        string filePath = Path.Combine(commandFolder, $"Add{typeName}Command.cs");
         var desc = GenrateCodeHelper.GetTypeDescription(type);
 
         var header =
@@ -314,28 +312,26 @@ public class Add{typeName}CommandHandler : IRequestHandler<Add{typeName}Command,
 
     public static string GenerateUpdateCommandCode(Type type, string nameSpace, string savePath)
     {
-        savePath = $"{savePath}\\{type.Name}s\\Commands\\Update";
+        var typeName = type.Name;
+        savePath = $"{savePath}\\{typeName}s\\Commands\\Update";
         Directory.CreateDirectory(savePath);
-        var filePath = $@"{savePath}\Update{type.Name}Command.cs";
-        var desc = type.CustomAttributes?
-            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-            .ConstructorArguments?
-            .FirstOrDefault().Value;
+        var filePath = $@"{savePath}\Update{typeName}Command.cs";
+        var desc = GenrateCodeHelper.GetTypeDescription(type);
 
         var header =
-$@"using {nameSpace}.{type.Name}s.Caching;
-using {GenrateCodeHelper.RemoveSuffix($"{type.FullName}", $".{type.Name}")};
+$@"using {nameSpace}.{typeName}s.Caching;
+using {GenrateCodeHelper.RemoveSuffix($"{type.FullName}", $".{typeName}")};
 using Domain.Entities;
 using System.ComponentModel.DataAnnotations;
 
-namespace {nameSpace}.{type.Name}s.Commands.Update;
+namespace {nameSpace}.{typeName}s.Commands.Update;
 
 
 /// <summary>
 /// 修改{desc}
 /// </summary>
-[Map(typeof({type.Name}))]
-public class Update{type.Name}Command : IRequest<Result<long>>
+[Map(typeof({typeName}))]
+public class Update{typeName}Command : IRequest<Result<long>>
 {{
 ";
         var body = "";
@@ -401,7 +397,7 @@ public class Update{type.Name}Command : IRequest<Result<long>>
         /// {description}
         /// </summary>
         [Description(""{description}"")]
-        public {propertyTypeName} {type.Name}{property.Name} {{ get; set; }}";
+        public {propertyTypeName} {typeName}{property.Name} {{ get; set; }}";
 
             }
             else
@@ -426,12 +422,12 @@ $@"
 /// <summary>
 /// 处理程序
 /// </summary>
-public class Update{type.Name}CommandHandler : IRequestHandler<Update{type.Name}Command, Result<long>>
+public class Update{typeName}CommandHandler : IRequestHandler<Update{typeName}Command, Result<long>>
 {{
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
 
-    public Update{type.Name}CommandHandler(
+    public Update{typeName}CommandHandler(
         IApplicationDbContext context,
         IMapper mapper)
     {{
@@ -445,17 +441,17 @@ public class Update{type.Name}CommandHandler : IRequestHandler<Update{type.Name}
     /// <param name=""request"">请求参数</param>
     /// <param name=""cancellationToken"">取消标记</param>
     /// <returns>返回处理结果</returns>
-    public async Task<Result<long>> Handle(Update{type.Name}Command request, CancellationToken cancellationToken)
+    public async Task<Result<long>> Handle(Update{typeName}Command request, CancellationToken cancellationToken)
     {{
-        var {type.Name.ToLower()} = await _context.{type.Name}s
-           .SingleOrDefaultAsync(x => x.Id == request.{type.Name}Id && x.ConcurrencyStamp == request.ConcurrencyStamp, cancellationToken)
-           ?? throw new NotFoundException($""数据【{{request.{type.Name}Id}}-{{request.ConcurrencyStamp}}】未找到"");
+        var {typeName.ToLower()} = await _context.{typeName}s
+           .SingleOrDefaultAsync(x => x.Id == request.{typeName}Id && x.ConcurrencyStamp == request.ConcurrencyStamp, cancellationToken)
+           ?? throw new NotFoundException($""数据【{{request.{typeName}Id}}-{{request.ConcurrencyStamp}}】未找到"");
 
-        {type.Name.ToLower()} = _mapper.Map(request, {type.Name.ToLower()});
-        {type.Name.ToLower()}.AddDomainEvent(new UpdatedEvent<{type.Name}>({type.Name.ToLower()}));
-        _context.{type.Name}s.Update({type.Name.ToLower()});
+        {typeName.ToLower()} = _mapper.Map(request, {typeName.ToLower()});
+        {typeName.ToLower()}.AddDomainEvent(new UpdatedEvent<{typeName}>({typeName.ToLower()}));
+        _context.{typeName}s.Update({typeName.ToLower()});
         var isSuccess = await _context.SaveChangesAsync(cancellationToken) > 0;
-        return await Result<long>.SuccessOrFailureAsync({type.Name.ToLower()}.Id, isSuccess, new string[] {{ ""操作失败"" }});
+        return await Result<long>.SuccessOrFailureAsync({typeName.ToLower()}.Id, isSuccess, new string[] {{ ""操作失败"" }});
     }}
 }}
 ";
@@ -472,25 +468,23 @@ public class Update{type.Name}CommandHandler : IRequestHandler<Update{type.Name}
 
     public static string GenerateDeleteCommandCode(Type type, string nameSpace, string savePath)
     {
-        savePath = $"{savePath}\\{type.Name}s\\Commands\\Delete";
+        var typeName = type.Name;
+        savePath = $"{savePath}\\{typeName}s\\Commands\\Delete";
         Directory.CreateDirectory(savePath);
-        var filePath = $@"{savePath}\Delete{type.Name}Command.cs";
-        var desc = type.CustomAttributes?
-            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-            .ConstructorArguments?
-            .FirstOrDefault().Value;
+        var filePath = $@"{savePath}\Delete{typeName}Command.cs";
+        var desc = GenrateCodeHelper.GetTypeDescription(type);
 
         var header =
-$@"using {nameSpace}.{type.Name}s.Caching;
-using {GenrateCodeHelper.RemoveSuffix($"{type.FullName}", $".{type.Name}")};
+$@"using {nameSpace}.{typeName}s.Caching;
+using {GenrateCodeHelper.RemoveSuffix($"{type.FullName}", $".{typeName}")};
 using Domain.Entities;
 
-namespace {nameSpace}.{type.Name}s.Commands.Delete;
+namespace {nameSpace}.{typeName}s.Commands.Delete;
 
 /// <summary>
 /// 删除{desc}
 /// </summary>
-public class Delete{type.Name}Command : IRequest<Result<bool>>
+public class Delete{typeName}Command : IRequest<Result<bool>>
 {{
 ";
         var body =
@@ -499,7 +493,7 @@ $@"
         /// 唯一标识
         /// </summary>
         [Description(""唯一标识"")]
-        public List<long> {type.Name}Ids {{ get; set; }}";
+        public List<long> {typeName}Ids {{ get; set; }}";
         body +=
 $@"
 }}";
@@ -509,12 +503,12 @@ $@"
 /// <summary>
 /// 处理程序
 /// </summary>
-public class Delete{type.Name}CommandHandler : IRequestHandler<Delete{type.Name}Command, Result<bool>>
+public class Delete{typeName}CommandHandler : IRequestHandler<Delete{typeName}Command, Result<bool>>
 {{
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
 
-    public Delete{type.Name}CommandHandler(
+    public Delete{typeName}CommandHandler(
         IApplicationDbContext context,
         IMapper mapper)
     {{
@@ -528,15 +522,15 @@ public class Delete{type.Name}CommandHandler : IRequestHandler<Delete{type.Name}
     /// <param name=""request"">请求参数</param>
     /// <param name=""cancellationToken"">取消标记</param>
     /// <returns>返回处理结果</returns>
-    public async Task<Result<bool>> Handle(Delete{type.Name}Command request, CancellationToken cancellationToken)
+    public async Task<Result<bool>> Handle(Delete{typeName}Command request, CancellationToken cancellationToken)
     {{
-        var {type.Name.ToLower()}sToDelete = await _context.{type.Name}s
-            .Where(x => request.{type.Name}Ids.Contains(x.Id))
+        var {typeName.ToLower()}sToDelete = await _context.{typeName}s
+            .Where(x => request.{typeName}Ids.Contains(x.Id))
             .ToListAsync();
 
-        if ({type.Name.ToLower()}sToDelete.Any())
+        if ({typeName.ToLower()}sToDelete.Any())
         {{
-            _context.{type.Name}s.RemoveRange({type.Name.ToLower()}sToDelete);
+            _context.{typeName}s.RemoveRange({typeName.ToLower()}sToDelete);
             var isSuccess = await _context.SaveChangesAsync(cancellationToken) > 0;
             return await Result<bool>.SuccessOrFailureAsync(isSuccess, isSuccess,new string[] {{""操作失败""}});
         }}
@@ -551,24 +545,22 @@ public class Delete{type.Name}CommandHandler : IRequestHandler<Delete{type.Name}
 
     public static string GenerateDTOsCode(Type type, string nameSpace, string savePath)
     {
-        savePath = $"{savePath}\\{type.Name}s\\DTOs";
+        var typeName = type.Name;
+        savePath = $"{savePath}\\{typeName}s\\DTOs";
         Directory.CreateDirectory(savePath);
-        var filePath = $@"{savePath}\{type.Name}Dto.cs";
-        var desc = type.CustomAttributes?
-            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-            .ConstructorArguments?
-            .FirstOrDefault().Value;
+        var filePath = $@"{savePath}\{typeName}Dto.cs";
+        var desc = GenrateCodeHelper.GetTypeDescription(type);
 
         var header =
 $@"using Domain.Entities;
 using Domain.Enums;
-using {GenrateCodeHelper.RemoveSuffix($"{type.FullName}", $".{type.Name}")};
+using {GenrateCodeHelper.RemoveSuffix($"{type.FullName}", $".{typeName}")};
 using System.ComponentModel.DataAnnotations;
 
-namespace {nameSpace}.{type.Name}s.DTOs
+namespace {nameSpace}.{typeName}s.DTOs
 {{
-    [Map(typeof({type.Name}))]
-    public class {type.Name}Dto
+    [Map(typeof({typeName}))]
+    public class {typeName}Dto
     {{
 ";
 
@@ -582,7 +574,7 @@ $@"
         /// <summary>
         /// 唯一标识
         /// </summary>
-        public long? {type.Name}Id 
+        public long? {typeName}Id 
         {{
             get 
             {{
@@ -613,7 +605,7 @@ $@"
             .FirstOrDefault().Value;
             if (ignoreFields.Contains(property.Name)) continue;
             if (property.Name.Contains("Id")) continue;
-            if (propertyTypeName == type.Name) continue;
+            if (propertyTypeName == typeName) continue;
 
             if (propertyTypeName == "String")
             {
@@ -683,30 +675,28 @@ $@"
 
     public static string GenerateEventHandlersCode(Type type, string nameSpace, string savePath)
     {
-        savePath = $"{savePath}\\{type.Name}s\\EventHandlers";
+        var typeName = type.Name;
+        savePath = $"{savePath}\\{typeName}s\\EventHandlers";
         Directory.CreateDirectory(savePath);
-        var filePath = $@"{savePath}\{type.Name}CreatedEventHandler.cs";
-        var desc = type.CustomAttributes?
-            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-            .ConstructorArguments?
-            .FirstOrDefault().Value;
+        var filePath = $@"{savePath}\{typeName}CreatedEventHandler.cs";
+        var desc = GenrateCodeHelper.GetTypeDescription(type);
 
         var body =
-$@"using {GenrateCodeHelper.RemoveSuffix($"{type.FullName}", $".{type.Name}")};
-namespace {nameSpace}.{type.Name}s.EventHandlers;
+$@"using {GenrateCodeHelper.RemoveSuffix($"{type.FullName}", $".{typeName}")};
+namespace {nameSpace}.{typeName}s.EventHandlers;
 
-public class {type.Name}CreatedEventHandler : INotificationHandler<CreatedEvent<{type.Name}>>
+public class {typeName}CreatedEventHandler : INotificationHandler<CreatedEvent<{typeName}>>
 {{
-    private readonly ILogger<{type.Name}CreatedEventHandler> _logger;
+    private readonly ILogger<{typeName}CreatedEventHandler> _logger;
 
-    public {type.Name}CreatedEventHandler(
-        ILogger<{type.Name}CreatedEventHandler> logger
+    public {typeName}CreatedEventHandler(
+        ILogger<{typeName}CreatedEventHandler> logger
     )
     {{
         _logger = logger;
     }}
 
-    public Task Handle(CreatedEvent<{type.Name}> notification, CancellationToken cancellationToken)
+    public Task Handle(CreatedEvent<{typeName}> notification, CancellationToken cancellationToken)
     {{
         return Task.CompletedTask;
     }}
@@ -719,33 +709,31 @@ public class {type.Name}CreatedEventHandler : INotificationHandler<CreatedEvent<
 
     public static string GenerateQueriesGetAllCode(Type type, string nameSpace, string savePath)
     {
-        savePath = $"{savePath}\\{type.Name}s\\Queries\\GetAll";
+        var typeName = type.Name;
+        savePath = $"{savePath}\\{typeName}s\\Queries\\GetAll";
         Directory.CreateDirectory(savePath);
-        var filePath = $@"{savePath}\GetAll{type.Name}Query.cs";
-        var desc = type.CustomAttributes?
-            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-            .ConstructorArguments?
-            .FirstOrDefault().Value;
+        var filePath = $@"{savePath}\GetAll{typeName}Query.cs";
+        var desc = GenrateCodeHelper.GetTypeDescription(type);
 
         var body =
-$@"using {nameSpace}.{type.Name}s.Caching;
-using {nameSpace}.{type.Name}s.DTOs;
-using {GenrateCodeHelper.RemoveSuffix($"{type.FullName}", $".{type.Name}")};
+$@"using {nameSpace}.{typeName}s.Caching;
+using {nameSpace}.{typeName}s.DTOs;
+using {GenrateCodeHelper.RemoveSuffix($"{type.FullName}", $".{typeName}")};
 using AutoMapper.QueryableExtensions;
 
-namespace {nameSpace}.{type.Name}s.Queries.GetAll;
+namespace {nameSpace}.{typeName}s.Queries.GetAll;
 
-public class GetAll{type.Name}sQuery : IRequest<Result<IEnumerable<{type.Name}Dto>>>
+public class GetAll{typeName}sQuery : IRequest<Result<IEnumerable<{typeName}Dto>>>
 {{
 }}
 
-public class GetAll{type.Name}sQueryHandler :
-    IRequestHandler<GetAll{type.Name}sQuery, Result<IEnumerable<{type.Name}Dto>>>
+public class GetAll{typeName}sQueryHandler :
+    IRequestHandler<GetAll{typeName}sQuery, Result<IEnumerable<{typeName}Dto>>>
 {{
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
 
-    public GetAll{type.Name}sQueryHandler(
+    public GetAll{typeName}sQueryHandler(
         IApplicationDbContext context,
         IMapper mapper
     )
@@ -754,12 +742,12 @@ public class GetAll{type.Name}sQueryHandler :
         _mapper = mapper;
     }}
 
-    public async Task<Result<IEnumerable<{type.Name}Dto>>> Handle(GetAll{type.Name}sQuery request, CancellationToken cancellationToken)
+    public async Task<Result<IEnumerable<{typeName}Dto>>> Handle(GetAll{typeName}sQuery request, CancellationToken cancellationToken)
     {{
-        var data = await _context.{type.Name}s
-            .ProjectTo<{type.Name}Dto>(_mapper.ConfigurationProvider)
+        var data = await _context.{typeName}s
+            .ProjectTo<{typeName}Dto>(_mapper.ConfigurationProvider)
             .ToListAsync(cancellationToken);
-        return await Result<IEnumerable<{type.Name}Dto>>.SuccessAsync(data);
+        return await Result<IEnumerable<{typeName}Dto>>.SuccessAsync(data);
     }}
 }}
 
@@ -771,46 +759,44 @@ public class GetAll{type.Name}sQueryHandler :
 
     public static string GenerateQueriesGetByIdCode(Type type, string nameSpace, string savePath)
     {
-        savePath = $"{savePath}\\{type.Name}s\\Queries\\GetById";
+        var typeName = type.Name;
+        savePath = $"{savePath}\\{typeName}s\\Queries\\GetById";
         Directory.CreateDirectory(savePath);
-        var filePath = $@"{savePath}\Get{type.Name}QueryById.cs";
-        var desc = type.CustomAttributes?
-            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-            .ConstructorArguments?
-            .FirstOrDefault().Value;
+        var filePath = $@"{savePath}\Get{typeName}QueryById.cs";
+        var desc = GenrateCodeHelper.GetTypeDescription(type);
 
         var body =
 $@"using Application.Common.Extensions;
-using {GenrateCodeHelper.RemoveSuffix($"{type.FullName}", $".{type.Name}")};
-using {nameSpace}.{type.Name}s.Caching;
-using {nameSpace}.{type.Name}s.DTOs;
-using {nameSpace}.{type.Name}s.Specifications;
+using {GenrateCodeHelper.RemoveSuffix($"{type.FullName}", $".{typeName}")};
+using {nameSpace}.{typeName}s.Caching;
+using {nameSpace}.{typeName}s.DTOs;
+using {nameSpace}.{typeName}s.Specifications;
 using AutoMapper.QueryableExtensions;
 using System.ComponentModel.DataAnnotations;
 
-namespace {nameSpace}.{type.Name}s.Queries.GetById;
+namespace {nameSpace}.{typeName}s.Queries.GetById;
 
 /// <summary>
 /// 通过唯一标识获取一条数据
 /// </summary>
-public class Get{type.Name}QueryById : IRequest<Result<{type.Name}Dto>>
+public class Get{typeName}QueryById : IRequest<Result<{typeName}Dto>>
 {{
     /// <summary>
     /// 唯一标识
     /// </summary>
     [Required(ErrorMessage = ""唯一标识必填的"")]
-    public long {type.Name}Id {{ get; set; }}
+    public long {typeName}Id {{ get; set; }}
 }}
 
 /// <summary>
 /// 处理程序
 /// </summary>
-public class Get{type.Name}ByIdQueryHandler :IRequestHandler<Get{type.Name}QueryById, Result<{type.Name}Dto>>
+public class Get{typeName}ByIdQueryHandler :IRequestHandler<Get{typeName}QueryById, Result<{typeName}Dto>>
 {{
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
 
-    public Get{type.Name}ByIdQueryHandler(
+    public Get{typeName}ByIdQueryHandler(
         IApplicationDbContext context,
         IMapper mapper
         )
@@ -826,12 +812,12 @@ public class Get{type.Name}ByIdQueryHandler :IRequestHandler<Get{type.Name}Query
     /// <param name=""cancellationToken"">取消标记</param>
     /// <returns>返回查询的一条数据</returns>
     /// <exception cref=""NotFoundException"">未找到数据移除处理</exception>
-    public async Task<Result<{type.Name}Dto>> Handle(Get{type.Name}QueryById request, CancellationToken cancellationToken)
+    public async Task<Result<{typeName}Dto>> Handle(Get{typeName}QueryById request, CancellationToken cancellationToken)
     {{
-        var {type.Name.ToLower()} = await _context.{type.Name}s.ApplySpecification(new {type.Name}ByIdSpec(request.{type.Name}Id))
-                     .ProjectTo<{type.Name}Dto>(_mapper.ConfigurationProvider)
-                     .SingleOrDefaultAsync(cancellationToken) ?? throw new NotFoundException($""唯一标识: [{{request.{type.Name}Id}}] 未找到"");
-        return await Result<{type.Name}Dto>.SuccessAsync({type.Name.ToLower()});
+        var {typeName.ToLower()} = await _context.{typeName}s.ApplySpecification(new {typeName}ByIdSpec(request.{typeName}Id))
+                     .ProjectTo<{typeName}Dto>(_mapper.ConfigurationProvider)
+                     .SingleOrDefaultAsync(cancellationToken) ?? throw new NotFoundException($""唯一标识: [{{request.{typeName}Id}}] 未找到"");
+        return await Result<{typeName}Dto>.SuccessAsync({typeName.ToLower()});
     }}
 }}
 ";
@@ -842,41 +828,39 @@ public class Get{type.Name}ByIdQueryHandler :IRequestHandler<Get{type.Name}Query
 
     public static string GenerateQueriesPaginationCode(Type type, string nameSpace, string savePath)
     {
-        savePath = $"{savePath}\\{type.Name}s\\Queries\\Pagination";
+        var typeName = type.Name;
+        savePath = $"{savePath}\\{typeName}s\\Queries\\Pagination";
         Directory.CreateDirectory(savePath);
-        var filePath = $@"{savePath}\{type.Name}sWithPaginationQuery.cs";
-        var desc = type.CustomAttributes?
-            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-            .ConstructorArguments?
-            .FirstOrDefault().Value;
+        var filePath = $@"{savePath}\{typeName}sWithPaginationQuery.cs";
+        var desc = GenrateCodeHelper.GetTypeDescription(type);
 
         var body =
 $@"using Application.Common.Extensions;
-using {GenrateCodeHelper.RemoveSuffix($"{type.FullName}", $".{type.Name}")};
-using {nameSpace}.{type.Name}s.Caching;
-using {nameSpace}.{type.Name}s.DTOs;
-using {nameSpace}.{type.Name}s.Specifications;
+using {GenrateCodeHelper.RemoveSuffix($"{type.FullName}", $".{typeName}")};
+using {nameSpace}.{typeName}s.Caching;
+using {nameSpace}.{typeName}s.DTOs;
+using {nameSpace}.{typeName}s.Specifications;
 
-namespace {nameSpace}.{type.Name}s.Queries.Pagination;
+namespace {nameSpace}.{typeName}s.Queries.Pagination;
 
 /// <summary>
 /// {desc}分页查询
 /// </summary>
-public class {type.Name}sWithPaginationQuery : {type.Name}AdvancedFilter, IRequest<Result<PaginatedData<{type.Name}Dto>>>
+public class {typeName}sWithPaginationQuery : {typeName}AdvancedFilter, IRequest<Result<PaginatedData<{typeName}Dto>>>
 {{
     [JsonIgnore]
-    public {type.Name}AdvancedPaginationSpec Specification => new {type.Name}AdvancedPaginationSpec(this);
+    public {typeName}AdvancedPaginationSpec Specification => new {typeName}AdvancedPaginationSpec(this);
 }}
 
 /// <summary>
 /// 处理程序
 /// </summary>
-public class {type.Name}sWithPaginationQueryHandler :
-    IRequestHandler<{type.Name}sWithPaginationQuery, Result<PaginatedData<{type.Name}Dto>>>
+public class {typeName}sWithPaginationQueryHandler :
+    IRequestHandler<{typeName}sWithPaginationQuery, Result<PaginatedData<{typeName}Dto>>>
 {{
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
-    public {type.Name}sWithPaginationQueryHandler(
+    public {typeName}sWithPaginationQueryHandler(
         IApplicationDbContext context,
         IMapper mapper)
     {{
@@ -890,20 +874,20 @@ public class {type.Name}sWithPaginationQueryHandler :
     /// <param name=""request"">请求参数</param>
     /// <param name=""cancellationToken"">取消标记</param>
     /// <returns>返回{desc}分页数据</returns>
-    public async Task<Result<PaginatedData<{type.Name}Dto>>> Handle(
-        {type.Name}sWithPaginationQuery request,
+    public async Task<Result<PaginatedData<{typeName}Dto>>> Handle(
+        {typeName}sWithPaginationQuery request,
         CancellationToken cancellationToken)
     {{
-        var {type.Name.ToLower()}s = await _context.{type.Name}s
+        var {typeName.ToLower()}s = await _context.{typeName}s
             .OrderBy($""{{request.OrderBy}} {{request.SortDirection}}"")
-            .ProjectToPaginatedDataAsync<{type.Name}, {type.Name}Dto>(
+            .ProjectToPaginatedDataAsync<{typeName}, {typeName}Dto>(
             request.Specification,
             request.PageNumber,
             request.PageSize,
             _mapper.ConfigurationProvider,
             cancellationToken);
 
-        return await Result<PaginatedData<{type.Name}Dto>>.SuccessAsync({type.Name.ToLower()}s);
+        return await Result<PaginatedData<{typeName}Dto>>.SuccessAsync({typeName.ToLower()}s);
     }}
 }}
 ";
@@ -914,22 +898,20 @@ public class {type.Name}sWithPaginationQueryHandler :
 
     public static string GenerateSpecificationsFilterCode(Type type, string nameSpace, string savePath)
     {
-        savePath = $"{savePath}\\{type.Name}s\\Specifications";
+        var typeName = type.Name;
+        savePath = $"{savePath}\\{typeName}s\\Specifications";
         Directory.CreateDirectory(savePath);
-        var filePath = $@"{savePath}\{type.Name}AdvancedFilter.cs";
-        var desc = type.CustomAttributes?
-            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-            .ConstructorArguments?
-            .FirstOrDefault().Value;
+        var filePath = $@"{savePath}\{typeName}AdvancedFilter.cs";
+        var desc = GenrateCodeHelper.GetTypeDescription(type);
 
         var header =
-$@"using {GenrateCodeHelper.RemoveSuffix($"{type.FullName}", $".{type.Name}")};
-namespace {nameSpace}.{type.Name}s.Specifications;
+$@"using {GenrateCodeHelper.RemoveSuffix($"{type.FullName}", $".{typeName}")};
+namespace {nameSpace}.{typeName}s.Specifications;
 
 /// <summary>
 /// 高级查询
 /// </summary>
-public class {type.Name}AdvancedFilter : PaginationFilter
+public class {typeName}AdvancedFilter : PaginationFilter
 {{";
 
         var body = $@"";
@@ -957,7 +939,7 @@ public class {type.Name}AdvancedFilter : PaginationFilter
             .FirstOrDefault().Value;
             if (ignoreFields.Contains(property.Name)) continue;
             if (property.Name.Contains("Id")) continue;
-            if (propertyTypeName == type.Name) continue;
+            if (propertyTypeName == typeName) continue;
 
             if (propertyTypeName == "String")
             {
@@ -994,24 +976,22 @@ $@"}}";
 
     public static string GenerateSpecificationsPaginationSpecCode(Type type, string nameSpace, string savePath)
     {
-        savePath = $"{savePath}\\{type.Name}s\\Specifications";
+        var typeName = type.Name;
+        savePath = $"{savePath}\\{typeName}s\\Specifications";
         Directory.CreateDirectory(savePath);
-        var filePath = $@"{savePath}\{type.Name}AdvancedPaginationSpec.cs";
-        var desc = type.CustomAttributes?
-            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-            .ConstructorArguments?
-            .FirstOrDefault().Value;
+        var filePath = $@"{savePath}\{typeName}AdvancedPaginationSpec.cs";
+        var desc = GenrateCodeHelper.GetTypeDescription(type);
 
         var header =
 $@"using Ardalis.Specification;
-using {GenrateCodeHelper.RemoveSuffix($"{type.FullName}", $".{type.Name}")};
+using {GenrateCodeHelper.RemoveSuffix($"{type.FullName}", $".{typeName}")};
 using Masuit.Tools;
 
-namespace {nameSpace}.{type.Name}s.Specifications;
+namespace {nameSpace}.{typeName}s.Specifications;
 
-public class {type.Name}AdvancedPaginationSpec : Specification<{type.Name}>
+public class {typeName}AdvancedPaginationSpec : Specification<{typeName}>
 {{
-    public {type.Name}AdvancedPaginationSpec({type.Name}AdvancedFilter filter)
+    public {typeName}AdvancedPaginationSpec({typeName}AdvancedFilter filter)
     {{
         Query";
 
@@ -1040,7 +1020,7 @@ public class {type.Name}AdvancedPaginationSpec : Specification<{type.Name}>
             .FirstOrDefault().Value;
             if (ignoreFields.Contains(property.Name)) continue;
             if (property.Name.Contains("Id")) continue;
-            if (propertyTypeName == type.Name) continue;
+            if (propertyTypeName == typeName) continue;
 
             if (propertyTypeName == "String")
             {
@@ -1070,23 +1050,21 @@ $@";    }}
 
     public static string GenerateSpecificationsByIdSpecCode(Type type, string nameSpace, string savePath)
     {
-        savePath = $"{savePath}\\{type.Name}s\\Specifications";
+        var typeName = type.Name;
+        savePath = $"{savePath}\\{typeName}s\\Specifications";
         Directory.CreateDirectory(savePath);
-        var filePath = $@"{savePath}\{type.Name}ByIdSpec.cs";
-        var desc = type.CustomAttributes?
-            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-            .ConstructorArguments?
-            .FirstOrDefault().Value;
+        var filePath = $@"{savePath}\{typeName}ByIdSpec.cs";
+        var desc = GenrateCodeHelper.GetTypeDescription(type);
 
         var body =
 $@"using Ardalis.Specification;
-using {GenrateCodeHelper.RemoveSuffix($"{type.FullName}", $".{type.Name}")};
+using {GenrateCodeHelper.RemoveSuffix($"{type.FullName}", $".{typeName}")};
 
-namespace {nameSpace}.{type.Name}s.Specifications;
+namespace {nameSpace}.{typeName}s.Specifications;
 
-public class {type.Name}ByIdSpec : Specification<{type.Name}>
+public class {typeName}ByIdSpec : Specification<{typeName}>
 {{
-    public {type.Name}ByIdSpec(long id)
+    public {typeName}ByIdSpec(long id)
     {{
         Query.Where(q => q.Id == id);
     }}
@@ -1099,6 +1077,7 @@ public class {type.Name}ByIdSpec : Specification<{type.Name}>
 
     public static string GenerateControllerCode(Type type, string nameSpace, string savePath)
     {
+        var typeName = type.Name;
         string fullPath = savePath;
         string targetSubstring = "Onion\\src";
         // 找到目标子字符串的索引
@@ -1111,19 +1090,16 @@ public class {type.Name}ByIdSpec : Specification<{type.Name}>
 
         savePath = $"{fullPath}{targetSubstring}\\WebAPI\\Controllers";
         Directory.CreateDirectory(savePath);
-        var filePath = $@"{savePath}\\{type.Name}Controller.cs";
-        var desc = type.CustomAttributes?
-            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-            .ConstructorArguments?
-            .FirstOrDefault().Value;
+        var filePath = $@"{savePath}\\{typeName}Controller.cs";
+        var desc = GenrateCodeHelper.GetTypeDescription(type);
 
         var body =
-$@"using {nameSpace}.{type.Name}s.DTOs;
-using {nameSpace}.{type.Name}s.Commands.Add;
-using {nameSpace}.{type.Name}s.Commands.Delete;
-using {nameSpace}.{type.Name}s.Commands.Update;
-using {nameSpace}.{type.Name}s.Queries.Pagination;
-using {GenrateCodeHelper.RemoveSuffix($"{type.FullName}", $".{type.Name}")};
+$@"using {nameSpace}.{typeName}s.DTOs;
+using {nameSpace}.{typeName}s.Commands.Add;
+using {nameSpace}.{typeName}s.Commands.Delete;
+using {nameSpace}.{typeName}s.Commands.Update;
+using {nameSpace}.{typeName}s.Queries.Pagination;
+using {GenrateCodeHelper.RemoveSuffix($"{type.FullName}", $".{typeName}")};
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers;
@@ -1131,7 +1107,7 @@ namespace WebAPI.Controllers;
 /// <summary>
 /// {desc}
 /// </summary>
-public class {type.Name}Controller : ApiControllerBase
+public class {typeName}Controller : ApiControllerBase
 {{
     /// <summary>
     /// 分页查询
@@ -1139,7 +1115,7 @@ public class {type.Name}Controller : ApiControllerBase
     /// <returns></returns>
     [HttpPost(""PaginationQuery"")]
 
-    public async Task<Result<PaginatedData<{type.Name}Dto>>> PaginationQuery({type.Name}sWithPaginationQuery query)
+    public async Task<Result<PaginatedData<{typeName}Dto>>> PaginationQuery({typeName}sWithPaginationQuery query)
     {{
         return await Mediator.Send(query);
     }}
@@ -1150,7 +1126,7 @@ public class {type.Name}Controller : ApiControllerBase
     /// <returns></returns>
     [HttpPost(""Add"")]
 
-    public async Task<Result<long>> Add(Add{type.Name}Command command)
+    public async Task<Result<long>> Add(Add{typeName}Command command)
     {{
         return await Mediator.Send(command);
     }}
@@ -1160,7 +1136,7 @@ public class {type.Name}Controller : ApiControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpPut(""Update"")]
-    public async Task<Result<long>> Update(Update{type.Name}Command command)
+    public async Task<Result<long>> Update(Update{typeName}Command command)
     {{
         return await Mediator.Send(command);
     }}
@@ -1170,7 +1146,7 @@ public class {type.Name}Controller : ApiControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpDelete(""Delete"")]
-    public async Task<Result<bool>> Delete(Delete{type.Name}Command command)
+    public async Task<Result<bool>> Delete(Delete{typeName}Command command)
     {{
         return await Mediator.Send(command);
     }}
@@ -1204,6 +1180,7 @@ public class GenerateCodeVue
     }
     public static string GenerateApiCode(Type type, string nameSpace, string savePath)
     {
+        var typeName = type.Name;
         string[] folders = savePath.Split(Path.DirectorySeparatorChar);
         string lastFolder = folders[folders.Length - 1];
 
@@ -1225,11 +1202,8 @@ public class GenerateCodeVue
             savePath = $"{savePath}\\api\\";
         }
         Directory.CreateDirectory(savePath);
-        var filePath = $@"{savePath}\\{type.Name.ToLower()}.ts";
-        var desc = type.CustomAttributes?
-            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-            .ConstructorArguments?
-            .FirstOrDefault().Value;
+        var filePath = $@"{savePath}\\{typeName.ToLower()}.ts";
+        var desc = GenrateCodeHelper.GetTypeDescription(type);
 
         var body =
 $@"
@@ -1267,29 +1241,29 @@ type ResultTable = {{
 }};
 
 /** 分页查询 */
-export const get{type.Name}List = (data?: object) => {{
-  return http.request<ResultTable>(""post"", ""/api/{type.Name}/PaginationQuery"", {{
+export const get{typeName}List = (data?: object) => {{
+  return http.request<ResultTable>(""post"", ""/api/{typeName}/PaginationQuery"", {{
     data
   }});
 }};
 
 /** 新增 */
-export const add{type.Name} = (data?: object) => {{
-  return http.request<Result>(""post"", ""/api/{type.Name}/Add"", {{
+export const add{typeName} = (data?: object) => {{
+  return http.request<Result>(""post"", ""/api/{typeName}/Add"", {{
     data
   }});
 }};
 
 /** 修改 */
-export const update{type.Name} = (data?: object) => {{
-  return http.request<Result>(""put"", ""/api/{type.Name}/Update"", {{
+export const update{typeName} = (data?: object) => {{
+  return http.request<Result>(""put"", ""/api/{typeName}/Update"", {{
     data
   }});
 }};
 
 /** 批量删除 */
-export const onbatchDelete{type.Name} = (data?: object) => {{
-  return http.request<Result>(""delete"", ""/api/{type.Name}/Delete"", {{
+export const onbatchDelete{typeName} = (data?: object) => {{
+  return http.request<Result>(""delete"", ""/api/{typeName}/Delete"", {{
     data
   }});
 }};
@@ -1300,17 +1274,15 @@ export const onbatchDelete{type.Name} = (data?: object) => {{
     }
     public static string GenerateHookCode(Type type, string nameSpace, string savePath)
     {
+        var typeName = type.Name;
         string[] folders = savePath.Split(Path.DirectorySeparatorChar);
         string lastFolder = folders[folders.Length - 1];
 
         string fullPath = savePath;
-        savePath = $"{fullPath}\\{type.Name.ToLower()}\\utils";
+        savePath = $"{fullPath}\\{typeName.ToLower()}\\utils";
         Directory.CreateDirectory(savePath);
         var filePath = $@"{savePath}\\hook.tsx";
-        var desc = type.CustomAttributes?
-            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-            .ConstructorArguments?
-            .FirstOrDefault().Value;
+        var desc = GenrateCodeHelper.GetTypeDescription(type);
 
         var import = "";//引入组件
         var hookFunction = "";//Hook功能
@@ -1342,11 +1314,11 @@ $@"
 //引入组件
 import dayjs from ""dayjs"";
 import {{
-  get{type.Name}List,
-  add{type.Name},
-  update{type.Name},
-  onbatchDelete{type.Name}
-}} from ""@/api/{lastFolder}/{type.Name.ToLower()}"";
+  get{typeName}List,
+  add{typeName},
+  update{typeName},
+  onbatchDelete{typeName}
+}} from ""@/api/{lastFolder}/{typeName.ToLower()}"";
 import {{ type PaginationProps }} from ""@pureadmin/table"";
 import {{ usePublicHooks }} from ""../../hooks"";
 import {{ message }} from ""@/utils/message"";
@@ -1454,7 +1426,7 @@ $@"
 $@"  
   //分页查询
   async function onSearch() {{
-    const {{ data }} = await get{type.Name}List(toRaw(form));
+    const {{ data }} = await get{typeName}List(toRaw(form));
     dataList.value = data.items;
     pagination.total = data.totalItems;
     pagination.pageSize = data.pageSize;
@@ -1641,7 +1613,7 @@ $@"
       slot: ""operation"",
       hide: () => {{
         // 判断权限是否可以显示操作栏
-        const auths = [""api:{type.Name.ToLower()}:update"", ""api:{type.Name.ToLower()}:delete""];
+        const auths = [""api:{typeName.ToLower()}:update"", ""api:{typeName.ToLower()}:delete""];
         return !usePublicHooks().hasAuthIntersection(getAuths(), auths);
       }}
     }}
@@ -1662,7 +1634,7 @@ $@"
       props: {{
         formInline: {{
           title,
-          {FirstCharToLowerCase(type.Name)}Id: row?.{FirstCharToLowerCase(type.Name)}Id ?? """",
+          {FirstCharToLowerCase(typeName)}Id: row?.{FirstCharToLowerCase(typeName)}Id ?? """",
 ";
         // 遍历属性并输出它们的名称和类型
         foreach (PropertyInfo property in properties)
@@ -1750,7 +1722,7 @@ $@"
 $@"
   //删除
   async function handleDelete(row) {{
-    await onbatchDelete{type.Name}({{ {FirstCharToLowerCase(type.Name)}Ids: [row.{FirstCharToLowerCase(type.Name)}Id] }});
+    await onbatchDelete{typeName}({{ {FirstCharToLowerCase(typeName)}Ids: [row.{FirstCharToLowerCase(typeName)}Id] }});
     message(`删除成功`, {{ type: ""success"" }});
     onSearch();
   }}
@@ -1760,7 +1732,7 @@ $@"
   /** 批量删除 */
   async function onbatchDel() {{
     const curSelected = tableRef.value.getTableRef().getSelectionRows();
-    await onbatchDelete{type.Name}({{ {FirstCharToLowerCase(type.Name)}Ids: getKeyList(curSelected, ""id"") }});
+    await onbatchDelete{typeName}({{ {FirstCharToLowerCase(typeName)}Ids: getKeyList(curSelected, ""id"") }});
     message(`删除成功`, {{ type: ""success"" }});
     onSearch();
     tableRef.value.getTableRef().clearSelection();
@@ -1851,8 +1823,9 @@ $@"
     }
     public static string GenerateRuleCode(Type type, string nameSpace, string savePath)
     {
+        var typeName = type.Name;
         string fullPath = savePath;
-        savePath = $"{fullPath}\\{type.Name.ToLower()}\\utils";
+        savePath = $"{fullPath}\\{typeName.ToLower()}\\utils";
         Directory.CreateDirectory(savePath);
         var filePath = $@"{savePath}\\rule.ts";
         var desc = type.CustomAttributes?
@@ -1941,8 +1914,9 @@ $@"}});";
     }
     public static string GenerateTypesCode(Type type, string nameSpace, string savePath)
     {
+        var typeName = type.Name;
         string fullPath = savePath;
-        savePath = $"{fullPath}\\{type.Name.ToLower()}\\utils";
+        savePath = $"{fullPath}\\{typeName.ToLower()}\\utils";
         Directory.CreateDirectory(savePath);
         var filePath = $@"{savePath}\\types.ts";
         var desc = type.CustomAttributes?
@@ -1952,7 +1926,7 @@ $@"}});";
 
         var header =
 $@"interface FormItemProps {{
-  {FirstCharToLowerCase(type.Name)}Id?: string;
+  {FirstCharToLowerCase(typeName)}Id?: string;
   /** 用于判断是`新增`还是`修改` */
   title: string;";
         var body = "";
@@ -2034,14 +2008,12 @@ export type {{FormItemProps,FormProps}};";
     }
     public static string GenerateFormCode(Type type, string nameSpace, string savePath)
     {
+        var typeName = type.Name;
         string fullPath = savePath;
-        savePath = $"{fullPath}\\{type.Name.ToLower()}\\form";
+        savePath = $"{fullPath}\\{typeName.ToLower()}\\form";
         Directory.CreateDirectory(savePath);
         var filePath = $@"{savePath}\\index.vue";
-        var desc = type.CustomAttributes?
-            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-            .ConstructorArguments?
-            .FirstOrDefault().Value;
+        var desc = GenrateCodeHelper.GetTypeDescription(type);
 
         PropertyInfo[] properties = type.GetProperties();
 
@@ -2079,7 +2051,7 @@ const props = withDefaults(defineProps<FormProps>(), {{
   formInline: () => ({{
     /** 用于判断是`新增`还是`修改` */
     title: ""新增"",
-    {FirstCharToLowerCase(type.Name)}Id: """",
+    {FirstCharToLowerCase(typeName)}Id: """",
 ";
 
 
@@ -2257,14 +2229,12 @@ $@"";
     }
     public static string GenerateIndexCode(Type type, string nameSpace, string savePath)
     {
+        var typeName = type.Name;
         string fullPath = savePath;
-        savePath = $"{fullPath}\\{type.Name.ToLower()}\\";
+        savePath = $"{fullPath}\\{typeName.ToLower()}\\";
         Directory.CreateDirectory(savePath);
         var filePath = $@"{savePath}index.vue";
-        var desc = type.CustomAttributes?
-            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-            .ConstructorArguments?
-            .FirstOrDefault().Value;
+        var desc = GenrateCodeHelper.GetTypeDescription(type);
 
         PropertyInfo[] properties = type.GetProperties();
 
@@ -2288,7 +2258,7 @@ $@"";
 $@"
 <script setup lang=""ts"">
 import {{ ref }} from ""vue"";
-import {{ use{type.Name} }} from ""./utils/hook"";
+import {{ use{typeName} }} from ""./utils/hook"";
 import {{ useRenderIcon }} from ""@/components/ReIcon/src/hooks"";
 import {{ PureTableBar }} from ""@/components/RePureTableBar"";
 import {{ hasAuth }} from ""@/router/utils"";
@@ -2321,12 +2291,12 @@ const {{
   onSelectionCancel,
   handleCurrentChange,
   handleSelectionChange
-}} = use{type.Name}(tableRef, treeRef);
+}} = use{typeName}(tableRef, treeRef);
 </script>
 <template>
   <div
     class=""flex justify-between""
-    v-if=""hasAuth('api:{type.Name.ToLower()}:paginationquery')""
+    v-if=""hasAuth('api:{typeName.ToLower()}:paginationquery')""
   >
 ";
 
@@ -2406,7 +2376,7 @@ $@"
             type=""primary""
             :icon=""useRenderIcon(AddFill)""
             @click=""openDialog()""
-            v-if=""hasAuth('api:{type.Name.ToLower()}:add')""
+            v-if=""hasAuth('api:{typeName.ToLower()}:add')""
           >
             新增
           </el-button>
@@ -2434,7 +2404,7 @@ $@"
                   type=""danger""
                   text
                   class=""mr-1""
-                  v-if=""hasAuth('api:{type.Name.ToLower()}:delete')""
+                  v-if=""hasAuth('api:{typeName.ToLower()}:delete')""
                 >
                   批量删除
                 </el-button>
@@ -2469,12 +2439,12 @@ $@"
                 :size=""size""
                 :icon=""useRenderIcon(EditPen)""
                 @click=""openDialog('编辑', row)""
-                v-if=""hasAuth('api:{type.Name.ToLower()}:update')""
+                v-if=""hasAuth('api:{typeName.ToLower()}:update')""
               >
                 修改
               </el-button>
               <el-popconfirm
-                :title=""`是否确认删除编号为${{row.{FirstCharToLowerCase(type.Name)}Id}}的这条数据`""
+                :title=""`是否确认删除编号为${{row.{FirstCharToLowerCase(typeName)}Id}}的这条数据`""
                 @confirm=""handleDelete(row)""
               >
                 <template #reference>
@@ -2484,7 +2454,7 @@ $@"
                     type=""primary""
                     :size=""size""
                     :icon=""useRenderIcon(Delete)""
-                    v-if=""hasAuth('api:{type.Name.ToLower()}:delete')""
+                    v-if=""hasAuth('api:{typeName.ToLower()}:delete')""
                   >
                     删除
                   </el-button>
