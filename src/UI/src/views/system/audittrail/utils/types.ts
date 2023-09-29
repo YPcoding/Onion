@@ -1,16 +1,12 @@
 ﻿interface FormItemProps {
-  testTableId?: string;
+  auditTrailId?: string;
   /** 用于判断是`新增`还是`修改` */
   title: string;
-  name: string;
-
-  description: string;
+  tableName: string;
 
   dateTime: string;
 
-  type: number;
-
-  stuts: boolean;
+  hasTemporaryProperties: boolean;
   concurrencyStamp: string;
 }interface FormProps {formInline: FormItemProps;
 }

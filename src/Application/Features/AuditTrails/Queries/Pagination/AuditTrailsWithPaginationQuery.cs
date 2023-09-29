@@ -1,11 +1,15 @@
 ﻿using Application.Common.Extensions;
-using Application.Features.AuditTrails.Specifications;
 using Domain.Entities.Audit;
-using Domain.Repositories;
+using Application.Features.AuditTrails.Caching;
+using Application.Features.AuditTrails.DTOs;
+using Application.Features.AuditTrails.Specifications;
 
 namespace Application.Features.AuditTrails.Queries.Pagination;
 
-public class AuditTrailsWithPaginationQuery: AuditTrailAdvancedFilter, IRequest<Result<PaginatedData<AuditTrail>>>
+/// <summary>
+/// 审计日志分页查询
+/// </summary>
+public class AuditTrailsWithPaginationQuery : AuditTrailAdvancedFilter, IRequest<Result<PaginatedData<AuditTrailDto>>>
 {
     [JsonIgnore]
     public AuditTrailAdvancedPaginationSpec Specification => new AuditTrailAdvancedPaginationSpec(this);
@@ -15,19 +19,16 @@ public class AuditTrailsWithPaginationQuery: AuditTrailAdvancedFilter, IRequest<
 /// 处理程序
 /// </summary>
 public class AuditTrailsWithPaginationQueryHandler :
-IRequestHandler<AuditTrailsWithPaginationQuery, Result<PaginatedData<AuditTrail>>>
+    IRequestHandler<AuditTrailsWithPaginationQuery, Result<PaginatedData<AuditTrailDto>>>
 {
     private readonly IApplicationDbContext _context;
-    private readonly IRoleRepository _roleRepository;
     private readonly IMapper _mapper;
     public AuditTrailsWithPaginationQueryHandler(
-    IApplicationDbContext context,
-    IMapper mapper,
-    IRoleRepository roleRepository)
+        IApplicationDbContext context,
+        IMapper mapper)
     {
         _context = context;
         _mapper = mapper;
-        _roleRepository = roleRepository;
     }
 
     /// <summary>
@@ -35,13 +36,20 @@ IRequestHandler<AuditTrailsWithPaginationQuery, Result<PaginatedData<AuditTrail>
     /// </summary>
     /// <param name="request">请求参数</param>
     /// <param name="cancellationToken">取消标记</param>
-    /// <returns>返回用户分页数据</returns>
-    public async Task<Result<PaginatedData<AuditTrail>>> Handle(AuditTrailsWithPaginationQuery request, CancellationToken cancellationToken)
+    /// <returns>返回审计日志分页数据</returns>
+    public async Task<Result<PaginatedData<AuditTrailDto>>> Handle(
+        AuditTrailsWithPaginationQuery request,
+        CancellationToken cancellationToken)
     {
-        var auditTrails = await _context.AuditTrails
+        var audittrails = await _context.AuditTrails
             .OrderBy($"{request.OrderBy} {request.SortDirection}")
-            .ProjectToPaginatedDataAsync<AuditTrail, AuditTrail>(request.Specification, request.PageNumber, request.PageSize, _mapper.ConfigurationProvider, cancellationToken);
+            .ProjectToPaginatedDataAsync<AuditTrail, AuditTrailDto>(
+            request.Specification,
+            request.PageNumber,
+            request.PageSize,
+            _mapper.ConfigurationProvider,
+            cancellationToken);
 
-        return await Result<PaginatedData<AuditTrail>>.SuccessAsync(auditTrails);
+        return await Result<PaginatedData<AuditTrailDto>>.SuccessAsync(audittrails);
     }
 }

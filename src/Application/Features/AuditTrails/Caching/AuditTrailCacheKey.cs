@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Primitives;
+﻿using Microsoft.Extensions.Primitives;
 using Domain.Entities.Audit;
 namespace Application.Features.AuditTrails.Caching;
 

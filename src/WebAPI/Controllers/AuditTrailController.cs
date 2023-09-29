@@ -1,24 +1,57 @@
-﻿using Application.Features.AuditTrails.Queries.Pagination;
+﻿using Application.Features.AuditTrails.DTOs;
+using Application.Features.AuditTrails.Commands.Add;
+using Application.Features.AuditTrails.Commands.Delete;
+using Application.Features.AuditTrails.Commands.Update;
+using Application.Features.AuditTrails.Queries.Pagination;
 using Domain.Entities.Audit;
 using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel;
 
-namespace WebAPI.Controllers
+namespace WebAPI.Controllers;
+
+/// <summary>
+/// 审计日志
+/// </summary>
+public class AuditTrailController : ApiControllerBase
 {
     /// <summary>
-    /// 审计日志
+    /// 分页查询
     /// </summary>
-    public class AuditTrailController : ApiControllerBase
-    {
-        /// <summary>
-        /// 分页查询
-        /// </summary>
-        /// <returns></returns>
-        [HttpPost("PaginationQuery")]
+    /// <returns></returns>
+    [HttpPost("PaginationQuery")]
 
-        public async Task<Result<PaginatedData<AuditTrail>>> PaginationQuery(AuditTrailsWithPaginationQuery query)
-        {
-            return await Mediator.Send(query);
-        }
+    public async Task<Result<PaginatedData<AuditTrailDto>>> PaginationQuery(AuditTrailsWithPaginationQuery query)
+    {
+        return await Mediator.Send(query);
+    }
+
+    /// <summary>
+    /// 创建审计日志
+    /// </summary>
+    /// <returns></returns>
+    [HttpPost("Add")]
+
+    public async Task<Result<long>> Add(AddAuditTrailCommand command)
+    {
+        return await Mediator.Send(command);
+    }
+
+    /// <summary>
+    /// 修改审计日志
+    /// </summary>
+    /// <returns></returns>
+    [HttpPut("Update")]
+    public async Task<Result<long>> Update(UpdateAuditTrailCommand command)
+    {
+        return await Mediator.Send(command);
+    }
+
+    /// <summary>
+    /// 删除审计日志
+    /// </summary>
+    /// <returns></returns>
+    [HttpDelete("Delete")]
+    public async Task<Result<bool>> Delete(DeleteAuditTrailCommand command)
+    {
+        return await Mediator.Send(command);
     }
 }

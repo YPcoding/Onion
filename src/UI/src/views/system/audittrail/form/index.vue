@@ -9,20 +9,10 @@ const props = withDefaults(defineProps<FormProps>(), {
   formInline: () => ({
     /** 用于判断是`新增`还是`修改` */
     title: "新增",
-    testTableId: "",
-
-                        
-    name: "",
-
-    description: "",
-     
-    dateTime: "",
-     
-    type: 0,
-     
-    stuts: null,
-
-                        
+    auditTrailId: "",                      
+    tableName: "",
+    dateTime: "",    
+    hasTemporaryProperties: null,       
     concurrencyStamp: ""
   })
 });
@@ -50,50 +40,29 @@ defineExpose({ getRef });
 
                         
       <re-col :value="12" :xs="24" :sm="24">
-        <el-form-item label="名称" prop="name">
+        <el-form-item label="表名" prop="tableName">
           <el-input
-            v-model="newFormInline.name"
+            v-model="newFormInline.tableName"
             clearable
-            placeholder="请输入名称"
+            placeholder="请输入表名"
           />
         </el-form-item>
       </re-col>
 
       <re-col :value="12" :xs="24" :sm="24">
-        <el-form-item label="描述" prop="description">
-          <el-input
-            v-model="newFormInline.description"
-            clearable
-            placeholder="请输入描述"
-          />
-        </el-form-item>
-      </re-col>
-
-      <re-col :value="12" :xs="24" :sm="24">
-        <el-form-item label="时间" prop="dateTime">
+        <el-form-item label="审计时间" prop="dateTime">
           <el-date-picker
             v-model="newFormInline.dateTime"
             type="datetime"
-            placeholder="选择一个时间"
+            placeholder="选择一个审计时间"
           />
         </el-form-item>
       </re-col>
 
       <re-col :value="12" :xs="24" :sm="24">
-        <el-form-item label="类型" prop="type">
-          <el-input
-            v-model="newFormInline.type"
-            clearable
-            placeholder="请输入类型"
-            type="number"
-          />
-        </el-form-item>
-      </re-col>
-
-      <re-col :value="12" :xs="24" :sm="24">
-        <el-form-item label="状态">
+        <el-form-item label="具有临时属性">
           <el-switch
-            v-model="newFormInline.stuts"
+            v-model="newFormInline.hasTemporaryProperties"
             inline-prompt
             :active-value="true"
             :inactive-value="false"

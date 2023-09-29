@@ -1,24 +1,20 @@
-﻿using Domain.Enums;
-
+﻿using Domain.Entities.Audit;
 namespace Application.Features.AuditTrails.Specifications;
 
 /// <summary>
-/// 审计日志搜索字段
+/// 高级查询
 /// </summary>
 public class AuditTrailAdvancedFilter : PaginationFilter
-{
-    /// <summary>
-    /// 用户名
-    /// </summary>
-    public string? UserName { get; set; }
-
-    /// <summary>
-    /// 审计类型
-    /// </summary>
-    public AuditType? AuditType { get; set; }
-
+{       
     /// <summary>
     /// 表名
     /// </summary>
+    [Description("表名")]
     public string? TableName { get; set; }
+       
+    /// <summary>
+    /// 具有临时属性
+    /// </summary>
+    [Description("具有临时属性")]
+    public bool? HasTemporaryProperties { get; set; }
 }

@@ -1,31 +1,31 @@
-﻿using Application.Features.TestTables.Caching;
-using Domain.Entities;
+﻿using Application.Features.AuditTrails.Caching;
+using Domain.Entities.Audit;
 using Domain.Entities;
 
-namespace Application.Features.TestTables.Commands.Delete;
+namespace Application.Features.AuditTrails.Commands.Delete;
 
 /// <summary>
-/// 删除测试表
+/// 删除审计日志
 /// </summary>
-public class DeleteTestTableCommand : IRequest<Result<bool>>
+public class DeleteAuditTrailCommand : IRequest<Result<bool>>
 {
   
         /// <summary>
         /// 唯一标识
         /// </summary>
         [Description("唯一标识")]
-        public List<long> TestTableIds { get; set; }
+        public List<long> AuditTrailIds { get; set; }
 }
 
 /// <summary>
 /// 处理程序
 /// </summary>
-public class DeleteTestTableCommandHandler : IRequestHandler<DeleteTestTableCommand, Result<bool>>
+public class DeleteAuditTrailCommandHandler : IRequestHandler<DeleteAuditTrailCommand, Result<bool>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
 
-    public DeleteTestTableCommandHandler(
+    public DeleteAuditTrailCommandHandler(
         IApplicationDbContext context,
         IMapper mapper)
     {
@@ -39,15 +39,15 @@ public class DeleteTestTableCommandHandler : IRequestHandler<DeleteTestTableComm
     /// <param name="request">请求参数</param>
     /// <param name="cancellationToken">取消标记</param>
     /// <returns>返回处理结果</returns>
-    public async Task<Result<bool>> Handle(DeleteTestTableCommand request, CancellationToken cancellationToken)
+    public async Task<Result<bool>> Handle(DeleteAuditTrailCommand request, CancellationToken cancellationToken)
     {
-        var testtablesToDelete = await _context.TestTables
-            .Where(x => request.TestTableIds.Contains(x.Id))
+        var audittrailsToDelete = await _context.AuditTrails
+            .Where(x => request.AuditTrailIds.Contains(x.Id))
             .ToListAsync();
 
-        if (testtablesToDelete.Any())
+        if (audittrailsToDelete.Any())
         {
-            _context.TestTables.RemoveRange(testtablesToDelete);
+            _context.AuditTrails.RemoveRange(audittrailsToDelete);
             var isSuccess = await _context.SaveChangesAsync(cancellationToken) > 0;
             return await Result<bool>.SuccessOrFailureAsync(isSuccess, isSuccess,new string[] {"操作失败"});
         }

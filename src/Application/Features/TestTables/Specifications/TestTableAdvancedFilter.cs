@@ -1,4 +1,4 @@
-using Domain.Entities;
+﻿using Domain.Entities;
 namespace Application.Features.TestTables.Specifications;
 
 /// <summary>

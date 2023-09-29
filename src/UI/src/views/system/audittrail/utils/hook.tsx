@@ -1,12 +1,11 @@
-﻿
-//引入组件
+﻿//引入组件
 import dayjs from "dayjs";
 import {
-  getTestTableList,
-  addTestTable,
-  updateTestTable,
-  onbatchDeleteTestTable
-} from "@/api/system/testtable";
+  getAuditTrailList,
+  addAuditTrail,
+  updateAuditTrail,
+  onbatchDeleteAuditTrail
+} from "@/api/system/audittrail";
 import { type PaginationProps } from "@pureadmin/table";
 import { usePublicHooks } from "../../hooks";
 import { message } from "@/utils/message";
@@ -17,17 +16,12 @@ import editForm from "../form/index.vue";
 import { type Ref, h, ref, toRaw, computed, reactive, onMounted } from "vue";
 import { getAuths } from "@/router/utils";
 //功能
-export function useTestTable(tableRef: Ref, treeRef: Ref) {
+export function useAuditTrail(tableRef: Ref, treeRef: Ref) {
   //常量
   const form = reactive({
+    tableName: "",
 
-    name: "",
-
-    description: "",
-
-    type: 0,
-
-    stuts: null,
+    hasTemporaryProperties: null,
 
     orderBy: "Id",
     sortDirection: "Descending",
@@ -46,11 +40,12 @@ export function useTestTable(tableRef: Ref, treeRef: Ref) {
     currentPage: 1,
     background: true
   });
-  
+
   //分页查询
   async function onSearch() {
-    const { data } = await getTestTableList(toRaw(form));
-    dataList.value = data.items;
+    const { data } = await getAuditTrailList(toRaw(form));
+    dataList.value =data.items;
+    console.log(dataList.value);
     pagination.total = data.totalItems;
     pagination.pageSize = data.pageSize;
     pagination.currentPage = data.currentPage;
@@ -73,7 +68,7 @@ export function useTestTable(tableRef: Ref, treeRef: Ref) {
     form.pageSize = val;
     onSearch();
   }
-  
+
   //跳到指定页码
   function handleCurrentChange(val: number) {
     form.pageNumber = val;
@@ -103,50 +98,38 @@ export function useTestTable(tableRef: Ref, treeRef: Ref) {
     },
 
     {
-      label: "名称",
-      prop: "name",
+      label: "表名",
+      prop: "tableName",
       minWidth: 100
     },
 
     {
-      label: "描述",
-      prop: "description",
-      minWidth: 100
-    },
-
-    {
-      label: "时间",
+      label: "审计时间",
       minWidth: 100,
       prop: "dateTime",
       formatter: ({ dateTime }) => dayjs(dateTime).format("YYYY-MM-DD HH:mm:ss")
     },
 
     {
-      label: "类型",
-      minWidth: 100,
-      prop: "type",
-    },
-
-    {
-      label: "状态",
-      prop: "stuts",
+      label: "具有临时属性",
+      prop: "hasTemporaryProperties",
       minWidth: 100,
       cellRenderer: scope => (
         <el-switch
           size={scope.props.size === "small" ? "small" : "default"}
           loading={switchLoadMap.value[scope.index]?.loading}
-          v-model={scope.row.stuts}
+          v-model={scope.row.hasTemporaryProperties}
           active-value={true}
           inactive-value={false}
           active-text="是"
           inactive-text="否"
           inline-prompt
           style={switchStyle.value}
-          onChange={() => handleStutsOnChange(scope.row)}
+          onChange={() => handleHasTemporaryPropertiesOnChange(scope.row)}
         />
       )
     },
-    
+
     {
       label: "操作",
       fixed: "right",
@@ -154,7 +137,7 @@ export function useTestTable(tableRef: Ref, treeRef: Ref) {
       slot: "operation",
       hide: () => {
         // 判断权限是否可以显示操作栏
-        const auths = ["api:testtable:update", "api:testtable:delete"];
+        const auths = ["api:audittrail:update", "api:audittrail:delete"];
         return !usePublicHooks().hasAuthIntersection(getAuths(), auths);
       }
     }
@@ -167,21 +150,17 @@ export function useTestTable(tableRef: Ref, treeRef: Ref) {
   /** 新增或修改 */
   async function openDialog(title = "新增", row?: FormItemProps) {
     addDialog({
-      title: `${title}测试表`,
+      title: `${title}审计日志`,
       props: {
         formInline: {
           title,
-          testTableId: row?.testTableId ?? "",
+          auditTrailId: row?.auditTrailId ?? "",
 
-          name: row?.name ?? "",
-
-          description: row?.description ?? "",
+          tableName: row?.tableName ?? "",
 
           dateTime: row?.dateTime ?? null,
 
-          type: row?.type ?? 0,
-
-          stuts: row?.stuts ?? true,
+          hasTemporaryProperties: row?.hasTemporaryProperties ?? true,
 
           concurrencyStamp: row?.concurrencyStamp ?? ""
         }
@@ -203,9 +182,9 @@ export function useTestTable(tableRef: Ref, treeRef: Ref) {
           if (valid) {
             // 表单规则校验通过
             if (title === "新增") {
-              await addTestTable(curData);
+              await addAuditTrail(curData);
             } else {
-              await updateTestTable(curData);
+              await updateAuditTrail(curData);
             }
             chores();
           }
@@ -216,7 +195,7 @@ export function useTestTable(tableRef: Ref, treeRef: Ref) {
 
   //删除
   async function handleDelete(row) {
-    await onbatchDeleteTestTable({ testTableIds: [row.testTableId] });
+    await onbatchDeleteAuditTrail({ auditTrailIds: [row.auditTrailId] });
     message(`删除成功`, { type: "success" });
     onSearch();
   }
@@ -224,7 +203,9 @@ export function useTestTable(tableRef: Ref, treeRef: Ref) {
   /** 批量删除 */
   async function onbatchDel() {
     const curSelected = tableRef.value.getTableRef().getSelectionRows();
-    await onbatchDeleteTestTable({ testTableIds: getKeyList(curSelected, "id") });
+    await onbatchDeleteAuditTrail({
+      auditTrailIds: getKeyList(curSelected, "id")
+    });
     message(`删除成功`, { type: "success" });
     onSearch();
     tableRef.value.getTableRef().clearSelection();
@@ -245,10 +226,9 @@ export function useTestTable(tableRef: Ref, treeRef: Ref) {
   }
 
   //数据列表自定义生成函数
-  async function handleStutsOnChange(row) {
+  async function handleHasTemporaryPropertiesOnChange(row) {
     message(`功能未实现`, { type: "success" });
   }
-
 
   //按钮样式类
   const buttonClass = computed(() => {

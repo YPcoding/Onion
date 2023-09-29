@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using Domain.Entities;
 using Application.Features.TestTables.Caching;
 using Domain.Entities;
@@ -69,7 +69,7 @@ public class AddTestTableCommandHandler : IRequestHandler<AddTestTableCommand, R
     public async Task<Result<long>> Handle(AddTestTableCommand request, CancellationToken cancellationToken)
     {
         var testtable = _mapper.Map<TestTable>(request);
-        testtable.AddDomainEvent(new CreatedEvent<TestTable>(testtable));
+        //testtable.AddDomainEvent(new CreatedEvent<TestTable>(testtable));
         await _context.TestTables.AddAsync(testtable);
         var isSuccess = await _context.SaveChangesAsync(cancellationToken) > 0;
         return await Result<long>.SuccessOrFailureAsync(testtable.Id, isSuccess, new string[] { "操作失败" });

@@ -1,18 +1,30 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Application.Features.AuditTrails.Caching;
 using Domain.Entities.Audit;
-using Application.Features.AuditTrails.Caching;
 using Domain.Entities;
-using Masuit.Tools.Systems;
-using Microsoft.Extensions.Options;
+using System.ComponentModel.DataAnnotations;
 
-namespace Application.Features.AuditTrails.Commands.Add;
+namespace Application.Features.AuditTrails.Commands.Update;
+
 
 /// <summary>
-/// 添加审计日志
+/// 修改审计日志
 /// </summary>
 [Map(typeof(AuditTrail))]
-public class AddAuditTrailCommand : IRequest<Result<long>>
+public class UpdateAuditTrailCommand : IRequest<Result<long>>
 {
+
+        
+        /// <summary>
+        /// 唯一标识
+        /// </summary>
+        [Description("唯一标识")]
+        public long AuditTrailId { get; set; }
+        
+        /// <summary>
+        /// 关联用户的唯一标识
+        /// </summary>
+        [Description("关联用户的唯一标识")]
+        public long? UserId { get; set; }
         
         /// <summary>
         /// 关联用户
@@ -74,15 +86,16 @@ public class AddAuditTrailCommand : IRequest<Result<long>>
         [Description("具有临时属性")]
         public bool HasTemporaryProperties { get; set; }
 }
+
 /// <summary>
 /// 处理程序
 /// </summary>
-public class AddAuditTrailCommandHandler : IRequestHandler<AddAuditTrailCommand, Result<long>>
+public class UpdateAuditTrailCommandHandler : IRequestHandler<UpdateAuditTrailCommand, Result<long>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
 
-    public AddAuditTrailCommandHandler(
+    public UpdateAuditTrailCommandHandler(
         IApplicationDbContext context,
         IMapper mapper)
     {
@@ -96,11 +109,15 @@ public class AddAuditTrailCommandHandler : IRequestHandler<AddAuditTrailCommand,
     /// <param name="request">请求参数</param>
     /// <param name="cancellationToken">取消标记</param>
     /// <returns>返回处理结果</returns>
-    public async Task<Result<long>> Handle(AddAuditTrailCommand request, CancellationToken cancellationToken)
+    public async Task<Result<long>> Handle(UpdateAuditTrailCommand request, CancellationToken cancellationToken)
     {
-        var audittrail = _mapper.Map<AuditTrail>(request);
-        //audittrail.AddDomainEvent(new CreatedEvent<AuditTrail>(audittrail));
-        await _context.AuditTrails.AddAsync(audittrail);
+        var audittrail = await _context.AuditTrails
+           .SingleOrDefaultAsync(x => x.Id == request.AuditTrailId, cancellationToken)
+           ?? throw new NotFoundException($"数据【{request.AuditTrailId}】未找到");
+
+        audittrail = _mapper.Map(request, audittrail);
+        //audittrail.AddDomainEvent(new UpdatedEvent<AuditTrail>(audittrail));
+        _context.AuditTrails.Update(audittrail);
         var isSuccess = await _context.SaveChangesAsync(cancellationToken) > 0;
         return await Result<long>.SuccessOrFailureAsync(audittrail.Id, isSuccess, new string[] { "操作失败" });
     }

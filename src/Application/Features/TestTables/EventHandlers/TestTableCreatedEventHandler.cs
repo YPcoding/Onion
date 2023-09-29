@@ -1,4 +1,4 @@
-using Domain.Entities;
+﻿using Domain.Entities;
 namespace Application.Features.TestTables.EventHandlers;
 
 public class TestTableCreatedEventHandler : INotificationHandler<CreatedEvent<TestTable>>

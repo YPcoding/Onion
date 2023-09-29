@@ -33,29 +33,29 @@ type ResultTable = {
 };
 
 /** 分页查询 */
-export const getTestTableList = (data?: object) => {
-  return http.request<ResultTable>("post", "/api/TestTable/PaginationQuery", {
+export const getAuditTrailList = (data?: object) => {
+  return http.request<ResultTable>("post", "/api/AuditTrail/PaginationQuery", {
     data
   });
 };
 
 /** 新增 */
-export const addTestTable = (data?: object) => {
-  return http.request<Result>("post", "/api/TestTable/Add", {
+export const addAuditTrail = (data?: object) => {
+  return http.request<Result>("post", "/api/AuditTrail/Add", {
     data
   });
 };
 
 /** 修改 */
-export const updateTestTable = (data?: object) => {
-  return http.request<Result>("put", "/api/TestTable/Update", {
+export const updateAuditTrail = (data?: object) => {
+  return http.request<Result>("put", "/api/AuditTrail/Update", {
     data
   });
 };
 
 /** 批量删除 */
-export const onbatchDeleteTestTable = (data?: object) => {
-  return http.request<Result>("delete", "/api/TestTable/Delete", {
+export const onbatchDeleteAuditTrail = (data?: object) => {
+  return http.request<Result>("delete", "/api/AuditTrail/Delete", {
     data
   });
 };

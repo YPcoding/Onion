@@ -1,4 +1,4 @@
-using Application.Features.TestTables.Caching;
+﻿using Application.Features.TestTables.Caching;
 using Domain.Entities;
 using Domain.Entities;
 using System.ComponentModel.DataAnnotations;
@@ -82,11 +82,11 @@ public class UpdateTestTableCommandHandler : IRequestHandler<UpdateTestTableComm
     public async Task<Result<long>> Handle(UpdateTestTableCommand request, CancellationToken cancellationToken)
     {
         var testtable = await _context.TestTables
-           .SingleOrDefaultAsync(x => x.Id == request.TestTableId && x.ConcurrencyStamp == request.ConcurrencyStamp, cancellationToken)
-           ?? throw new NotFoundException($"数据【{request.TestTableId}-{request.ConcurrencyStamp}】未找到");
+           .SingleOrDefaultAsync(x => x.Id == request.TestTableId, cancellationToken)
+           ?? throw new NotFoundException($"数据【{request.TestTableId}】未找到");
 
         testtable = _mapper.Map(request, testtable);
-        testtable.AddDomainEvent(new UpdatedEvent<TestTable>(testtable));
+        //testtable.AddDomainEvent(new UpdatedEvent<TestTable>(testtable));
         _context.TestTables.Update(testtable);
         var isSuccess = await _context.SaveChangesAsync(cancellationToken) > 0;
         return await Result<long>.SuccessOrFailureAsync(testtable.Id, isSuccess, new string[] { "操作失败" });
