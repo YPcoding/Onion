@@ -6,6 +6,7 @@ import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { PureTableBar } from "@/components/RePureTableBar";
 import { hasAuth } from "@/router/utils";
 
+import Search from "@iconify-icons/ep/search";
 import Delete from "@iconify-icons/ep/delete";
 import EditPen from "@iconify-icons/ep/edit-pen";
 import Refresh from "@iconify-icons/ep/refresh";
@@ -83,13 +84,12 @@ const {
 
                         
         <el-form-item>
-          <el-button type="primary" @click="onSearch"> 搜索 </el-button>
+          <el-button :icon="useRenderIcon(Search)" type="primary" @click="onSearch"> 搜索 </el-button>
           <el-button :icon="useRenderIcon(Refresh)" @click="resetForm(formRef)">
             重置
           </el-button>
         </el-form-item>
       </el-form>
-
 
       <PureTableBar title="测试表管理" :columns="columns" @refresh="onSearch">
         <template #buttons>

@@ -101,7 +101,13 @@ const {
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="onSearch"> 搜索 </el-button>
+          <el-button
+            :icon="useRenderIcon(Search)"
+            type="primary"
+            @click="onSearch"
+          >
+            搜索
+          </el-button>
           <el-button :icon="useRenderIcon(Refresh)" @click="resetForm(formRef)">
             重置
           </el-button>
