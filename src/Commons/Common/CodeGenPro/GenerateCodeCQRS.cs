@@ -5,45 +5,188 @@ using System.Text;
 /// <summary>
 /// 代码生成器
 /// </summary>
-namespace Common.CodeGenPro
+namespace Common.CodeGenPro;
+
+public class GenrateCodeHelper
 {
     /// <summary>
-    /// 生成CQRS代码
+    /// 判断是否应该生成
     /// </summary>
-    public class GenerateCodeCQRS
+    /// <param name="typeName"></param>
+    /// <param name="excludeTypeName"></param>
+    /// <returns></returns>
+    public static bool ShouldGenerateToString(string typeName, IEnumerable<string>? excludeTypeName = null)
     {
-        public static Type GetTypeByFullClassName(string fullClassName)
+        if (typeName == null) return false;
+
+        var ignoreTypeNames = new List<string>
         {
-            string className = fullClassName;
-            Assembly assembly = Assembly.Load(className.Split('.')[0].ToString());
-            return assembly.GetType(className)!;
+             "Id",
+             "Deleted",
+             "DeletedBy",
+             "CreatedBy",
+             "LastModified",
+             "LastModifiedBy",
+             "ConcurrencyStamp"
+        };
+
+        if (excludeTypeName != null && excludeTypeName.Any())
+        {
+            ignoreTypeNames.RemoveAll(x => excludeTypeName.Contains(x));
         }
 
-        public static string RemoveSuffix(string input, string suffixToRemove)
+        return !ignoreTypeNames.Contains(typeName);
+    }
+
+    /// <summary>
+    /// 将类字段转字符串，用于代码生成
+    /// </summary>
+    /// <param name="type"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    public static string GetCSharpTypeName(Type type)
+    {
+        if (type == null)
         {
-            if (input.EndsWith(suffixToRemove))
-            {
-                // 使用 Substring 方法删除后缀
-                return input.Substring(0, input.Length - suffixToRemove.Length);
-            }
-            else
-            {
-                // 如果没有匹配的后缀，返回原始字符串
-                return input;
-            }
+            throw new ArgumentNullException(nameof(type));
         }
 
-        public static string GenerateCachingCode(Type type, string nameSpace, string savePath)
-        {
-            savePath = $"{savePath}\\{type.Name}s\\Caching";
-            Directory.CreateDirectory(savePath);
-            var filePath = $@"{savePath}\{type.Name}CacheKey.cs";
-            var desc = type.CustomAttributes?
-                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-                .ConstructorArguments?
-                .FirstOrDefault().Value;
+        string typeName = type.Name;
 
-            var body =
+        if (type.IsGenericType)
+        {
+            typeName = typeName.Split('`')[0] + "<";
+
+            Type[] genericArguments = type.GetGenericArguments();
+            for (int i = 0; i < genericArguments.Length; i++)
+            {
+                typeName += GetCSharpTypeName(genericArguments[i]);
+                if (i < genericArguments.Length - 1)
+                {
+                    typeName += ", ";
+                }
+            }
+
+            typeName += ">";
+        }
+
+        // 将 Int64 转换为 long
+        typeName = typeName.Replace("Int64", "long");
+        typeName = typeName.Replace("String", "string");
+        typeName = typeName.Replace("Object", "object");
+
+        // 将 Nullable<T> 转换为 T?
+        if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+        {
+            typeName = typeName.Replace("Nullable<", "").Replace(">", "?");
+        }
+
+        return typeName;
+    }
+
+    /// <summary>
+    /// 判断嵌套类中的字段是否为Class
+    /// </summary>
+    /// <param name="type"></param>
+    /// <returns></returns>
+    public static bool GetTypeNameIsClass(Type type)
+    {
+        return false;
+    }
+
+    /// <summary>
+    /// 根据字符串获取Type
+    /// </summary>
+    /// <param name="fullClassName"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    public static Type GetTypeByFullClassName(string fullClassName)
+    {
+        string className = fullClassName;
+        Assembly assembly = Assembly.Load(className.Split('.')[0].ToString());
+        if (assembly.GetType(className) == null)
+        {
+            throw new Exception($"请检查名称：{fullClassName}，是否正确");
+        }
+        return assembly.GetType(className)!;
+    }
+
+    /// <summary>
+    /// 删除后缀
+    /// </summary>
+    /// <param name="input">原字符串</param>
+    /// <param name="suffixToRemove">需要删除的后缀</param>
+    /// <returns>返回移除后缀的字符串</returns>
+    public static string RemoveSuffix(string input, string suffixToRemove)
+    {
+        if (input.EndsWith(suffixToRemove))
+        {
+            // 使用 Substring 方法删除后缀
+            return input.Substring(0, input.Length - suffixToRemove.Length);
+        }
+        else
+        {
+            // 如果没有匹配的后缀，返回原始字符串
+            return input;
+        }
+    }
+
+    /// <summary>
+    /// 保存代码到文件
+    /// </summary>
+    /// <param name="text">要保存的文本内容</param>
+    /// <param name="savePath">文件路径，包括文件名和扩展名</param>
+    public static void SaveTextToFile(string text,string savePath) 
+    {
+        // 使用 StreamWriter 来写入文本，确保文件编码为 UTF-8
+        using (StreamWriter writer = new StreamWriter(savePath, false, Encoding.UTF8))
+        {
+            writer.Write(text);
+        }
+    }
+}
+
+/// <summary>
+/// 生成CQRS代码
+/// </summary>
+public class GenerateCodeCQRS
+{
+    public static Type GetTypeByFullClassName(string fullClassName)
+    {
+        string className = fullClassName;
+        Assembly assembly = Assembly.Load(className.Split('.')[0].ToString());
+        if (assembly.GetType(className) == null)
+        {
+            throw new Exception($"请检查名称：{fullClassName}，是否正确");
+        }
+        return assembly.GetType(className)!;
+    }
+
+    public static string RemoveSuffix(string input, string suffixToRemove)
+    {
+        if (input.EndsWith(suffixToRemove))
+        {
+            // 使用 Substring 方法删除后缀
+            return input.Substring(0, input.Length - suffixToRemove.Length);
+        }
+        else
+        {
+            // 如果没有匹配的后缀，返回原始字符串
+            return input;
+        }
+    }
+
+    public static string GenerateCachingCode(Type type, string nameSpace, string savePath)
+    {
+        savePath = $"{savePath}\\{type.Name}s\\Caching";
+        Directory.CreateDirectory(savePath);
+        var filePath = $@"{savePath}\{type.Name}CacheKey.cs";
+        var desc = type.CustomAttributes?
+            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+            .ConstructorArguments?
+            .FirstOrDefault().Value;
+
+        var body =
 $@"using Microsoft.Extensions.Primitives;
 using {RemoveSuffix($"{type.FullName}", $".{type.Name}")};
 namespace {nameSpace}.{type.Name}s.Caching;
@@ -84,26 +227,26 @@ public static class {type.Name}CacheKey
     }}
 }}
 ";
-            var code = $"{body}";
-            using (FileStream fs = System.IO.File.Create(filePath))
-            {
-                byte[] info = new UTF8Encoding(true).GetBytes(code);
-                fs.Write(info, 0, info.Length);
-            }
-            return filePath;
-        }
-
-        public static string GenerateAddCommandCode(Type type, string nameSpace, string savePath)
+        var code = $"{body}";
+        using (FileStream fs = System.IO.File.Create(filePath))
         {
-            savePath = $"{savePath}\\{type.Name}s\\Commands\\Add";
-            Directory.CreateDirectory(savePath);
-            var filePath = $@"{savePath}\Add{type.Name}Command.cs";
-            var desc = type.CustomAttributes?
-                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-                .ConstructorArguments?
-                .FirstOrDefault().Value;
+            byte[] info = new UTF8Encoding(true).GetBytes(code);
+            fs.Write(info, 0, info.Length);
+        }
+        return filePath;
+    }
 
-            var header =
+    public static string GenerateAddCommandCode(Type type, string nameSpace, string savePath)
+    {
+        savePath = $"{savePath}\\{type.Name}s\\Commands\\Add";
+        Directory.CreateDirectory(savePath);
+        var filePath = $@"{savePath}\Add{type.Name}Command.cs";
+        var desc = type.CustomAttributes?
+            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+            .ConstructorArguments?
+            .FirstOrDefault().Value;
+
+        var header =
 $@"using System.ComponentModel.DataAnnotations;
 using {RemoveSuffix($"{type.FullName}", $".{type.Name}")};
 using {nameSpace}.{type.Name}s.Caching;
@@ -119,66 +262,66 @@ namespace {nameSpace}.{type.Name}s.Commands.Add;
 [Map(typeof({type.Name}))]
 public class Add{type.Name}Command : IRequest<Result<long>>
 {{";
-            var body = "";
-            PropertyInfo[] properties = type.GetProperties();
+        var body = "";
+        PropertyInfo[] properties = type.GetProperties();
 
-            string[] ignoreFields = new string[]
+        string[] ignoreFields = new string[]
+        {
+            "Id",
+            "DeletedBy",
+            "Deleted",
+            "CreatedBy",
+            "LastModified",
+            "LastModifiedBy",
+            "LastModifiedBy",
+            "ConcurrencyStamp"
+        };
+
+        // 遍历属性并输出它们的名称和类型
+        foreach (PropertyInfo property in properties)
+        {
+            var propertyTypeName = property.PropertyType.Name;
+            var description = property.CustomAttributes?
+            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+            .ConstructorArguments?
+            .FirstOrDefault().Value;
+            bool isBreak = false;
+            if (property.Name.Contains("Id")) continue;
+            if (ignoreFields.Contains(property.Name)) continue;
+
+            switch (propertyTypeName)
             {
-                "Id",
-                "DeletedBy",
-                "Deleted",
-                "CreatedBy",
-                "LastModified",
-                "LastModifiedBy",
-                "LastModifiedBy",
-                "ConcurrencyStamp"
-            };
-
-            // 遍历属性并输出它们的名称和类型
-            foreach (PropertyInfo property in properties)
-            {
-                var propertyTypeName = property.PropertyType.Name;
-                var description = property.CustomAttributes?
-                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-                .ConstructorArguments?
-                .FirstOrDefault().Value;
-                bool isBreak = false;
-                if (property.Name.Contains("Id")) continue;
-                if (ignoreFields.Contains(property.Name)) continue;
-
-                switch (propertyTypeName)
-                {
-                    case "String":
-                        propertyTypeName = "string";
-                        break;
-                    case "Boolean":
-                        propertyTypeName = "bool";
-                        break;
-                    case "Int32":
-                        propertyTypeName = "int";
-                        break;
-                    case "Int64":
-                        propertyTypeName = "long";
-                        break;
-                    case "DateTime":
-                        propertyTypeName = "DateTime";
-                        break;
-                    case "ICollection`1":
-                        isBreak = true;
-                        break;
-                    case "Nullable`1":
-                        isBreak = true;
-                        break;
-                    case "IReadOnlyCollection`1":
-                        isBreak = true;
-                        break;
-                    default:
-                        isBreak = true;
-                        break;
-                }
-                if (isBreak) continue;
-                body +=
-     $@"
+                case "String":
+                    propertyTypeName = "string";
+                    break;
+                case "Boolean":
+                    propertyTypeName = "bool";
+                    break;
+                case "Int32":
+                    propertyTypeName = "int";
+                    break;
+                case "Int64":
+                    propertyTypeName = "long";
+                    break;
+                case "DateTime":
+                    propertyTypeName = "DateTime";
+                    break;
+                case "ICollection`1":
+                    isBreak = true;
+                    break;
+                case "Nullable`1":
+                    isBreak = true;
+                    break;
+                case "IReadOnlyCollection`1":
+                    isBreak = true;
+                    break;
+                default:
+                    isBreak = true;
+                    break;
+            }
+            if (isBreak) continue;
+            body +=
+ $@"
         
         /// <summary>
         /// {description}
@@ -186,12 +329,12 @@ public class Add{type.Name}Command : IRequest<Result<long>>
         [Description(""{description}"")]
         public {propertyTypeName} {property.Name} {{ get; set; }}";
 
-            }
-            body +=
-    $@"
+        }
+        body +=
+$@"
 }}";
 
-            var footer =
+        var footer =
 $@"
 /// <summary>
 /// 处理程序
@@ -224,26 +367,26 @@ public class Add{type.Name}CommandHandler : IRequestHandler<Add{type.Name}Comman
         return await Result<long>.SuccessOrFailureAsync({type.Name.ToLower()}.Id, isSuccess, new string[] {{ ""操作失败"" }});
     }}
 }}";
-            var code = $"{header}{body}{footer}";
-            using (FileStream fs = System.IO.File.Create(filePath))
-            {
-                byte[] info = new UTF8Encoding(true).GetBytes(code);
-                fs.Write(info, 0, info.Length);
-            }
-            return filePath;
-        }
-
-        public static string GenerateUpdateCommandCode(Type type, string nameSpace, string savePath)
+        var code = $"{header}{body}{footer}";
+        using (FileStream fs = System.IO.File.Create(filePath))
         {
-            savePath = $"{savePath}\\{type.Name}s\\Commands\\Update";
-            Directory.CreateDirectory(savePath);
-            var filePath = $@"{savePath}\Update{type.Name}Command.cs";
-            var desc = type.CustomAttributes?
-                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-                .ConstructorArguments?
-                .FirstOrDefault().Value;
+            byte[] info = new UTF8Encoding(true).GetBytes(code);
+            fs.Write(info, 0, info.Length);
+        }
+        return filePath;
+    }
 
-            var header =
+    public static string GenerateUpdateCommandCode(Type type, string nameSpace, string savePath)
+    {
+        savePath = $"{savePath}\\{type.Name}s\\Commands\\Update";
+        Directory.CreateDirectory(savePath);
+        var filePath = $@"{savePath}\Update{type.Name}Command.cs";
+        var desc = type.CustomAttributes?
+            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+            .ConstructorArguments?
+            .FirstOrDefault().Value;
+
+        var header =
 $@"using {nameSpace}.{type.Name}s.Caching;
 using {RemoveSuffix($"{type.FullName}", $".{type.Name}")};
 using Domain.Entities;
@@ -259,64 +402,64 @@ namespace {nameSpace}.{type.Name}s.Commands.Update;
 public class Update{type.Name}Command : IRequest<Result<long>>
 {{
 ";
-            var body = "";
-            PropertyInfo[] properties = type.GetProperties();
-            string[] ignoreFields = new string[]
-           {
-                "DeletedBy",
-                "Deleted",
-                "CreatedBy",
-                "LastModified",
-                "LastModifiedBy",
-                "LastModifiedBy",
-           };
+        var body = "";
+        PropertyInfo[] properties = type.GetProperties();
+        string[] ignoreFields = new string[]
+       {
+            "DeletedBy",
+            "Deleted",
+            "CreatedBy",
+            "LastModified",
+            "LastModifiedBy",
+            "LastModifiedBy",
+       };
 
-            // 遍历属性并输出它们的名称和类型
-            foreach (PropertyInfo property in properties)
+        // 遍历属性并输出它们的名称和类型
+        foreach (PropertyInfo property in properties)
+        {
+            var propertyTypeName = property.PropertyType.Name;
+            var description = property.CustomAttributes?
+            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+            .ConstructorArguments?
+            .FirstOrDefault().Value;
+            bool isBreak = false;
+            if (ignoreFields.Contains(property.Name)) continue;
+
+            switch (propertyTypeName)
             {
-                var propertyTypeName = property.PropertyType.Name;
-                var description = property.CustomAttributes?
-                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-                .ConstructorArguments?
-                .FirstOrDefault().Value;
-                bool isBreak = false;
-                if (ignoreFields.Contains(property.Name)) continue;
-
-                switch (propertyTypeName)
-                {
-                    case "String":
-                        propertyTypeName = "string";
-                        break;
-                    case "Boolean":
-                        propertyTypeName = "bool";
-                        break;
-                    case "Int32":
-                        propertyTypeName = "int";
-                        break;
-                    case "Int64":
-                        propertyTypeName = "long";
-                        break;
-                    case "DateTime":
-                        propertyTypeName = "DateTime";
-                        break;
-                    case "ICollection`1":
-                        isBreak = true;
-                        break;
-                    case "Nullable`1":
-                        isBreak = true;
-                        break;
-                    case "IReadOnlyCollection`1":
-                        isBreak = true;
-                        break;
-                    default:
-                        isBreak = true;
-                        break;
-                }
-                if (isBreak) continue;
-                if (property.Name == "Id")
-                {
-                    body +=
-     $@"
+                case "String":
+                    propertyTypeName = "string";
+                    break;
+                case "Boolean":
+                    propertyTypeName = "bool";
+                    break;
+                case "Int32":
+                    propertyTypeName = "int";
+                    break;
+                case "Int64":
+                    propertyTypeName = "long";
+                    break;
+                case "DateTime":
+                    propertyTypeName = "DateTime";
+                    break;
+                case "ICollection`1":
+                    isBreak = true;
+                    break;
+                case "Nullable`1":
+                    isBreak = true;
+                    break;
+                case "IReadOnlyCollection`1":
+                    isBreak = true;
+                    break;
+                default:
+                    isBreak = true;
+                    break;
+            }
+            if (isBreak) continue;
+            if (property.Name == "Id")
+            {
+                body +=
+ $@"
         
         /// <summary>
         /// {description}
@@ -324,11 +467,11 @@ public class Update{type.Name}Command : IRequest<Result<long>>
         [Description(""{description}"")]
         public {propertyTypeName} {type.Name}{property.Name} {{ get; set; }}";
 
-                }
-                else
-                {
-                    body +=
-     $@"
+            }
+            else
+            {
+                body +=
+ $@"
         
         /// <summary>
         /// {description}
@@ -336,13 +479,13 @@ public class Update{type.Name}Command : IRequest<Result<long>>
         [Description(""{description}"")]
         public {propertyTypeName} {property.Name} {{ get; set; }}";
 
-                }
             }
-            body +=
-    $@"
+        }
+        body +=
+$@"
 }}";
 
-            var footer = $@"
+        var footer = $@"
 
 /// <summary>
 /// 处理程序
@@ -382,26 +525,26 @@ public class Update{type.Name}CommandHandler : IRequestHandler<Update{type.Name}
 ";
 
 
-            var code = $"{header}{body}{footer}";
-            using (FileStream fs = System.IO.File.Create(filePath))
-            {
-                byte[] info = new UTF8Encoding(true).GetBytes(code);
-                fs.Write(info, 0, info.Length);
-            }
-            return filePath;
-        }
-
-        public static string GenerateDeleteCommandCode(Type type, string nameSpace, string savePath)
+        var code = $"{header}{body}{footer}";
+        using (FileStream fs = System.IO.File.Create(filePath))
         {
-            savePath = $"{savePath}\\{type.Name}s\\Commands\\Delete";
-            Directory.CreateDirectory(savePath);
-            var filePath = $@"{savePath}\Delete{type.Name}Command.cs";
-            var desc = type.CustomAttributes?
-                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-                .ConstructorArguments?
-                .FirstOrDefault().Value;
+            byte[] info = new UTF8Encoding(true).GetBytes(code);
+            fs.Write(info, 0, info.Length);
+        }
+        return filePath;
+    }
 
-            var header =
+    public static string GenerateDeleteCommandCode(Type type, string nameSpace, string savePath)
+    {
+        savePath = $"{savePath}\\{type.Name}s\\Commands\\Delete";
+        Directory.CreateDirectory(savePath);
+        var filePath = $@"{savePath}\Delete{type.Name}Command.cs";
+        var desc = type.CustomAttributes?
+            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+            .ConstructorArguments?
+            .FirstOrDefault().Value;
+
+        var header =
 $@"using {nameSpace}.{type.Name}s.Caching;
 using {RemoveSuffix($"{type.FullName}", $".{type.Name}")};
 using Domain.Entities;
@@ -414,18 +557,18 @@ namespace {nameSpace}.{type.Name}s.Commands.Delete;
 public class Delete{type.Name}Command : IRequest<Result<bool>>
 {{
 ";
-            var body =
+        var body =
 $@"  
         /// <summary>
         /// 唯一标识
         /// </summary>
         [Description(""唯一标识"")]
         public List<long> {type.Name}Ids {{ get; set; }}";
-            body +=
-    $@"
+        body +=
+$@"
 }}";
 
-            var footer = $@"
+        var footer = $@"
 
 /// <summary>
 /// 处理程序
@@ -465,26 +608,26 @@ public class Delete{type.Name}CommandHandler : IRequestHandler<Delete{type.Name}
         return await Result<bool>.FailureAsync(new string[] {{ ""没有找到需要删除的数据"" }});
     }}
 }}";
-            var code = $"{header}{body}{footer}";
-            using (FileStream fs = System.IO.File.Create(filePath))
-            {
-                byte[] info = new UTF8Encoding(true).GetBytes(code);
-                fs.Write(info, 0, info.Length);
-            }
-            return filePath;
-        }
-
-        public static string GenerateDTOsCode(Type type, string nameSpace, string savePath)
+        var code = $"{header}{body}{footer}";
+        using (FileStream fs = System.IO.File.Create(filePath))
         {
-            savePath = $"{savePath}\\{type.Name}s\\DTOs";
-            Directory.CreateDirectory(savePath);
-            var filePath = $@"{savePath}\{type.Name}Dto.cs";
-            var desc = type.CustomAttributes?
-                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-                .ConstructorArguments?
-                .FirstOrDefault().Value;
+            byte[] info = new UTF8Encoding(true).GetBytes(code);
+            fs.Write(info, 0, info.Length);
+        }
+        return filePath;
+    }
 
-            var header =
+    public static string GenerateDTOsCode(Type type, string nameSpace, string savePath)
+    {
+        savePath = $"{savePath}\\{type.Name}s\\DTOs";
+        Directory.CreateDirectory(savePath);
+        var filePath = $@"{savePath}\{type.Name}Dto.cs";
+        var desc = type.CustomAttributes?
+            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+            .ConstructorArguments?
+            .FirstOrDefault().Value;
+
+        var header =
 $@"using Domain.Entities;
 using Domain.Enums;
 using {RemoveSuffix($"{type.FullName}", $".{type.Name}")};
@@ -497,7 +640,7 @@ namespace {nameSpace}.{type.Name}s.DTOs
     {{
 ";
 
-            var body =
+        var body =
 $@"     
         /// <summary>
         /// 唯一标识
@@ -515,70 +658,70 @@ $@"
             }}
         }}";
 
-            PropertyInfo[] properties = type.GetProperties();
-            string[] ignoreFields = new string[]
+        PropertyInfo[] properties = type.GetProperties();
+        string[] ignoreFields = new string[]
+        {
+            "Id",
+            "DeletedBy",
+            "Deleted",
+            "CreatedBy",
+            "LastModified",
+            "LastModifiedBy",
+            "LastModifiedBy",
+            "ConcurrencyStamp"
+        };
+
+        // 遍历属性并输出它们的名称和类型
+        foreach (PropertyInfo property in properties)
+        {
+            var propertyTypeName = property.PropertyType.Name;
+            var description = property.CustomAttributes?
+            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+            .ConstructorArguments?
+            .FirstOrDefault().Value;
+            if (ignoreFields.Contains(property.Name)) continue;
+            if (property.Name.Contains("Id")) continue;
+            if (propertyTypeName == type.Name) continue;
+
+            if (propertyTypeName == "String")
             {
-                "Id",
-                "DeletedBy",
-                "Deleted",
-                "CreatedBy",
-                "LastModified",
-                "LastModifiedBy",
-                "LastModifiedBy",
-                "ConcurrencyStamp"
-            };
-
-            // 遍历属性并输出它们的名称和类型
-            foreach (PropertyInfo property in properties)
+                propertyTypeName = "string";
+            }
+            if (propertyTypeName == "Boolean")
             {
-                var propertyTypeName = property.PropertyType.Name;
-                var description = property.CustomAttributes?
-                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-                .ConstructorArguments?
-                .FirstOrDefault().Value;
-                if (ignoreFields.Contains(property.Name)) continue;
-                if (property.Name.Contains("Id")) continue;
-                if (propertyTypeName == type.Name) continue;
+                propertyTypeName = "bool";
+            }
+            if (propertyTypeName == "Int32")
+            {
+                propertyTypeName = "int";
+            }
+            if (propertyTypeName == "ICollection`1")
+            {
+                continue;
+            }
+            if (propertyTypeName == "IReadOnlyCollection`1")
+            {
+                continue;
+            }
+            if (propertyTypeName == "Nullable`1")
+            {
+                string a = property.ToString();
+                if (property.ToString().Contains("DateTimeOffset"))
+                {
+                    propertyTypeName = "DateTimeOffset";
+                }
+                if (property.ToString().Contains("DateTime"))
+                {
+                    propertyTypeName = "DateTime";
+                }
+                if (property.ToString().Contains("Int64"))
+                {
+                    propertyTypeName = "long";
+                }
+            }
 
-                if (propertyTypeName == "String")
-                {
-                    propertyTypeName = "string";
-                }
-                if (propertyTypeName == "Boolean")
-                {
-                    propertyTypeName = "bool";
-                }
-                if (propertyTypeName == "Int32")
-                {
-                    propertyTypeName = "int";
-                }
-                if (propertyTypeName == "ICollection`1")
-                {
-                    continue;
-                }
-                if (propertyTypeName == "IReadOnlyCollection`1")
-                {
-                    continue;
-                }
-                if (propertyTypeName == "Nullable`1")
-                {
-                    string a = property.ToString();
-                    if (property.ToString().Contains("DateTimeOffset"))
-                    {
-                        propertyTypeName = "DateTimeOffset";
-                    }
-                    if (property.ToString().Contains("DateTime"))
-                    {
-                        propertyTypeName = "DateTime";
-                    }
-                    if (property.ToString().Contains("Int64"))
-                    {
-                        propertyTypeName = "long";
-                    }
-                }
-
-                body +=
-     $@"
+            body +=
+ $@"
         
         /// <summary>
         /// {description}
@@ -586,11 +729,11 @@ $@"
         [Description(""{description}"")]
         public {propertyTypeName}? {property.Name} {{ get; set; }}";
 
-            }
+        }
 
 
 
-            var footer =
+        var footer =
 $@"
 
         /// <summary>
@@ -600,27 +743,27 @@ $@"
         public string? ConcurrencyStamp {{ get; set; }}
     }}
 }}";
-            var code = $"{header}{body}{footer}";
-            using (FileStream fs = System.IO.File.Create(filePath))
-            {
-                byte[] info = new UTF8Encoding(true).GetBytes(code);
-                fs.Write(info, 0, info.Length);
-            }
-            return filePath;
-
-        }
-
-        public static string GenerateEventHandlersCode(Type type, string nameSpace, string savePath)
+        var code = $"{header}{body}{footer}";
+        using (FileStream fs = System.IO.File.Create(filePath))
         {
-            savePath = $"{savePath}\\{type.Name}s\\EventHandlers";
-            Directory.CreateDirectory(savePath);
-            var filePath = $@"{savePath}\{type.Name}CreatedEventHandler.cs";
-            var desc = type.CustomAttributes?
-                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-                .ConstructorArguments?
-                .FirstOrDefault().Value;
+            byte[] info = new UTF8Encoding(true).GetBytes(code);
+            fs.Write(info, 0, info.Length);
+        }
+        return filePath;
 
-            var body =
+    }
+
+    public static string GenerateEventHandlersCode(Type type, string nameSpace, string savePath)
+    {
+        savePath = $"{savePath}\\{type.Name}s\\EventHandlers";
+        Directory.CreateDirectory(savePath);
+        var filePath = $@"{savePath}\{type.Name}CreatedEventHandler.cs";
+        var desc = type.CustomAttributes?
+            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+            .ConstructorArguments?
+            .FirstOrDefault().Value;
+
+        var body =
 $@"using {RemoveSuffix($"{type.FullName}", $".{type.Name}")};
 namespace {nameSpace}.{type.Name}s.EventHandlers;
 
@@ -641,26 +784,26 @@ public class {type.Name}CreatedEventHandler : INotificationHandler<CreatedEvent<
     }}
 }}
 ";
-            var code = $"{body}";
-            using (FileStream fs = System.IO.File.Create(filePath))
-            {
-                byte[] info = new UTF8Encoding(true).GetBytes(code);
-                fs.Write(info, 0, info.Length);
-            }
-            return filePath;
-        }
-
-        public static string GenerateQueriesGetAllCode(Type type, string nameSpace, string savePath)
+        var code = $"{body}";
+        using (FileStream fs = System.IO.File.Create(filePath))
         {
-            savePath = $"{savePath}\\{type.Name}s\\Queries\\GetAll";
-            Directory.CreateDirectory(savePath);
-            var filePath = $@"{savePath}\GetAll{type.Name}Query.cs";
-            var desc = type.CustomAttributes?
-                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-                .ConstructorArguments?
-                .FirstOrDefault().Value;
+            byte[] info = new UTF8Encoding(true).GetBytes(code);
+            fs.Write(info, 0, info.Length);
+        }
+        return filePath;
+    }
 
-            var body =
+    public static string GenerateQueriesGetAllCode(Type type, string nameSpace, string savePath)
+    {
+        savePath = $"{savePath}\\{type.Name}s\\Queries\\GetAll";
+        Directory.CreateDirectory(savePath);
+        var filePath = $@"{savePath}\GetAll{type.Name}Query.cs";
+        var desc = type.CustomAttributes?
+            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+            .ConstructorArguments?
+            .FirstOrDefault().Value;
+
+        var body =
 $@"using {nameSpace}.{type.Name}s.Caching;
 using {nameSpace}.{type.Name}s.DTOs;
 using {RemoveSuffix($"{type.FullName}", $".{type.Name}")};
@@ -697,26 +840,26 @@ public class GetAll{type.Name}sQueryHandler :
 }}
 
 ";
-            var code = $"{body}";
-            using (FileStream fs = System.IO.File.Create(filePath))
-            {
-                byte[] info = new UTF8Encoding(true).GetBytes(code);
-                fs.Write(info, 0, info.Length);
-            }
-            return filePath;
-        }
-
-        public static string GenerateQueriesGetByIdCode(Type type, string nameSpace, string savePath)
+        var code = $"{body}";
+        using (FileStream fs = System.IO.File.Create(filePath))
         {
-            savePath = $"{savePath}\\{type.Name}s\\Queries\\GetById";
-            Directory.CreateDirectory(savePath);
-            var filePath = $@"{savePath}\Get{type.Name}QueryById.cs";
-            var desc = type.CustomAttributes?
-                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-                .ConstructorArguments?
-                .FirstOrDefault().Value;
+            byte[] info = new UTF8Encoding(true).GetBytes(code);
+            fs.Write(info, 0, info.Length);
+        }
+        return filePath;
+    }
 
-            var body =
+    public static string GenerateQueriesGetByIdCode(Type type, string nameSpace, string savePath)
+    {
+        savePath = $"{savePath}\\{type.Name}s\\Queries\\GetById";
+        Directory.CreateDirectory(savePath);
+        var filePath = $@"{savePath}\Get{type.Name}QueryById.cs";
+        var desc = type.CustomAttributes?
+            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+            .ConstructorArguments?
+            .FirstOrDefault().Value;
+
+        var body =
 $@"using Application.Common.Extensions;
 using {RemoveSuffix($"{type.FullName}", $".{type.Name}")};
 using {nameSpace}.{type.Name}s.Caching;
@@ -772,26 +915,26 @@ public class Get{type.Name}ByIdQueryHandler :IRequestHandler<Get{type.Name}Query
     }}
 }}
 ";
-            var code = $"{body}";
-            using (FileStream fs = System.IO.File.Create(filePath))
-            {
-                byte[] info = new UTF8Encoding(true).GetBytes(code);
-                fs.Write(info, 0, info.Length);
-            }
-            return filePath;
-        }
-
-        public static string GenerateQueriesPaginationCode(Type type, string nameSpace, string savePath)
+        var code = $"{body}";
+        using (FileStream fs = System.IO.File.Create(filePath))
         {
-            savePath = $"{savePath}\\{type.Name}s\\Queries\\Pagination";
-            Directory.CreateDirectory(savePath);
-            var filePath = $@"{savePath}\{type.Name}sWithPaginationQuery.cs";
-            var desc = type.CustomAttributes?
-                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-                .ConstructorArguments?
-                .FirstOrDefault().Value;
+            byte[] info = new UTF8Encoding(true).GetBytes(code);
+            fs.Write(info, 0, info.Length);
+        }
+        return filePath;
+    }
 
-            var body =
+    public static string GenerateQueriesPaginationCode(Type type, string nameSpace, string savePath)
+    {
+        savePath = $"{savePath}\\{type.Name}s\\Queries\\Pagination";
+        Directory.CreateDirectory(savePath);
+        var filePath = $@"{savePath}\{type.Name}sWithPaginationQuery.cs";
+        var desc = type.CustomAttributes?
+            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+            .ConstructorArguments?
+            .FirstOrDefault().Value;
+
+        var body =
 $@"using Application.Common.Extensions;
 using {RemoveSuffix($"{type.FullName}", $".{type.Name}")};
 using {nameSpace}.{type.Name}s.Caching;
@@ -848,26 +991,26 @@ public class {type.Name}sWithPaginationQueryHandler :
     }}
 }}
 ";
-            var code = $"{body}";
-            using (FileStream fs = System.IO.File.Create(filePath))
-            {
-                byte[] info = new UTF8Encoding(true).GetBytes(code);
-                fs.Write(info, 0, info.Length);
-            }
-            return filePath;
-        }
-
-        public static string GenerateSpecificationsFilterCode(Type type, string nameSpace, string savePath)
+        var code = $"{body}";
+        using (FileStream fs = System.IO.File.Create(filePath))
         {
-            savePath = $"{savePath}\\{type.Name}s\\Specifications";
-            Directory.CreateDirectory(savePath);
-            var filePath = $@"{savePath}\{type.Name}AdvancedFilter.cs";
-            var desc = type.CustomAttributes?
-                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-                .ConstructorArguments?
-                .FirstOrDefault().Value;
+            byte[] info = new UTF8Encoding(true).GetBytes(code);
+            fs.Write(info, 0, info.Length);
+        }
+        return filePath;
+    }
 
-            var header =
+    public static string GenerateSpecificationsFilterCode(Type type, string nameSpace, string savePath)
+    {
+        savePath = $"{savePath}\\{type.Name}s\\Specifications";
+        Directory.CreateDirectory(savePath);
+        var filePath = $@"{savePath}\{type.Name}AdvancedFilter.cs";
+        var desc = type.CustomAttributes?
+            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+            .ConstructorArguments?
+            .FirstOrDefault().Value;
+
+        var header =
 $@"using {RemoveSuffix($"{type.FullName}", $".{type.Name}")};
 namespace {nameSpace}.{type.Name}s.Specifications;
 
@@ -877,37 +1020,37 @@ namespace {nameSpace}.{type.Name}s.Specifications;
 public class {type.Name}AdvancedFilter : PaginationFilter
 {{";
 
-            var body = $@"";
+        var body = $@"";
 
-            PropertyInfo[] properties = type.GetProperties();
-            string[] ignoreFields = new string[]
+        PropertyInfo[] properties = type.GetProperties();
+        string[] ignoreFields = new string[]
+        {
+            "Id",
+            "DeletedBy",
+            "Deleted",
+            "CreatedBy",
+            "LastModified",
+            "LastModifiedBy",
+            "LastModifiedBy",
+            "ConcurrencyStamp"
+        };
+
+        // 遍历属性并输出它们的名称和类型
+        foreach (PropertyInfo property in properties)
+        {
+            var propertyTypeName = property.PropertyType.Name;
+            var description = property.CustomAttributes?
+            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+            .ConstructorArguments?
+            .FirstOrDefault().Value;
+            if (ignoreFields.Contains(property.Name)) continue;
+            if (property.Name.Contains("Id")) continue;
+            if (propertyTypeName == type.Name) continue;
+
+            if (propertyTypeName == "String")
             {
-                "Id",
-                "DeletedBy",
-                "Deleted",
-                "CreatedBy",
-                "LastModified",
-                "LastModifiedBy",
-                "LastModifiedBy",
-                "ConcurrencyStamp"
-            };
-
-            // 遍历属性并输出它们的名称和类型
-            foreach (PropertyInfo property in properties)
-            {
-                var propertyTypeName = property.PropertyType.Name;
-                var description = property.CustomAttributes?
-                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-                .ConstructorArguments?
-                .FirstOrDefault().Value;
-                if (ignoreFields.Contains(property.Name)) continue;
-                if (property.Name.Contains("Id")) continue;
-                if (propertyTypeName == type.Name) continue;
-
-                if (propertyTypeName == "String")
-                {
-                    propertyTypeName = "string";
-                    body +=
+                propertyTypeName = "string";
+                body +=
 $@"       
     /// <summary>
     /// {description}
@@ -915,11 +1058,11 @@ $@"
     [Description(""{description}"")]
     public {propertyTypeName}? {property.Name} {{ get; set; }}
 ";
-                }
-                if (propertyTypeName == "Boolean")
-                {
-                    propertyTypeName = "bool";
-                    body +=
+            }
+            if (propertyTypeName == "Boolean")
+            {
+                propertyTypeName = "bool";
+                body +=
 $@"       
     /// <summary>
     /// {description}
@@ -927,31 +1070,31 @@ $@"
     [Description(""{description}"")]
     public {propertyTypeName}? {property.Name} {{ get; set; }}
 ";
-                }
             }
-
-            var footer =
-$@"}}";
-            var code = $"{header}{body}{footer}";
-            using (FileStream fs = System.IO.File.Create(filePath))
-            {
-                byte[] info = new UTF8Encoding(true).GetBytes(code);
-                fs.Write(info, 0, info.Length);
-            }
-            return filePath;
         }
 
-        public static string GenerateSpecificationsPaginationSpecCode(Type type, string nameSpace, string savePath)
+        var footer =
+$@"}}";
+        var code = $"{header}{body}{footer}";
+        using (FileStream fs = System.IO.File.Create(filePath))
         {
-            savePath = $"{savePath}\\{type.Name}s\\Specifications";
-            Directory.CreateDirectory(savePath);
-            var filePath = $@"{savePath}\{type.Name}AdvancedPaginationSpec.cs";
-            var desc = type.CustomAttributes?
-                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-                .ConstructorArguments?
-                .FirstOrDefault().Value;
+            byte[] info = new UTF8Encoding(true).GetBytes(code);
+            fs.Write(info, 0, info.Length);
+        }
+        return filePath;
+    }
 
-            var header =
+    public static string GenerateSpecificationsPaginationSpecCode(Type type, string nameSpace, string savePath)
+    {
+        savePath = $"{savePath}\\{type.Name}s\\Specifications";
+        Directory.CreateDirectory(savePath);
+        var filePath = $@"{savePath}\{type.Name}AdvancedPaginationSpec.cs";
+        var desc = type.CustomAttributes?
+            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+            .ConstructorArguments?
+            .FirstOrDefault().Value;
+
+        var header =
 $@"using Ardalis.Specification;
 using {RemoveSuffix($"{type.FullName}", $".{type.Name}")};
 using Masuit.Tools;
@@ -964,74 +1107,74 @@ public class {type.Name}AdvancedPaginationSpec : Specification<{type.Name}>
     {{
         Query";
 
-            var body = $@"";
+        var body = $@"";
 
-            PropertyInfo[] properties = type.GetProperties();
-            string[] ignoreFields = new string[]
+        PropertyInfo[] properties = type.GetProperties();
+        string[] ignoreFields = new string[]
+        {
+            "Id",
+            "DeletedBy",
+            "Deleted",
+            "CreatedBy",
+            "LastModified",
+            "LastModifiedBy",
+            "LastModifiedBy",
+            "ConcurrencyStamp"
+        };
+
+        // 遍历属性并输出它们的名称和类型
+        foreach (PropertyInfo property in properties)
+        {
+            var propertyTypeName = property.PropertyType.Name;
+            var description = property.CustomAttributes?
+            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+            .ConstructorArguments?
+            .FirstOrDefault().Value;
+            if (ignoreFields.Contains(property.Name)) continue;
+            if (property.Name.Contains("Id")) continue;
+            if (propertyTypeName == type.Name) continue;
+
+            if (propertyTypeName == "String")
             {
-                "Id",
-                "DeletedBy",
-                "Deleted",
-                "CreatedBy",
-                "LastModified",
-                "LastModifiedBy",
-                "LastModifiedBy",
-                "ConcurrencyStamp"
-            };
-
-            // 遍历属性并输出它们的名称和类型
-            foreach (PropertyInfo property in properties)
-            {
-                var propertyTypeName = property.PropertyType.Name;
-                var description = property.CustomAttributes?
-                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-                .ConstructorArguments?
-                .FirstOrDefault().Value;
-                if (ignoreFields.Contains(property.Name)) continue;
-                if (property.Name.Contains("Id")) continue;
-                if (propertyTypeName == type.Name) continue;
-
-                if (propertyTypeName == "String")
-                {
-                    propertyTypeName = "string";
-                    body +=
+                propertyTypeName = "string";
+                body +=
 $@"     
             .Where(x => x.{property.Name} == filter.{property.Name}, !filter.{property.Name}.IsNullOrEmpty())
 ";
-                }
-                if (propertyTypeName == "Boolean")
-                {
-                    propertyTypeName = "bool";
-                    body +=
+            }
+            if (propertyTypeName == "Boolean")
+            {
+                propertyTypeName = "bool";
+                body +=
 $@"     
             .Where(x => x.{property.Name}  == filter.{property.Name}, filter.{property.Name}.HasValue)
 ";
-                }
             }
-
-            var footer =
-$@";    }}
-}}";
-            var code = $"{header}{body}{footer}";
-            using (FileStream fs = System.IO.File.Create(filePath))
-            {
-                byte[] info = new UTF8Encoding(true).GetBytes(code);
-                fs.Write(info, 0, info.Length);
-            }
-            return filePath;
         }
 
-        public static string GenerateSpecificationsByIdSpecCode(Type type, string nameSpace, string savePath)
+        var footer =
+$@";    }}
+}}";
+        var code = $"{header}{body}{footer}";
+        using (FileStream fs = System.IO.File.Create(filePath))
         {
-            savePath = $"{savePath}\\{type.Name}s\\Specifications";
-            Directory.CreateDirectory(savePath);
-            var filePath = $@"{savePath}\{type.Name}ByIdSpec.cs";
-            var desc = type.CustomAttributes?
-                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-                .ConstructorArguments?
-                .FirstOrDefault().Value;
+            byte[] info = new UTF8Encoding(true).GetBytes(code);
+            fs.Write(info, 0, info.Length);
+        }
+        return filePath;
+    }
 
-            var body =
+    public static string GenerateSpecificationsByIdSpecCode(Type type, string nameSpace, string savePath)
+    {
+        savePath = $"{savePath}\\{type.Name}s\\Specifications";
+        Directory.CreateDirectory(savePath);
+        var filePath = $@"{savePath}\{type.Name}ByIdSpec.cs";
+        var desc = type.CustomAttributes?
+            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+            .ConstructorArguments?
+            .FirstOrDefault().Value;
+
+        var body =
 $@"using Ardalis.Specification;
 using {RemoveSuffix($"{type.FullName}", $".{type.Name}")};
 
@@ -1045,42 +1188,42 @@ public class {type.Name}ByIdSpec : Specification<{type.Name}>
     }}
 }}
 ";
-            var code = $"{body}";
-            using (FileStream fs = System.IO.File.Create(filePath))
-            {
-                byte[] info = new UTF8Encoding(true).GetBytes(code);
-                fs.Write(info, 0, info.Length);
-            }
-            return filePath;
+        var code = $"{body}";
+        using (FileStream fs = System.IO.File.Create(filePath))
+        {
+            byte[] info = new UTF8Encoding(true).GetBytes(code);
+            fs.Write(info, 0, info.Length);
+        }
+        return filePath;
+    }
+
+    public static string GenerateControllerCode(Type type, string nameSpace, string savePath)
+    {
+        string fullPath = savePath;
+        string targetSubstring = "Onion\\src";
+        // 找到目标子字符串的索引
+        int index = fullPath.IndexOf(targetSubstring);
+        if (index != -1)
+        {
+            // 截取目标子字符串之前的部分
+            fullPath = fullPath.Substring(0, index);
         }
 
-        public static string GenerateControllerCode(Type type, string nameSpace, string savePath)
-        {
-            string fullPath = savePath;
-            string targetSubstring = "Onion\\src";
-            // 找到目标子字符串的索引
-            int index = fullPath.IndexOf(targetSubstring);
-            if (index != -1)
-            {
-                // 截取目标子字符串之前的部分
-                fullPath = fullPath.Substring(0, index);
-            }
+        savePath = $"{fullPath}{targetSubstring}\\WebAPI\\Controllers";
+        Directory.CreateDirectory(savePath);
+        var filePath = $@"{savePath}\\{type.Name}Controller.cs";
+        var desc = type.CustomAttributes?
+            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+            .ConstructorArguments?
+            .FirstOrDefault().Value;
 
-            savePath = $"{fullPath}{targetSubstring}\\WebAPI\\Controllers";
-            Directory.CreateDirectory(savePath);
-            var filePath = $@"{savePath}\\{type.Name}Controller.cs";
-            var desc = type.CustomAttributes?
-                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-                .ConstructorArguments?
-                .FirstOrDefault().Value;
-
-            var body =
+        var body =
 $@"using {nameSpace}.{type.Name}s.DTOs;
 using {nameSpace}.{type.Name}s.Commands.Add;
 using {nameSpace}.{type.Name}s.Commands.Delete;
 using {nameSpace}.{type.Name}s.Commands.Update;
 using {nameSpace}.{type.Name}s.Queries.Pagination;
-using {RemoveSuffix($"{type.FullName}",$".{type.Name}")};
+using {RemoveSuffix($"{type.FullName}", $".{type.Name}")};
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers;
@@ -1133,66 +1276,66 @@ public class {type.Name}Controller : ApiControllerBase
     }}
 }}
 ";
-            var code = $"{body}";
-            using (FileStream fs = System.IO.File.Create(filePath))
-            {
-                byte[] info = new UTF8Encoding(true).GetBytes(code);
-                fs.Write(info, 0, info.Length);
-            }
-            return filePath;
+        var code = $"{body}";
+        using (FileStream fs = System.IO.File.Create(filePath))
+        {
+            byte[] info = new UTF8Encoding(true).GetBytes(code);
+            fs.Write(info, 0, info.Length);
         }
+        return filePath;
     }
+}
 
-    /// <summary>
-    /// 生成前端Vue代码
-    /// </summary>
-    public class GenerateCodeVue
+/// <summary>
+/// 生成前端Vue代码
+/// </summary>
+public class GenerateCodeVue
+{
+    public static string FirstCharToLowerCase(string input)
     {
-        public static string FirstCharToLowerCase(string input)
-        {
-            if (string.IsNullOrEmpty(input))
-                return input;
+        if (string.IsNullOrEmpty(input))
+            return input;
 
-            char[] chars = input.ToCharArray();
-            chars[0] = char.ToLower(chars[0]);
-            return new string(chars);
-        }
-        public static Type GetTypeByFullClassName(string fullClassName = "Domain.Entities.Identity.User")
-        {
-            string className = fullClassName;
-            Assembly assembly = Assembly.Load(className.Split('.')[0].ToString());
-            return assembly.GetType(className)!;
-        }
-        public static string GenerateApiCode(Type type, string nameSpace, string savePath)
-        {
-            string[] folders = savePath.Split(Path.DirectorySeparatorChar);
-            string lastFolder = folders[folders.Length - 1];
+        char[] chars = input.ToCharArray();
+        chars[0] = char.ToLower(chars[0]);
+        return new string(chars);
+    }
+    public static Type GetTypeByFullClassName(string fullClassName = "Domain.Entities.Identity.User")
+    {
+        string className = fullClassName;
+        Assembly assembly = Assembly.Load(className.Split('.')[0].ToString());
+        return assembly.GetType(className)!;
+    }
+    public static string GenerateApiCode(Type type, string nameSpace, string savePath)
+    {
+        string[] folders = savePath.Split(Path.DirectorySeparatorChar);
+        string lastFolder = folders[folders.Length - 1];
 
-            if (savePath.Contains("Onion\\src"))
+        if (savePath.Contains("Onion\\src"))
+        {
+            string fullPath = savePath;
+            string targetSubstring = "Onion\\src";
+            // 找到目标子字符串的索引
+            int index = fullPath.IndexOf(targetSubstring);
+            if (index != -1)
             {
-                string fullPath = savePath;
-                string targetSubstring = "Onion\\src";
-                // 找到目标子字符串的索引
-                int index = fullPath.IndexOf(targetSubstring);
-                if (index != -1)
-                {
-                    // 截取目标子字符串之前的部分
-                    fullPath = fullPath.Substring(0, index);
-                }
-                savePath = $"{fullPath}\\{targetSubstring}\\UI\\src\\api\\{lastFolder}";
+                // 截取目标子字符串之前的部分
+                fullPath = fullPath.Substring(0, index);
             }
-            else 
-            {
-                savePath = $"{savePath}\\api\\";
-            }
-            Directory.CreateDirectory(savePath);
-            var filePath = $@"{savePath}\\{type.Name.ToLower()}.ts";
-            var desc = type.CustomAttributes?
-                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-                .ConstructorArguments?
-                .FirstOrDefault().Value;
+            savePath = $"{fullPath}\\{targetSubstring}\\UI\\src\\api\\{lastFolder}";
+        }
+        else
+        {
+            savePath = $"{savePath}\\api\\";
+        }
+        Directory.CreateDirectory(savePath);
+        var filePath = $@"{savePath}\\{type.Name.ToLower()}.ts";
+        var desc = type.CustomAttributes?
+            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+            .ConstructorArguments?
+            .FirstOrDefault().Value;
 
-            var body =
+        var body =
 $@"
 import {{ http }} from ""@/utils/http"";
 
@@ -1255,54 +1398,54 @@ export const onbatchDelete{type.Name} = (data?: object) => {{
   }});
 }};
 ";
-            var code = $"{body}";
-            using (FileStream fs = System.IO.File.Create(filePath))
-            {
-                byte[] info = new UTF8Encoding(true).GetBytes(code);
-                fs.Write(info, 0, info.Length);
-            }
-            return filePath;
-        }
-        public static string GenerateHookCode(Type type, string nameSpace, string savePath) 
+        var code = $"{body}";
+        using (FileStream fs = System.IO.File.Create(filePath))
         {
-            string[] folders = savePath.Split(Path.DirectorySeparatorChar);
-            string lastFolder = folders[folders.Length - 1];
+            byte[] info = new UTF8Encoding(true).GetBytes(code);
+            fs.Write(info, 0, info.Length);
+        }
+        return filePath;
+    }
+    public static string GenerateHookCode(Type type, string nameSpace, string savePath)
+    {
+        string[] folders = savePath.Split(Path.DirectorySeparatorChar);
+        string lastFolder = folders[folders.Length - 1];
 
-            string fullPath = savePath;
-            savePath = $"{fullPath}\\{type.Name.ToLower()}\\utils";
-            Directory.CreateDirectory(savePath);
-            var filePath = $@"{savePath}\\hook.tsx";
-            var desc = type.CustomAttributes?
-                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-                .ConstructorArguments?
-                .FirstOrDefault().Value;
+        string fullPath = savePath;
+        savePath = $"{fullPath}\\{type.Name.ToLower()}\\utils";
+        Directory.CreateDirectory(savePath);
+        var filePath = $@"{savePath}\\hook.tsx";
+        var desc = type.CustomAttributes?
+            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+            .ConstructorArguments?
+            .FirstOrDefault().Value;
 
-            var import = "";//引入组件
-            var hookFunction = "";//Hook功能
-            var constDefineHeader = "";//常量头部
-            var constDefineBody = "";//常量主体
-            var constDefineFooter = "";//常量尾部
-            var onSearch = "";//分页查询
-            var resetFormSearch = "";//重置查询
-            var sizeChange = "";  //改变页码大小
-            var currentChange = "";//跳到指定页码
-            var columnsHeader = "";//数据列表行头部
-            var columnsBody = "";//数据列表行主体
-            var columnsFooter = "";//数据列表行尾部
-            var onMounted = "";//生命周期钩子函数
-            var openDialogHeader = "";//新增或修改
-            var openDialogBody = "";//新增或修改
-            var openDialogFooter = "";//新增或修改
-            var delete = "";//删除
-            var onbatchDel = "";//批量删除
-            var selectionChangeNum = "";//选择行
-            var selectionCancel = "";//取消选择
-            var defineFunction = "";//自定义函数
-            var buttonClass = "";//按钮样式
-            var returnFunction = "";//返回功能
+        var import = "";//引入组件
+        var hookFunction = "";//Hook功能
+        var constDefineHeader = "";//常量头部
+        var constDefineBody = "";//常量主体
+        var constDefineFooter = "";//常量尾部
+        var onSearch = "";//分页查询
+        var resetFormSearch = "";//重置查询
+        var sizeChange = "";  //改变页码大小
+        var currentChange = "";//跳到指定页码
+        var columnsHeader = "";//数据列表行头部
+        var columnsBody = "";//数据列表行主体
+        var columnsFooter = "";//数据列表行尾部
+        var onMounted = "";//生命周期钩子函数
+        var openDialogHeader = "";//新增或修改
+        var openDialogBody = "";//新增或修改
+        var openDialogFooter = "";//新增或修改
+        var delete = "";//删除
+        var onbatchDel = "";//批量删除
+        var selectionChangeNum = "";//选择行
+        var selectionCancel = "";//取消选择
+        var defineFunction = "";//自定义函数
+        var buttonClass = "";//按钮样式
+        var returnFunction = "";//返回功能
 
-            //引入组件
-            import =
+        //引入组件
+        import =
 $@"
 //引入组件
 import dayjs from ""dayjs"";
@@ -1322,80 +1465,80 @@ import editForm from ""../form/index.vue"";
 import {{ type Ref, h, ref, toRaw, computed, reactive, onMounted }} from ""vue"";
 import {{ getAuths }} from ""@/router/utils"";";
 
-            //Hook功能
-            hookFunction = 
+        //Hook功能
+        hookFunction =
 $@"
 //功能
 export function useTestTable(tableRef: Ref, treeRef: Ref) {{
 ";
-            constDefineHeader = 
+        constDefineHeader =
 $@"  //常量
   const form = reactive({{
 ";
-            constDefineBody = $@"";
-            PropertyInfo[] properties = type.GetProperties();
+        constDefineBody = $@"";
+        PropertyInfo[] properties = type.GetProperties();
 
-            string[] ignoreFields = new string[]
+        string[] ignoreFields = new string[]
+        {
+            "Id",
+            "DeletedBy",
+            "Deleted",
+            "CreatedBy",
+            "LastModified",
+            "LastModifiedBy",
+            "LastModifiedBy",
+            "ConcurrencyStamp"
+        };
+
+        // 遍历属性并输出它们的名称和类型
+        foreach (PropertyInfo property in properties)
+        {
+            var propertyTypeName = property.PropertyType.Name;
+            var description = property.CustomAttributes?
+            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+            .ConstructorArguments?
+            .FirstOrDefault().Value;
+            bool isBreak = false;
+            if (property.Name.Contains("Id")) continue;
+            if (ignoreFields.Contains(property.Name)) continue;
+
+            switch (propertyTypeName)
             {
-                "Id",
-                "DeletedBy",
-                "Deleted",
-                "CreatedBy",
-                "LastModified",
-                "LastModifiedBy",
-                "LastModifiedBy",
-                "ConcurrencyStamp"
-            };
-
-            // 遍历属性并输出它们的名称和类型
-            foreach (PropertyInfo property in properties)
-            {
-                var propertyTypeName = property.PropertyType.Name;
-                var description = property.CustomAttributes?
-                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-                .ConstructorArguments?
-                .FirstOrDefault().Value;
-                bool isBreak = false;
-                if (property.Name.Contains("Id")) continue;
-                if (ignoreFields.Contains(property.Name)) continue;
-
-                switch (propertyTypeName)
-                {
-                    case "String":
-                        propertyTypeName = @"""""";
-                        break;
-                    case "Boolean":
-                        propertyTypeName = @"null";
-                        break;
-                    case "Int32":
-                        propertyTypeName = @"0";
-                        break;
-                    case "Int64":
-                        propertyTypeName = @"0";
-                        break;
-                    case "DateTime":
-                        isBreak = true;
-                        break;
-                    case "ICollection`1":
-                        isBreak = true;
-                        break;
-                    case "Nullable`1":
-                        isBreak = true;
-                        break;
-                    case "IReadOnlyCollection`1":
-                        isBreak = true;
-                        break;
-                    default:
-                        isBreak = true;
-                        break;
-                }
-                if (isBreak) continue;
-                constDefineBody +=
+                case "String":
+                    propertyTypeName = @"""""";
+                    break;
+                case "Boolean":
+                    propertyTypeName = @"null";
+                    break;
+                case "Int32":
+                    propertyTypeName = @"0";
+                    break;
+                case "Int64":
+                    propertyTypeName = @"0";
+                    break;
+                case "DateTime":
+                    isBreak = true;
+                    break;
+                case "ICollection`1":
+                    isBreak = true;
+                    break;
+                case "Nullable`1":
+                    isBreak = true;
+                    break;
+                case "IReadOnlyCollection`1":
+                    isBreak = true;
+                    break;
+                default:
+                    isBreak = true;
+                    break;
+            }
+            if (isBreak) continue;
+            constDefineBody +=
 $@"
     {FirstCharToLowerCase(property.Name)}: {propertyTypeName},
 ";
-            }
-            constDefineFooter = 
+        }
+        constDefineFooter =
 $@"
     orderBy: ""Id"",
     sortDirection: ""Descending"",
@@ -1415,7 +1558,7 @@ $@"
     background: true
   }});
 ";
-            onSearch = 
+        onSearch =
 $@"  
   //分页查询
   async function onSearch() {{
@@ -1430,7 +1573,7 @@ $@"
     }}, 500);
   }}
 ";
-            resetFormSearch = 
+        resetFormSearch =
 $@"
   //重置查询
   const resetForm = formEl => {{
@@ -1440,7 +1583,7 @@ $@"
     onSearch();
   }};
 ";
-            sizeChange = 
+        sizeChange =
 $@"
   //改变页码大小
   function handleSizeChange(val: number) {{
@@ -1448,14 +1591,14 @@ $@"
     onSearch();
   }}
 ";
-            currentChange = 
+        currentChange =
 $@"  
   //跳到指定页码
   function handleCurrentChange(val: number) {{
     form.pageNumber = val;
     onSearch();
   }}";
-            columnsHeader = 
+        columnsHeader =
 $@"
   //数据列表行
   const columns: TableColumnList = [
@@ -1480,22 +1623,22 @@ $@"
       }}
     }},
 ";
-            // 遍历属性并输出它们的名称和类型
-            foreach (PropertyInfo property in properties)
-            {
-                var propertyTypeName = property.PropertyType.Name;
-                var description = property.CustomAttributes?
-                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-                .ConstructorArguments?
-                .FirstOrDefault().Value;
-                bool isBreak = false;
-                if (property.Name.Contains("Id")) continue;
-                if (ignoreFields.Contains(property.Name)) continue;
+        // 遍历属性并输出它们的名称和类型
+        foreach (PropertyInfo property in properties)
+        {
+            var propertyTypeName = property.PropertyType.Name;
+            var description = property.CustomAttributes?
+            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+            .ConstructorArguments?
+            .FirstOrDefault().Value;
+            bool isBreak = false;
+            if (property.Name.Contains("Id")) continue;
+            if (ignoreFields.Contains(property.Name)) continue;
 
-                switch (propertyTypeName)
-                {
-                    case "String":
-                        columnsBody +=
+            switch (propertyTypeName)
+            {
+                case "String":
+                    columnsBody +=
 $@"
     {{
       label: ""{description}"",
@@ -1503,9 +1646,9 @@ $@"
       minWidth: 100
     }},
 ";
-                        break;
-                    case "Boolean":
-                        columnsBody +=
+                    break;
+                case "Boolean":
+                    columnsBody +=
 $@"
     {{
       label: ""{description}"",
@@ -1527,7 +1670,7 @@ $@"
       )
     }},
 ";
-                        defineFunction += 
+                    defineFunction +=
 $@"
   //数据列表自定义生成函数
   async function handle{property.Name}OnChange(row) {{
@@ -1536,9 +1679,9 @@ $@"
 
 ";
 
-                        break;
-                    case "Int32":
-                        columnsBody +=
+                    break;
+                case "Int32":
+                    columnsBody +=
 $@"
     {{
       label: ""{description}"",
@@ -1546,11 +1689,11 @@ $@"
       prop: ""{FirstCharToLowerCase(property.Name)}"",
     }},
 ";
-                        break;
-                    case "Int64":
-                        if (property.Name == "Id")
-                        {
-                            columnsBody +=
+                    break;
+                case "Int64":
+                    if (property.Name == "Id")
+                    {
+                        columnsBody +=
 $@"
     {{
       label: ""编号"",
@@ -1567,10 +1710,10 @@ $@"
       }}
     }},
 ";
-                        }
-                        else 
-                        {
-                            columnsBody +=
+                    }
+                    else
+                    {
+                        columnsBody +=
 $@"
     {{
       label: ""{description}"",
@@ -1578,10 +1721,10 @@ $@"
       minWidth: 100
     }},
 ";
-                        }
-                        break;
-                    case "DateTime":
-                        columnsBody +=
+                    }
+                    break;
+                case "DateTime":
+                    columnsBody +=
 $@"
     {{
       label: ""{description}"",
@@ -1590,14 +1733,14 @@ $@"
       formatter: ({{ {FirstCharToLowerCase(property.Name)} }}) => dayjs({FirstCharToLowerCase(property.Name)}).format(""YYYY-MM-DD HH:mm:ss"")
     }},
 ";
-                        break;
-                    default:
-                        break;
-                }
-
+                    break;
+                default:
+                    break;
             }
 
-            columnsFooter = 
+        }
+
+        columnsFooter =
 $@"    
     {{
       label: ""操作"",
@@ -1611,14 +1754,14 @@ $@"
       }}
     }}
   ];";
-            onMounted += 
+        onMounted +=
 $@"
   //生命周期钩子函数
   onMounted(async () => {{
     onSearch();
   }});
 ";
-            openDialogHeader += 
+        openDialogHeader +=
 $@"
   /** 新增或修改 */
   async function openDialog(title = ""新增"", row?: FormItemProps) {{
@@ -1629,56 +1772,56 @@ $@"
           title,
           {FirstCharToLowerCase(type.Name)}Id: row?.{FirstCharToLowerCase(type.Name)}Id ?? """",
 ";
-            // 遍历属性并输出它们的名称和类型
-            foreach (PropertyInfo property in properties)
-            {
-                var propertyTypeName = property.PropertyType.Name;
-                var description = property.CustomAttributes?
-                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-                .ConstructorArguments?
-                .FirstOrDefault().Value;
-                if (property.Name.Contains("Id")) continue;
-                if (ignoreFields.Contains(property.Name)) continue;
+        // 遍历属性并输出它们的名称和类型
+        foreach (PropertyInfo property in properties)
+        {
+            var propertyTypeName = property.PropertyType.Name;
+            var description = property.CustomAttributes?
+            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+            .ConstructorArguments?
+            .FirstOrDefault().Value;
+            if (property.Name.Contains("Id")) continue;
+            if (ignoreFields.Contains(property.Name)) continue;
 
-                switch (propertyTypeName)
-                {
-                    case "String":
-                        openDialogBody +=
+            switch (propertyTypeName)
+            {
+                case "String":
+                    openDialogBody +=
 $@"
           {FirstCharToLowerCase(property.Name)}: row?.{FirstCharToLowerCase(property.Name)} ?? """",
 ";
-                        break;
-                    case "Boolean":
-                        openDialogBody +=
+                    break;
+                case "Boolean":
+                    openDialogBody +=
 $@"
           {FirstCharToLowerCase(property.Name)}: row?.{FirstCharToLowerCase(property.Name)} ?? true,
 ";
-                        break;
-                    case "Int32":
-                        openDialogBody +=
+                    break;
+                case "Int32":
+                    openDialogBody +=
 $@"
           {FirstCharToLowerCase(property.Name)}: row?.{FirstCharToLowerCase(property.Name)} ?? 0,
 ";
-                        break;
-                    case "Int64":
-                        openDialogBody +=
+                    break;
+                case "Int64":
+                    openDialogBody +=
 $@"
           {FirstCharToLowerCase(property.Name)}: row?.{FirstCharToLowerCase(property.Name)} ?? null,
 ";
-                        break;
-                    case "DateTime":
-                        openDialogBody +=
+                    break;
+                case "DateTime":
+                    openDialogBody +=
 $@"
           {FirstCharToLowerCase(property.Name)}: row?.{FirstCharToLowerCase(property.Name)} ?? null,
 ";
-                        break;
-                    default:
-                        break;
-                }
+                    break;
+                default:
+                    break;
             }
+        }
 
 
-            openDialogFooter += 
+        openDialogFooter +=
 $@"
           concurrencyStamp: row?.concurrencyStamp ?? """"
         }}
@@ -1711,7 +1854,7 @@ $@"
     }});
   }}
 ";
-            delete += 
+        delete +=
 $@"
   //删除
   async function handleDelete(row) {{
@@ -1720,7 +1863,7 @@ $@"
     onSearch();
   }}
 ";
-            onbatchDel += 
+        onbatchDel +=
 $@"
   /** 批量删除 */
   async function onbatchDel() {{
@@ -1731,7 +1874,7 @@ $@"
     tableRef.value.getTableRef().clearSelection();
   }}
 ";
-            selectionChangeNum += 
+        selectionChangeNum +=
 $@"
   /** 选择行 */
   function handleSelectionChange(val) {{
@@ -1740,7 +1883,7 @@ $@"
     tableRef.value.setAdaptive();
   }}
 ";
-            selectionCancel += 
+        selectionCancel +=
 $@"
   /** 取消选择 */
   function onSelectionCancel() {{
@@ -1749,7 +1892,7 @@ $@"
     tableRef.value.getTableRef().clearSelection();
   }}
 ";
-            buttonClass += 
+        buttonClass +=
 $@"
   //按钮样式类
   const buttonClass = computed(() => {{
@@ -1762,7 +1905,7 @@ $@"
     ];
   }});
 ";
-            returnFunction += 
+        returnFunction +=
 $@"
   //返回数据
   return {{
@@ -1785,264 +1928,264 @@ $@"
   }};
 }}
 ";
-            var header = import;
-            var body = $@"" +
-                $"" +
-                $"{hookFunction}" +
-                $"{constDefineHeader}" +
-                $"{constDefineBody}" +
-                $"{constDefineFooter}" +
-                $"{onSearch}" +
-                $"{resetFormSearch}" +
-                $"{sizeChange}" +
-                $"{currentChange}" +
-                $"{columnsHeader}" +
-                $"{columnsBody}" +
-                $"{columnsFooter}" +
-                $"{onMounted}" +
-                $"{openDialogHeader}" +
-                $"{openDialogBody}" +
-                $"{openDialogFooter}" +
-                $"{delete}" +
-                $"{onbatchDel}" +
-                $"{selectionChangeNum}" +
-                $"{selectionCancel}" +
-                $"{defineFunction}" +
-                $"{buttonClass}";
-            var footer = returnFunction;
-            var code = $"{header}{body}{footer}";
-            using (FileStream fs = System.IO.File.Create(filePath))
-            {
-                byte[] info = new UTF8Encoding(true).GetBytes(code);
-                fs.Write(info, 0, info.Length);
-            }
-            return filePath;
-        }
-        public static string GenerateRuleCode(Type type, string nameSpace, string savePath)
+        var header = import;
+        var body = $@"" +
+            $"" +
+            $"{hookFunction}" +
+            $"{constDefineHeader}" +
+            $"{constDefineBody}" +
+            $"{constDefineFooter}" +
+            $"{onSearch}" +
+            $"{resetFormSearch}" +
+            $"{sizeChange}" +
+            $"{currentChange}" +
+            $"{columnsHeader}" +
+            $"{columnsBody}" +
+            $"{columnsFooter}" +
+            $"{onMounted}" +
+            $"{openDialogHeader}" +
+            $"{openDialogBody}" +
+            $"{openDialogFooter}" +
+            $"{delete}" +
+            $"{onbatchDel}" +
+            $"{selectionChangeNum}" +
+            $"{selectionCancel}" +
+            $"{defineFunction}" +
+            $"{buttonClass}";
+        var footer = returnFunction;
+        var code = $"{header}{body}{footer}";
+        using (FileStream fs = System.IO.File.Create(filePath))
         {
-            string fullPath = savePath;
-            savePath = $"{fullPath}\\{type.Name.ToLower()}\\utils";
-            Directory.CreateDirectory(savePath);
-            var filePath = $@"{savePath}\\rule.ts";
-            var desc = type.CustomAttributes?
-                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-                .ConstructorArguments?
-                .FirstOrDefault().Value;
+            byte[] info = new UTF8Encoding(true).GetBytes(code);
+            fs.Write(info, 0, info.Length);
+        }
+        return filePath;
+    }
+    public static string GenerateRuleCode(Type type, string nameSpace, string savePath)
+    {
+        string fullPath = savePath;
+        savePath = $"{fullPath}\\{type.Name.ToLower()}\\utils";
+        Directory.CreateDirectory(savePath);
+        var filePath = $@"{savePath}\\rule.ts";
+        var desc = type.CustomAttributes?
+            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+            .ConstructorArguments?
+            .FirstOrDefault().Value;
 
-            var header =
+        var header =
 $@"import {{ reactive }} from ""vue"";
 import type {{ FormRules }} from ""element-plus"";
 
 /** 自定义表单规则校验 */
 export const formRules = reactive(<FormRules>{{";
-            var body = "";
-            PropertyInfo[] properties = type.GetProperties();
+        var body = "";
+        PropertyInfo[] properties = type.GetProperties();
 
-            string[] ignoreFields = new string[]
+        string[] ignoreFields = new string[]
+        {
+            "Id",
+            "DeletedBy",
+            "Deleted",
+            "CreatedBy",
+            "LastModified",
+            "LastModifiedBy",
+            "LastModifiedBy",
+            "ConcurrencyStamp"
+        };
+
+        // 遍历属性并输出它们的名称和类型
+        foreach (PropertyInfo property in properties)
+        {
+            var propertyTypeName = property.PropertyType.Name;
+            var description = property.CustomAttributes?
+            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+            .ConstructorArguments?
+            .FirstOrDefault().Value;
+            bool isBreak = false;
+            if (property.Name.Contains("Id")) continue;
+            if (ignoreFields.Contains(property.Name)) continue;
+
+            switch (propertyTypeName)
             {
-                "Id",
-                "DeletedBy",
-                "Deleted",
-                "CreatedBy",
-                "LastModified",
-                "LastModifiedBy",
-                "LastModifiedBy",
-                "ConcurrencyStamp"
-            };
-
-            // 遍历属性并输出它们的名称和类型
-            foreach (PropertyInfo property in properties)
-            {
-                var propertyTypeName = property.PropertyType.Name;
-                var description = property.CustomAttributes?
-                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-                .ConstructorArguments?
-                .FirstOrDefault().Value;
-                bool isBreak = false;
-                if (property.Name.Contains("Id")) continue;
-                if (ignoreFields.Contains(property.Name)) continue;
-
-                switch (propertyTypeName)
-                {
-                    case "String":
-                        propertyTypeName = "string";
-                        break;
-                    case "Boolean":
-                        isBreak = true;
-                        break;
-                    case "Int32":
-                        isBreak = true;
-                        break;
-                    case "Int64":
-                        isBreak = true;
-                        break;
-                    case "DateTime":
-                        isBreak = true;
-                        break;
-                    case "ICollection`1":
-                        isBreak = true;
-                        break;
-                    case "Nullable`1":
-                        isBreak = true;
-                        break;
-                    case "IReadOnlyCollection`1":
-                        isBreak = true;
-                        break;
-                    default:
-                        isBreak = true;
-                        break;
-                }
-                if (isBreak) continue;
-                body +=
-     $@"
+                case "String":
+                    propertyTypeName = "string";
+                    break;
+                case "Boolean":
+                    isBreak = true;
+                    break;
+                case "Int32":
+                    isBreak = true;
+                    break;
+                case "Int64":
+                    isBreak = true;
+                    break;
+                case "DateTime":
+                    isBreak = true;
+                    break;
+                case "ICollection`1":
+                    isBreak = true;
+                    break;
+                case "Nullable`1":
+                    isBreak = true;
+                    break;
+                case "IReadOnlyCollection`1":
+                    isBreak = true;
+                    break;
+                default:
+                    isBreak = true;
+                    break;
+            }
+            if (isBreak) continue;
+            body +=
+ $@"
   {FirstCharToLowerCase(property.Name)}: [{{ required: true, message: ""{description}为必填项"", trigger: ""blur"" }}],
 ";
-            }
+        }
 
-            body +=
+        body +=
 $@"";
 
-            var footer =
+        var footer =
 $@"}});";
-            var code = $"{header}{body}{footer}";
-            using (FileStream fs = System.IO.File.Create(filePath))
-            {
-                byte[] info = new UTF8Encoding(true).GetBytes(code);
-                fs.Write(info, 0, info.Length);
-            }
-            return filePath;
-        }
-        public static string GenerateTypesCode(Type type, string nameSpace, string savePath)
+        var code = $"{header}{body}{footer}";
+        using (FileStream fs = System.IO.File.Create(filePath))
         {
-            string fullPath = savePath;
-            savePath = $"{fullPath}\\{type.Name.ToLower()}\\utils";
-            Directory.CreateDirectory(savePath);
-            var filePath = $@"{savePath}\\types.ts";
-            var desc = type.CustomAttributes?
-                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-                .ConstructorArguments?
-                .FirstOrDefault().Value;
+            byte[] info = new UTF8Encoding(true).GetBytes(code);
+            fs.Write(info, 0, info.Length);
+        }
+        return filePath;
+    }
+    public static string GenerateTypesCode(Type type, string nameSpace, string savePath)
+    {
+        string fullPath = savePath;
+        savePath = $"{fullPath}\\{type.Name.ToLower()}\\utils";
+        Directory.CreateDirectory(savePath);
+        var filePath = $@"{savePath}\\types.ts";
+        var desc = type.CustomAttributes?
+            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+            .ConstructorArguments?
+            .FirstOrDefault().Value;
 
-            var header =
+        var header =
 $@"interface FormItemProps {{
   {FirstCharToLowerCase(type.Name)}Id?: string;
   /** 用于判断是`新增`还是`修改` */
   title: string;";
-            var body = "";
-            PropertyInfo[] properties = type.GetProperties();
+        var body = "";
+        PropertyInfo[] properties = type.GetProperties();
 
-            string[] ignoreFields = new string[]
+        string[] ignoreFields = new string[]
+        {
+            "Id",
+            "DeletedBy",
+            "Deleted",
+            "CreatedBy",
+            "LastModified",
+            "LastModifiedBy",
+            "LastModifiedBy",
+            "ConcurrencyStamp"
+        };
+
+        // 遍历属性并输出它们的名称和类型
+        foreach (PropertyInfo property in properties)
+        {
+            var propertyTypeName = property.PropertyType.Name;
+            var description = property.CustomAttributes?
+            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+            .ConstructorArguments?
+            .FirstOrDefault().Value;
+            bool isBreak = false;
+            if (property.Name.Contains("Id")) continue;
+            if (ignoreFields.Contains(property.Name)) continue;
+
+            switch (propertyTypeName)
             {
-                "Id",
-                "DeletedBy",
-                "Deleted",
-                "CreatedBy",
-                "LastModified",
-                "LastModifiedBy",
-                "LastModifiedBy",
-                "ConcurrencyStamp"
-            };
-
-            // 遍历属性并输出它们的名称和类型
-            foreach (PropertyInfo property in properties)
-            {
-                var propertyTypeName = property.PropertyType.Name;
-                var description = property.CustomAttributes?
-                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-                .ConstructorArguments?
-                .FirstOrDefault().Value;
-                bool isBreak = false;
-                if (property.Name.Contains("Id")) continue;
-                if (ignoreFields.Contains(property.Name)) continue;
-
-                switch (propertyTypeName)
-                {
-                    case "String":
-                        propertyTypeName = "string";
-                        break;
-                    case "Boolean":
-                        propertyTypeName = "boolean";
-                        break;
-                    case "Int32":
-                        propertyTypeName = "number";
-                        break;
-                    case "Int64":
-                        propertyTypeName = "number";
-                        break;
-                    case "DateTime":
-                        propertyTypeName = "string";
-                        break;
-                    case "ICollection`1":
-                        isBreak = true;
-                        break;
-                    case "Nullable`1":
-                        isBreak = true;
-                        break;
-                    case "IReadOnlyCollection`1":
-                        isBreak = true;
-                        break;
-                    default:
-                        isBreak = true;
-                        break;
-                }
-                if (isBreak) continue;
-                body +=
-     $@"
+                case "String":
+                    propertyTypeName = "string";
+                    break;
+                case "Boolean":
+                    propertyTypeName = "boolean";
+                    break;
+                case "Int32":
+                    propertyTypeName = "number";
+                    break;
+                case "Int64":
+                    propertyTypeName = "number";
+                    break;
+                case "DateTime":
+                    propertyTypeName = "string";
+                    break;
+                case "ICollection`1":
+                    isBreak = true;
+                    break;
+                case "Nullable`1":
+                    isBreak = true;
+                    break;
+                case "IReadOnlyCollection`1":
+                    isBreak = true;
+                    break;
+                default:
+                    isBreak = true;
+                    break;
+            }
+            if (isBreak) continue;
+            body +=
+ $@"
   {FirstCharToLowerCase(property.Name)}: {propertyTypeName};
 ";
-            }
+        }
 
-            body +=
+        body +=
 $@"  concurrencyStamp: string;
 }}";
 
-            var footer =
+        var footer =
 $@"interface FormProps {{formInline: FormItemProps;
 }}
 
 export type {{FormItemProps,FormProps}};";
-            var code = $"{header}{body}{footer}";
-            using (FileStream fs = System.IO.File.Create(filePath))
-            {
-                byte[] info = new UTF8Encoding(true).GetBytes(code);
-                fs.Write(info, 0, info.Length);
-            }
-            return filePath;
-        }
-        public static string GenerateFormCode(Type type, string nameSpace, string savePath)
+        var code = $"{header}{body}{footer}";
+        using (FileStream fs = System.IO.File.Create(filePath))
         {
-            string fullPath = savePath;
-            savePath = $"{fullPath}\\{type.Name.ToLower()}\\form";
-            Directory.CreateDirectory(savePath);
-            var filePath = $@"{savePath}\\index.vue";
-            var desc = type.CustomAttributes?
-                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-                .ConstructorArguments?
-                .FirstOrDefault().Value;
+            byte[] info = new UTF8Encoding(true).GetBytes(code);
+            fs.Write(info, 0, info.Length);
+        }
+        return filePath;
+    }
+    public static string GenerateFormCode(Type type, string nameSpace, string savePath)
+    {
+        string fullPath = savePath;
+        savePath = $"{fullPath}\\{type.Name.ToLower()}\\form";
+        Directory.CreateDirectory(savePath);
+        var filePath = $@"{savePath}\\index.vue";
+        var desc = type.CustomAttributes?
+            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+            .ConstructorArguments?
+            .FirstOrDefault().Value;
 
-            PropertyInfo[] properties = type.GetProperties();
+        PropertyInfo[] properties = type.GetProperties();
 
-            string[] ignoreFields = new string[]
-            {
-                "Id",
-                "DeletedBy",
-                "Deleted",
-                "CreatedBy",
-                "LastModified",
-                "LastModifiedBy",
-                "LastModifiedBy",
-                "ConcurrencyStamp"
-            };
+        string[] ignoreFields = new string[]
+        {
+            "Id",
+            "DeletedBy",
+            "Deleted",
+            "CreatedBy",
+            "LastModified",
+            "LastModifiedBy",
+            "LastModifiedBy",
+            "ConcurrencyStamp"
+        };
 
-            var formPropsHeader = "";
-            var formPropsBody = "";
-            var formPropsFooter = "";
-            var formHeader = "";
-            var formBody = "";
-            var formFooter = "";
+        var formPropsHeader = "";
+        var formPropsBody = "";
+        var formPropsFooter = "";
+        var formHeader = "";
+        var formBody = "";
+        var formFooter = "";
 
 
-            var header =
+        var header =
 $@"<script setup lang=""ts"">
 import {{ ref }} from ""vue"";
 import ReCol from ""@/components/ReCol"";
@@ -2050,7 +2193,7 @@ import {{ formRules }} from ""../utils/rule"";
 import {{ FormProps }} from ""../utils/types"";
 import {{ usePublicHooks }} from ""../../hooks"";";
 
-            formPropsHeader = 
+        formPropsHeader =
 $@"
 const props = withDefaults(defineProps<FormProps>(), {{
   formInline: () => ({{
@@ -2060,50 +2203,50 @@ const props = withDefaults(defineProps<FormProps>(), {{
 ";
 
 
-            // 遍历属性并输出它们的名称和类型
-            foreach (PropertyInfo property in properties)
-            {
-                var propertyTypeName = property.PropertyType.Name;
-                var description = property.CustomAttributes?
-                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-                .ConstructorArguments?
-                .FirstOrDefault().Value;
-                if (property.Name.Contains("Id")) continue;
-                if (ignoreFields.Contains(property.Name)) continue;
+        // 遍历属性并输出它们的名称和类型
+        foreach (PropertyInfo property in properties)
+        {
+            var propertyTypeName = property.PropertyType.Name;
+            var description = property.CustomAttributes?
+            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+            .ConstructorArguments?
+            .FirstOrDefault().Value;
+            if (property.Name.Contains("Id")) continue;
+            if (ignoreFields.Contains(property.Name)) continue;
 
-                if (propertyTypeName == "String")
-                {
-                    formPropsBody +=
+            if (propertyTypeName == "String")
+            {
+                formPropsBody +=
 $@"
     {FirstCharToLowerCase(property.Name)}: """",
 ";
-                }
-                if (propertyTypeName == "Boolean")
-                {
-                    formPropsBody +=
+            }
+            if (propertyTypeName == "Boolean")
+            {
+                formPropsBody +=
 $@"     
     {FirstCharToLowerCase(property.Name)}: null,
 ";
-                }
-                if (propertyTypeName == "DateTime")
-                {
-                    formPropsBody +=
+            }
+            if (propertyTypeName == "DateTime")
+            {
+                formPropsBody +=
 $@"     
     {FirstCharToLowerCase(property.Name)}: """",
 ";
-                }
-                if (propertyTypeName == "Int32" || propertyTypeName == "Int64") 
-                {
-                    formPropsBody +=
+            }
+            if (propertyTypeName == "Int32" || propertyTypeName == "Int64")
+            {
+                formPropsBody +=
 $@"     
     {FirstCharToLowerCase(property.Name)}: 0,
 ";
-                }
-
             }
 
+        }
 
-            formPropsFooter = 
+
+        formPropsFooter =
 $@"
     concurrencyStamp: """"
   }})
@@ -2121,7 +2264,7 @@ defineExpose({{ getRef }});
 </script>
 ";
 
-            formHeader += 
+        formHeader +=
 $@"
 <template>
   <el-form
@@ -2133,20 +2276,20 @@ $@"
     <el-row :gutter=""30"">
 ";
 
-            // 遍历属性并输出它们的名称和类型
-            foreach (PropertyInfo property in properties)
-            {
-                var propertyTypeName = property.PropertyType.Name;
-                var description = property.CustomAttributes?
-                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-                .ConstructorArguments?
-                .FirstOrDefault().Value;
-                if (property.Name.Contains("Id")) continue;
-                if (ignoreFields.Contains(property.Name)) continue;
+        // 遍历属性并输出它们的名称和类型
+        foreach (PropertyInfo property in properties)
+        {
+            var propertyTypeName = property.PropertyType.Name;
+            var description = property.CustomAttributes?
+            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+            .ConstructorArguments?
+            .FirstOrDefault().Value;
+            if (property.Name.Contains("Id")) continue;
+            if (ignoreFields.Contains(property.Name)) continue;
 
-                if (propertyTypeName == "String")
-                {
-                    formBody +=
+            if (propertyTypeName == "String")
+            {
+                formBody +=
 $@"
       <re-col :value=""12"" :xs=""24"" :sm=""24"">
         <el-form-item label=""{description}"" prop=""{FirstCharToLowerCase(property.Name)}"">
@@ -2158,10 +2301,10 @@ $@"
         </el-form-item>
       </re-col>
 ";
-                }
-                if (propertyTypeName == "Boolean")
-                {
-                    formBody +=
+            }
+            if (propertyTypeName == "Boolean")
+            {
+                formBody +=
 $@"
       <re-col :value=""12"" :xs=""24"" :sm=""24"">
         <el-form-item label=""{description}"">
@@ -2177,10 +2320,10 @@ $@"
         </el-form-item>
       </re-col>
 ";
-                }
-                if (propertyTypeName == "DateTime")
-                {
-                    formBody +=
+            }
+            if (propertyTypeName == "DateTime")
+            {
+                formBody +=
 $@"
       <re-col :value=""12"" :xs=""24"" :sm=""24"">
         <el-form-item label=""{description}"" prop=""{FirstCharToLowerCase(property.Name)}"">
@@ -2192,10 +2335,10 @@ $@"
         </el-form-item>
       </re-col>
 ";
-                }
-                if (propertyTypeName == "Int32" || propertyTypeName == "Int64")
-                {
-                    formBody +=
+            }
+            if (propertyTypeName == "Int32" || propertyTypeName == "Int64")
+            {
+                formBody +=
 $@"
       <re-col :value=""12"" :xs=""24"" :sm=""24"">
         <el-form-item label=""类型"" prop=""type"">
@@ -2208,64 +2351,64 @@ $@"
         </el-form-item>
       </re-col>
 ";
-                }
-
             }
 
-            formFooter += 
+        }
+
+        formFooter +=
 $@"
     </el-row>
   </el-form>
 </template>
 ";
 
-           var body = $@"
+        var body = $@"
                         {formPropsHeader}
                         {formPropsBody}
                         {formPropsFooter}
                         {formHeader}
                         {formBody}
                         {formFooter}";
-            var footer =
+        var footer =
 $@"";
-            var code = $"{header}{body}{footer}";
-            using (FileStream fs = System.IO.File.Create(filePath))
-            {
-                byte[] info = new UTF8Encoding(true).GetBytes(code);
-                fs.Write(info, 0, info.Length);
-            }
-            return filePath;
-        }
-        public static string GenerateIndexCode(Type type, string nameSpace, string savePath)
+        var code = $"{header}{body}{footer}";
+        using (FileStream fs = System.IO.File.Create(filePath))
         {
-            string fullPath = savePath;
-            savePath = $"{fullPath}\\{type.Name.ToLower()}\\";
-            Directory.CreateDirectory(savePath);
-            var filePath = $@"{savePath}index.vue";
-            var desc = type.CustomAttributes?
-                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-                .ConstructorArguments?
-                .FirstOrDefault().Value;
+            byte[] info = new UTF8Encoding(true).GetBytes(code);
+            fs.Write(info, 0, info.Length);
+        }
+        return filePath;
+    }
+    public static string GenerateIndexCode(Type type, string nameSpace, string savePath)
+    {
+        string fullPath = savePath;
+        savePath = $"{fullPath}\\{type.Name.ToLower()}\\";
+        Directory.CreateDirectory(savePath);
+        var filePath = $@"{savePath}index.vue";
+        var desc = type.CustomAttributes?
+            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+            .ConstructorArguments?
+            .FirstOrDefault().Value;
 
-            PropertyInfo[] properties = type.GetProperties();
+        PropertyInfo[] properties = type.GetProperties();
 
-            string[] ignoreFields = new string[]
-            {
-                "Id",
-                "DeletedBy",
-                "Deleted",
-                "CreatedBy",
-                "LastModified",
-                "LastModifiedBy",
-                "LastModifiedBy",
-                "ConcurrencyStamp"
-            };
+        string[] ignoreFields = new string[]
+        {
+            "Id",
+            "DeletedBy",
+            "Deleted",
+            "CreatedBy",
+            "LastModified",
+            "LastModifiedBy",
+            "LastModifiedBy",
+            "ConcurrencyStamp"
+        };
 
-            var formSearchHeader = "";
-            var formSearchBody = "";
-            var formSearchFooter = "";
+        var formSearchHeader = "";
+        var formSearchBody = "";
+        var formSearchFooter = "";
 
-            var header =
+        var header =
 $@"
 <script setup lang=""ts"">
 import {{ ref }} from ""vue"";
@@ -2311,7 +2454,7 @@ const {{
   >
 ";
 
-            formSearchHeader =
+        formSearchHeader =
 $@"
     <div class=""w-[calc(100%-0px)]"">
       <el-form
@@ -2321,20 +2464,20 @@ $@"
         class=""search-form bg-bg_color w-[99/100] pl-8 pt-[12px]""
       >
 ";
-            // 遍历属性并输出它们的名称和类型
-            foreach (PropertyInfo property in properties)
-            {
-                var propertyTypeName = property.PropertyType.Name;
-                var description = property.CustomAttributes?
-                .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-                .ConstructorArguments?
-                .FirstOrDefault().Value;
-                if (property.Name.Contains("Id")) continue;
-                if (ignoreFields.Contains(property.Name)) continue;
+        // 遍历属性并输出它们的名称和类型
+        foreach (PropertyInfo property in properties)
+        {
+            var propertyTypeName = property.PropertyType.Name;
+            var description = property.CustomAttributes?
+            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+            .ConstructorArguments?
+            .FirstOrDefault().Value;
+            if (property.Name.Contains("Id")) continue;
+            if (ignoreFields.Contains(property.Name)) continue;
 
-                if (propertyTypeName == "String")
-                {
-                    formSearchBody +=
+            if (propertyTypeName == "String")
+            {
+                formSearchBody +=
 $@"
         <el-form-item label=""{description}："" prop=""{FirstCharToLowerCase(property.Name)}"">
           <el-input
@@ -2345,10 +2488,10 @@ $@"
           />
         </el-form-item>
 ";
-                }
-                if (propertyTypeName == "Boolean")
-                {
-                    formSearchBody +=
+            }
+            if (propertyTypeName == "Boolean")
+            {
+                formSearchBody +=
 $@"
 <el-form-item label=""{description}："" prop=""{FirstCharToLowerCase(property.Name)}"">
           <el-select
@@ -2362,9 +2505,9 @@ $@"
           </el-select>
         </el-form-item>
 ";
-                }               
             }
-            formSearchFooter += 
+        }
+        formSearchFooter +=
 $@"
         <el-form-item>
           <el-button :icon=""useRenderIcon(Search)"" type=""primary"" @click=""onSearch""> 搜索 </el-button>
@@ -2375,11 +2518,11 @@ $@"
       </el-form>
 ";
 
-            var body = $@"
+        var body = $@"
                         {formSearchHeader}
                         {formSearchBody}
                         {formSearchFooter}";
-            var footer =
+        var footer =
 $@"
       <PureTableBar title=""{desc}管理"" :columns=""columns"" @refresh=""onSearch"">
         <template #buttons>
@@ -2495,13 +2638,12 @@ $@"
 }}
 </style>
 ";
-            var code = $"{header}{body}{footer}";
-            using (FileStream fs = System.IO.File.Create(filePath))
-            {
-                byte[] info = new UTF8Encoding(true).GetBytes(code);
-                fs.Write(info, 0, info.Length);
-            }
-            return filePath;
+        var code = $"{header}{body}{footer}";
+        using (FileStream fs = System.IO.File.Create(filePath))
+        {
+            byte[] info = new UTF8Encoding(true).GetBytes(code);
+            fs.Write(info, 0, info.Length);
         }
+        return filePath;
     }
 }

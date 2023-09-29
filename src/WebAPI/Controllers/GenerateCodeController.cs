@@ -183,8 +183,7 @@ namespace WebAPI.Controllers
             /// <summary>
             /// 命名空间: 如 "Application.Features";
             /// </summary>
-            [Required(ErrorMessage = $"缺少参数NameSpace")]
-            public string NameSpace { get; set; }
+            public string? NameSpace { get; set; } = "Application.Features";
             /// <summary>
             /// 保存路径：如 "D:\\Programming\\Net\\Onion\\src\\Application\\Features";
             /// </summary>

@@ -4,25 +4,23 @@ import ReCol from "@/components/ReCol";
 import { formRules } from "../utils/rule";
 import { FormProps } from "../utils/types";
 import { usePublicHooks } from "../../hooks";
-                        
+
 const props = withDefaults(defineProps<FormProps>(), {
   formInline: () => ({
     /** 用于判断是`新增`还是`修改` */
     title: "新增",
     testTableId: "",
 
-                        
     name: "",
 
     description: "",
-     
+
     dateTime: "",
-     
+
     type: 0,
-     
+
     stuts: null,
 
-                        
     concurrencyStamp: ""
   })
 });
@@ -38,7 +36,6 @@ function getRef() {
 defineExpose({ getRef });
 </script>
 
-                        
 <template>
   <el-form
     ref="ruleFormRef"
@@ -47,8 +44,6 @@ defineExpose({ getRef });
     label-width="82px"
   >
     <el-row :gutter="30">
-
-                        
       <re-col :value="12" :xs="24" :sm="24">
         <el-form-item label="名称" prop="name">
           <el-input
@@ -103,8 +98,6 @@ defineExpose({ getRef });
           />
         </el-form-item>
       </re-col>
-
-                        
     </el-row>
   </el-form>
 </template>
