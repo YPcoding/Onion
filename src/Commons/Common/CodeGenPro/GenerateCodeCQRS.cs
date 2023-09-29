@@ -406,8 +406,8 @@ public class Update{typeName}CommandHandler : IRequestHandler<Update{typeName}Co
     public async Task<Result<long>> Handle(Update{typeName}Command request, CancellationToken cancellationToken)
     {{
         var {typeName.ToLower()} = await _context.{typeName}s
-           .SingleOrDefaultAsync(x => x.Id == request.{typeName}Id && x.ConcurrencyStamp == request.ConcurrencyStamp, cancellationToken)
-           ?? throw new NotFoundException($""数据【{{request.{typeName}Id}}-{{request.ConcurrencyStamp}}】未找到"");
+           .SingleOrDefaultAsync(x => x.Id == request.{typeName}Id, cancellationToken)
+           ?? throw new NotFoundException($""数据【{{request.{typeName}Id}}】未找到"");
 
         {typeName.ToLower()} = _mapper.Map(request, {typeName.ToLower()});
         //{typeName.ToLower()}.AddDomainEvent(new UpdatedEvent<{typeName}>({typeName.ToLower()}));
@@ -543,7 +543,7 @@ $@"
         /// <summary>
         /// {description}
         /// </summary>
-        public {propertyTypeName}? {typeName}Id 
+        public {propertyTypeName} {typeName}Id 
         {{
             get 
             {{
@@ -559,7 +559,7 @@ $@"
         /// {description}
         /// </summary>
         [Description(""{description}"")]
-        public {propertyTypeName}? {property.Name} {{ get; set; }}";
+        public {propertyTypeName} {property.Name} {{ get; set; }}";
 
         }
 
@@ -1233,7 +1233,7 @@ import {{ getAuths }} from ""@/router/utils"";";
         hookFunction =
 $@"
 //功能
-export function useTestTable(tableRef: Ref, treeRef: Ref) {{
+export function use{typeName}(tableRef: Ref, treeRef: Ref) {{
 ";
         constDefineHeader =
 $@"  //常量
@@ -1607,9 +1607,9 @@ $@"
           if (valid) {{
             // 表单规则校验通过
             if (title === ""新增"") {{
-              await addTestTable(curData);
+              await add{typeName}(curData);
             }} else {{
-              await updateTestTable(curData);
+              await update{typeName}(curData);
             }}
             chores();
           }}
@@ -2171,7 +2171,7 @@ import Refresh from ""@iconify-icons/ep/refresh"";
 import AddFill from ""@iconify-icons/ri/add-circle-line"";
 
 defineOptions({{
-  name: ""TestTable""
+  name: ""{typeName}""
 }});
 const treeRef = ref();
 const formRef = ref();
