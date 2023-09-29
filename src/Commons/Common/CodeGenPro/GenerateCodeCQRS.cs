@@ -151,17 +151,6 @@ public class GenrateCodeHelper
 /// </summary>
 public class GenerateCodeCQRS
 {
-    public static Type GetTypeByFullClassName(string fullClassName)
-    {
-        string className = fullClassName;
-        Assembly assembly = Assembly.Load(className.Split('.')[0].ToString());
-        if (assembly.GetType(className) == null)
-        {
-            throw new Exception($"请检查名称：{fullClassName}，是否正确");
-        }
-        return assembly.GetType(className)!;
-    }
-
     public static string GenerateCachingCode(Type type, string nameSpace, string savePath)
     {
         savePath = $"{savePath}\\{type.Name}s\\Caching";
@@ -214,11 +203,7 @@ public static class {type.Name}CacheKey
 }}
 ";
         var code = $"{body}";
-        using (FileStream fs = System.IO.File.Create(filePath))
-        {
-            byte[] info = new UTF8Encoding(true).GetBytes(code);
-            fs.Write(info, 0, info.Length);
-        }
+        GenrateCodeHelper.SaveTextToFile(code, filePath);
         return filePath;
     }
 
@@ -354,11 +339,7 @@ public class Add{type.Name}CommandHandler : IRequestHandler<Add{type.Name}Comman
     }}
 }}";
         var code = $"{header}{body}{footer}";
-        using (FileStream fs = System.IO.File.Create(filePath))
-        {
-            byte[] info = new UTF8Encoding(true).GetBytes(code);
-            fs.Write(info, 0, info.Length);
-        }
+        GenrateCodeHelper.SaveTextToFile(code, filePath);
         return filePath;
     }
 
@@ -595,11 +576,7 @@ public class Delete{type.Name}CommandHandler : IRequestHandler<Delete{type.Name}
     }}
 }}";
         var code = $"{header}{body}{footer}";
-        using (FileStream fs = System.IO.File.Create(filePath))
-        {
-            byte[] info = new UTF8Encoding(true).GetBytes(code);
-            fs.Write(info, 0, info.Length);
-        }
+        GenrateCodeHelper.SaveTextToFile(code, filePath);
         return filePath;
     }
 
@@ -730,11 +707,7 @@ $@"
     }}
 }}";
         var code = $"{header}{body}{footer}";
-        using (FileStream fs = System.IO.File.Create(filePath))
-        {
-            byte[] info = new UTF8Encoding(true).GetBytes(code);
-            fs.Write(info, 0, info.Length);
-        }
+        GenrateCodeHelper.SaveTextToFile(code, filePath);
         return filePath;
 
     }
@@ -771,11 +744,7 @@ public class {type.Name}CreatedEventHandler : INotificationHandler<CreatedEvent<
 }}
 ";
         var code = $"{body}";
-        using (FileStream fs = System.IO.File.Create(filePath))
-        {
-            byte[] info = new UTF8Encoding(true).GetBytes(code);
-            fs.Write(info, 0, info.Length);
-        }
+        GenrateCodeHelper.SaveTextToFile(code, filePath);
         return filePath;
     }
 
@@ -827,11 +796,7 @@ public class GetAll{type.Name}sQueryHandler :
 
 ";
         var code = $"{body}";
-        using (FileStream fs = System.IO.File.Create(filePath))
-        {
-            byte[] info = new UTF8Encoding(true).GetBytes(code);
-            fs.Write(info, 0, info.Length);
-        }
+        GenrateCodeHelper.SaveTextToFile(code, filePath);
         return filePath;
     }
 
@@ -902,11 +867,7 @@ public class Get{type.Name}ByIdQueryHandler :IRequestHandler<Get{type.Name}Query
 }}
 ";
         var code = $"{body}";
-        using (FileStream fs = System.IO.File.Create(filePath))
-        {
-            byte[] info = new UTF8Encoding(true).GetBytes(code);
-            fs.Write(info, 0, info.Length);
-        }
+        GenrateCodeHelper.SaveTextToFile(code, filePath);
         return filePath;
     }
 
@@ -978,11 +939,7 @@ public class {type.Name}sWithPaginationQueryHandler :
 }}
 ";
         var code = $"{body}";
-        using (FileStream fs = System.IO.File.Create(filePath))
-        {
-            byte[] info = new UTF8Encoding(true).GetBytes(code);
-            fs.Write(info, 0, info.Length);
-        }
+        GenrateCodeHelper.SaveTextToFile(code, filePath);
         return filePath;
     }
 
@@ -1062,11 +1019,7 @@ $@"
         var footer =
 $@"}}";
         var code = $"{header}{body}{footer}";
-        using (FileStream fs = System.IO.File.Create(filePath))
-        {
-            byte[] info = new UTF8Encoding(true).GetBytes(code);
-            fs.Write(info, 0, info.Length);
-        }
+        GenrateCodeHelper.SaveTextToFile(code, filePath);
         return filePath;
     }
 
@@ -1142,11 +1095,7 @@ $@"
 $@";    }}
 }}";
         var code = $"{header}{body}{footer}";
-        using (FileStream fs = System.IO.File.Create(filePath))
-        {
-            byte[] info = new UTF8Encoding(true).GetBytes(code);
-            fs.Write(info, 0, info.Length);
-        }
+        GenrateCodeHelper.SaveTextToFile(code, filePath);
         return filePath;
     }
 
@@ -1175,11 +1124,7 @@ public class {type.Name}ByIdSpec : Specification<{type.Name}>
 }}
 ";
         var code = $"{body}";
-        using (FileStream fs = System.IO.File.Create(filePath))
-        {
-            byte[] info = new UTF8Encoding(true).GetBytes(code);
-            fs.Write(info, 0, info.Length);
-        }
+        GenrateCodeHelper.SaveTextToFile(code, filePath);
         return filePath;
     }
 
@@ -1263,11 +1208,7 @@ public class {type.Name}Controller : ApiControllerBase
 }}
 ";
         var code = $"{body}";
-        using (FileStream fs = System.IO.File.Create(filePath))
-        {
-            byte[] info = new UTF8Encoding(true).GetBytes(code);
-            fs.Write(info, 0, info.Length);
-        }
+        GenrateCodeHelper.SaveTextToFile(code, filePath);
         return filePath;
     }
 }
@@ -1385,11 +1326,7 @@ export const onbatchDelete{type.Name} = (data?: object) => {{
 }};
 ";
         var code = $"{body}";
-        using (FileStream fs = System.IO.File.Create(filePath))
-        {
-            byte[] info = new UTF8Encoding(true).GetBytes(code);
-            fs.Write(info, 0, info.Length);
-        }
+        GenrateCodeHelper.SaveTextToFile(code, filePath);
         return filePath;
     }
     public static string GenerateHookCode(Type type, string nameSpace, string savePath)
@@ -1940,11 +1877,7 @@ $@"
             $"{buttonClass}";
         var footer = returnFunction;
         var code = $"{header}{body}{footer}";
-        using (FileStream fs = System.IO.File.Create(filePath))
-        {
-            byte[] info = new UTF8Encoding(true).GetBytes(code);
-            fs.Write(info, 0, info.Length);
-        }
+        GenrateCodeHelper.SaveTextToFile(code, filePath);
         return filePath;
     }
     public static string GenerateRuleCode(Type type, string nameSpace, string savePath)
@@ -2034,11 +1967,7 @@ $@"";
         var footer =
 $@"}});";
         var code = $"{header}{body}{footer}";
-        using (FileStream fs = System.IO.File.Create(filePath))
-        {
-            byte[] info = new UTF8Encoding(true).GetBytes(code);
-            fs.Write(info, 0, info.Length);
-        }
+        GenrateCodeHelper.SaveTextToFile(code, filePath);
         return filePath;
     }
     public static string GenerateTypesCode(Type type, string nameSpace, string savePath)
@@ -2131,11 +2060,7 @@ $@"interface FormProps {{formInline: FormItemProps;
 
 export type {{FormItemProps,FormProps}};";
         var code = $"{header}{body}{footer}";
-        using (FileStream fs = System.IO.File.Create(filePath))
-        {
-            byte[] info = new UTF8Encoding(true).GetBytes(code);
-            fs.Write(info, 0, info.Length);
-        }
+        GenrateCodeHelper.SaveTextToFile(code, filePath);
         return filePath;
     }
     public static string GenerateFormCode(Type type, string nameSpace, string savePath)
@@ -2358,11 +2283,7 @@ $@"
         var footer =
 $@"";
         var code = $"{header}{body}{footer}";
-        using (FileStream fs = System.IO.File.Create(filePath))
-        {
-            byte[] info = new UTF8Encoding(true).GetBytes(code);
-            fs.Write(info, 0, info.Length);
-        }
+        GenrateCodeHelper.SaveTextToFile(code, filePath);
         return filePath;
     }
     public static string GenerateIndexCode(Type type, string nameSpace, string savePath)
@@ -2625,11 +2546,7 @@ $@"
 </style>
 ";
         var code = $"{header}{body}{footer}";
-        using (FileStream fs = System.IO.File.Create(filePath))
-        {
-            byte[] info = new UTF8Encoding(true).GetBytes(code);
-            fs.Write(info, 0, info.Length);
-        }
+        GenrateCodeHelper.SaveTextToFile(code, filePath);
         return filePath;
     }
 }
