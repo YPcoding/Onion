@@ -25,7 +25,7 @@ public class SystemService : IScopedDependency
         IEnumerable<SystemMenuSetting> settings = new List<SystemMenuSetting>
         {
             new SystemMenuSetting { Grop="系统管理", Label="系统管理", Path="/system", Icon="lollipop" },
-            new SystemMenuSetting { Grop="系统日志", Label="系统日志", Path="/log", Icon="lollipop" }
+            new SystemMenuSetting { Grop="日志管理", Label="日志管理", Path="/log", Icon="lollipop" }
         };
 
         var hiddenPages = new List<string>()
@@ -35,7 +35,7 @@ public class SystemService : IScopedDependency
             "文件上传管理",
             "测试接口"
         };
-
+        var menuOrder = 0;
         foreach (var menu in grops)
         {
             var setting = settings.FirstOrDefault(x => x.Grop == menu.Key)!;
@@ -50,33 +50,37 @@ public class SystemService : IScopedDependency
                 };
             }
             var menuId = SnowFlake.GetInstance().GetLongId();
-            allPermissions.Add(new Permission($"{setting.Grop}", $"{setting.Label}", $"{setting.Path}", 0, "", PermissionType.Menu, "", $"{setting.Icon}")
+            allPermissions.Add(new Permission($"{setting.Grop}", $"{setting.Label}", $"{setting.Path}", menuOrder++, "", PermissionType.Menu, "", $"{setting.Icon}")
             {
                 Id = menuId
             });
 
+            var pageOrder = 0;
             foreach (var page in menu)
             {
                 var pageId = SnowFlake.GetInstance().GetLongId();
                 var pagePath = $"{setting.Path}/{page.ControllerName.ToLower()}/index";
                 var name = $"{setting.Path.Replace("/", "").ToTitleCase()}{page.ControllerName}Page";
-                allPermissions.Add(new Permission(page.ControllerDescription, page.ControllerDescription, pagePath, 0, "", PermissionType.Page, name, "")
+                allPermissions.Add(new Permission(page.ControllerDescription, page.ControllerDescription, pagePath, pageOrder++, "", PermissionType.Page, name, "")
                 {
                     Id = pageId,
                     SuperiorId = menuId
                 });
 
+                var dotOrder = 0;
                 foreach (var dot in page.Actions)
                 {
                     var path = $"api/{page.ControllerName}/{dot.Route}";
                     if (dot.Description.IsNullOrEmpty()) continue;
-                    allPermissions.Add(new Permission(page.ControllerDescription, dot.Description, path, 0, dot.HttpMethods, PermissionType.Dot, "", "")
+                    allPermissions.Add(new Permission(page.ControllerDescription, dot.Description, path, dotOrder++, dot.HttpMethods, PermissionType.Dot, "", "")
                     {
                         Id = SnowFlake.GetInstance().GetLongId(),
                         SuperiorId = pageId
                     });
                 }
+                dotOrder = 0;
             }
+            pageOrder = 0;
         }
 
         if (excludeMenus != null && excludeMenus.Any())

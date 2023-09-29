@@ -5,12 +5,14 @@ using Application.Features.AuditTrails.Commands.Update;
 using Application.Features.AuditTrails.Queries.Pagination;
 using Domain.Entities.Audit;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel;
 
 namespace WebAPI.Controllers;
 
 /// <summary>
 /// 审计日志
 /// </summary>
+[Description("日志管理")]
 public class AuditTrailController : ApiControllerBase
 {
     /// <summary>
