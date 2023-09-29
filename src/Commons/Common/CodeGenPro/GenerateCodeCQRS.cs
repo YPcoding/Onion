@@ -2149,7 +2149,7 @@ $@"
                     formBody +=
 $@"
       <re-col :value=""12"" :xs=""24"" :sm=""24"">
-        <el-form-item label=""{description}"" prop=""{FirstCharToLowerCase(type.Name)}"">
+        <el-form-item label=""{description}"" prop=""{FirstCharToLowerCase(property.Name)}"">
           <el-input
             v-model=""newFormInline.{FirstCharToLowerCase(property.Name)}""
             clearable
@@ -2183,12 +2183,11 @@ $@"
                     formBody +=
 $@"
       <re-col :value=""12"" :xs=""24"" :sm=""24"">
-        <el-form-item label=""{description}"" prop=""{FirstCharToLowerCase(type.Name)}"">
-          <el-input
+        <el-form-item label=""{description}"" prop=""{FirstCharToLowerCase(property.Name)}"">
+          <el-date-picker
             v-model=""newFormInline.{FirstCharToLowerCase(property.Name)}""
-            clearable
-            placeholder=""请输入{description}""
-            type=""date""
+            type=""datetime""
+            placeholder=""选择一个{description}""
           />
         </el-form-item>
       </re-col>

@@ -50,7 +50,7 @@ defineExpose({ getRef });
 
                         
       <re-col :value="12" :xs="24" :sm="24">
-        <el-form-item label="名称" prop="testTable">
+        <el-form-item label="名称" prop="name">
           <el-input
             v-model="newFormInline.name"
             clearable
@@ -60,7 +60,7 @@ defineExpose({ getRef });
       </re-col>
 
       <re-col :value="12" :xs="24" :sm="24">
-        <el-form-item label="描述" prop="testTable">
+        <el-form-item label="描述" prop="description">
           <el-input
             v-model="newFormInline.description"
             clearable
@@ -70,12 +70,11 @@ defineExpose({ getRef });
       </re-col>
 
       <re-col :value="12" :xs="24" :sm="24">
-        <el-form-item label="时间" prop="testTable">
-          <el-input
+        <el-form-item label="时间" prop="dateTime">
+          <el-date-picker
             v-model="newFormInline.dateTime"
-            clearable
-            placeholder="请输入时间"
-            type="date"
+            type="datetime"
+            placeholder="选择一个时间"
           />
         </el-form-item>
       </re-col>
