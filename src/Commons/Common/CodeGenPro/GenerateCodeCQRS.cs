@@ -27,7 +27,9 @@ public class GenrateCodeHelper
              "CreatedBy",
              "LastModified",
              "LastModifiedBy",
-             "ConcurrencyStamp"
+             "ConcurrencyStamp",
+             "DomainEvents",
+             "Created"
         };
 
         if (excludeTypeName != null && excludeTypeName.Any())
@@ -35,7 +37,7 @@ public class GenrateCodeHelper
             ignoreTypeNames.RemoveAll(x => excludeTypeName.Contains(x));
         }
 
-        return !ignoreTypeNames.Contains(typeName);
+        return ignoreTypeNames.Contains(typeName);
     }
 
     /// <summary>
@@ -74,6 +76,8 @@ public class GenrateCodeHelper
         typeName = typeName.Replace("Int64", "long");
         typeName = typeName.Replace("String", "string");
         typeName = typeName.Replace("Object", "object");
+        typeName = typeName.Replace("Int32", "int");
+        typeName = typeName.Replace("Boolean", "bool");
 
         // 将 Nullable<T> 转换为 T?
         if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
@@ -144,6 +148,14 @@ public class GenrateCodeHelper
             writer.Write(text);
         }
     }
+
+    public static string GetTypeDescription(Type type) 
+    {
+        return type.CustomAttributes?
+            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
+            .ConstructorArguments?
+            .FirstOrDefault().Value?.ToString()!;
+    }
 }
 
 /// <summary>
@@ -209,88 +221,45 @@ public static class {type.Name}CacheKey
 
     public static string GenerateAddCommandCode(Type type, string nameSpace, string savePath)
     {
-        savePath = $"{savePath}\\{type.Name}s\\Commands\\Add";
-        Directory.CreateDirectory(savePath);
-        var filePath = $@"{savePath}\Add{type.Name}Command.cs";
-        var desc = type.CustomAttributes?
-            .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
-            .ConstructorArguments?
-            .FirstOrDefault().Value;
+        var typeName = type.Name;
+        string commandFolder = Path.Combine(savePath, $"{type.Name}s", "Commands", "Add");
+        Directory.CreateDirectory(commandFolder);
+        string filePath = Path.Combine(commandFolder, $"Add{type.Name}Command.cs");
+        var desc = GenrateCodeHelper.GetTypeDescription(type);
 
         var header =
 $@"using System.ComponentModel.DataAnnotations;
-using {GenrateCodeHelper.RemoveSuffix($"{type.FullName}", $".{type.Name}")};
-using {nameSpace}.{type.Name}s.Caching;
+using {GenrateCodeHelper.RemoveSuffix($"{type.FullName}", $".{typeName}")};
+using {nameSpace}.{typeName}s.Caching;
 using Domain.Entities;
 using Masuit.Tools.Systems;
 using Microsoft.Extensions.Options;
 
-namespace {nameSpace}.{type.Name}s.Commands.Add;
+namespace {nameSpace}.{typeName}s.Commands.Add;
 
 /// <summary>
 /// 添加{desc}
 /// </summary>
-[Map(typeof({type.Name}))]
-public class Add{type.Name}Command : IRequest<Result<long>>
+[Map(typeof({typeName}))]
+public class Add{typeName}Command : IRequest<Result<long>>
 {{";
         var body = "";
         PropertyInfo[] properties = type.GetProperties();
 
-        string[] ignoreFields = new string[]
-        {
-            "Id",
-            "DeletedBy",
-            "Deleted",
-            "CreatedBy",
-            "LastModified",
-            "LastModifiedBy",
-            "LastModifiedBy",
-            "ConcurrencyStamp"
-        };
-
         // 遍历属性并输出它们的名称和类型
         foreach (PropertyInfo property in properties)
         {
-            var propertyTypeName = property.PropertyType.Name;
+            string propertyTypeName = GenrateCodeHelper.GetCSharpTypeName(property.PropertyType);
+            string propertyName = property.Name;
+
             var description = property.CustomAttributes?
             .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
             .ConstructorArguments?
             .FirstOrDefault().Value;
-            bool isBreak = false;
-            if (property.Name.Contains("Id")) continue;
-            if (ignoreFields.Contains(property.Name)) continue;
 
-            switch (propertyTypeName)
-            {
-                case "String":
-                    propertyTypeName = "string";
-                    break;
-                case "Boolean":
-                    propertyTypeName = "bool";
-                    break;
-                case "Int32":
-                    propertyTypeName = "int";
-                    break;
-                case "Int64":
-                    propertyTypeName = "long";
-                    break;
-                case "DateTime":
-                    propertyTypeName = "DateTime";
-                    break;
-                case "ICollection`1":
-                    isBreak = true;
-                    break;
-                case "Nullable`1":
-                    isBreak = true;
-                    break;
-                case "IReadOnlyCollection`1":
-                    isBreak = true;
-                    break;
-                default:
-                    isBreak = true;
-                    break;
-            }
-            if (isBreak) continue;
+            if (propertyName.Contains("Id")) continue;
+            if (GenrateCodeHelper.ShouldGenerateToString(propertyName)) continue;
+
             body +=
  $@"
         
@@ -298,7 +267,7 @@ public class Add{type.Name}Command : IRequest<Result<long>>
         /// {description}
         /// </summary>
         [Description(""{description}"")]
-        public {propertyTypeName} {property.Name} {{ get; set; }}";
+        public {propertyTypeName} {propertyName} {{ get; set; }}";
 
         }
         body +=
@@ -310,12 +279,12 @@ $@"
 /// <summary>
 /// 处理程序
 /// </summary>
-public class Add{type.Name}CommandHandler : IRequestHandler<Add{type.Name}Command, Result<long>>
+public class Add{typeName}CommandHandler : IRequestHandler<Add{typeName}Command, Result<long>>
 {{
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
 
-    public Add{type.Name}CommandHandler(
+    public Add{typeName}CommandHandler(
         IApplicationDbContext context,
         IMapper mapper)
     {{
@@ -329,13 +298,13 @@ public class Add{type.Name}CommandHandler : IRequestHandler<Add{type.Name}Comman
     /// <param name=""request"">请求参数</param>
     /// <param name=""cancellationToken"">取消标记</param>
     /// <returns>返回处理结果</returns>
-    public async Task<Result<long>> Handle(Add{type.Name}Command request, CancellationToken cancellationToken)
+    public async Task<Result<long>> Handle(Add{typeName}Command request, CancellationToken cancellationToken)
     {{
-        var {type.Name.ToLower()} = _mapper.Map<{type.Name}>(request);
-        {type.Name.ToLower()}.AddDomainEvent(new CreatedEvent<{type.Name}>({type.Name.ToLower()}));
-        await _context.{type.Name}s.AddAsync({type.Name.ToLower()});
+        var {typeName.ToLower()} = _mapper.Map<{typeName}>(request);
+        //{typeName.ToLower()}.AddDomainEvent(new CreatedEvent<{typeName}>({typeName.ToLower()}));
+        await _context.{typeName}s.AddAsync({typeName.ToLower()});
         var isSuccess = await _context.SaveChangesAsync(cancellationToken) > 0;
-        return await Result<long>.SuccessOrFailureAsync({type.Name.ToLower()}.Id, isSuccess, new string[] {{ ""操作失败"" }});
+        return await Result<long>.SuccessOrFailureAsync({typeName.ToLower()}.Id, isSuccess, new string[] {{ ""操作失败"" }});
     }}
 }}";
         var code = $"{header}{body}{footer}";

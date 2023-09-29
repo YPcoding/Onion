@@ -19,3 +19,5 @@ global using Domain.Entities.Identity;
 global using Domain.Events;
 global using Common.Interfaces;
 global using System.ComponentModel;
+global using Microsoft.EntityFrameworkCore.ChangeTracking;
+global using Domain.Enums;
