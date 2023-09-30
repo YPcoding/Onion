@@ -68,5 +68,6 @@ namespace WebAPI.Controllers
         {
             return await Mediator.Send(command);
         }
+        [HttpPost("Sync/API")]
     }
 }
