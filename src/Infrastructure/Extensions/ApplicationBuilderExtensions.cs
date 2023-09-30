@@ -1,4 +1,5 @@
 ﻿using IGeekFan.AspNetCore.Knife4jUI;
+using Infrastructure.Services;
 using Microsoft.Extensions.FileProviders;
 
 namespace Infrastructure.Extensions;
@@ -40,6 +41,7 @@ public static class ApplicationBuilderExtensions
             endpoints.MapControllers()
             .RequireAuthorization();
             endpoints.MapSwagger("{documentName}/api-docs");
+            endpoints.MapHub<SignalRHub>("/signalRHub");
         });
         return app;
     }

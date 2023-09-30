@@ -1,6 +1,7 @@
 using Application.Common.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 namespace WebAPI.Controllers;
 
@@ -14,15 +15,19 @@ public class WeatherForecastController : ApiControllerBase
         "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
     };
 
+    private readonly IHubContext<SignalRHub> _hubContext;
+
     private readonly ILogger<WeatherForecastController> _logger;
     private readonly IApplicationDbContext _context;
 
     public WeatherForecastController(
         ILogger<WeatherForecastController> logger,
-        IApplicationDbContext context)
+        IApplicationDbContext context,
+        IHubContext<SignalRHub> hubContext)
     {
         _logger = logger;
         _context = context;
+        _hubContext = hubContext;
     }
 
     /// <summary>
@@ -31,8 +36,9 @@ public class WeatherForecastController : ApiControllerBase
     /// <returns></returns>
     [HttpGet(Name = "GetWeatherForecast")]
     [AllowAnonymous]
-    public int Get()
+    public async Task<int> Get()
     {
+        await _hubContext.Clients.All.SendAsync("ReceiveNotification", "111");
         return 0;
     }
 }

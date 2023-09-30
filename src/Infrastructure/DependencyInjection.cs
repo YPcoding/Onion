@@ -120,6 +120,8 @@ public static class DependencyInjection
         services.AddSingleton<ISnowFlakeService>(new SnowFlakeService(snowFlakeSettings.WorkerId, snowFlakeSettings.DataCenterId));
         #endregion
 
+        services.AddSignalR();
+
         return services;
     }
 }
