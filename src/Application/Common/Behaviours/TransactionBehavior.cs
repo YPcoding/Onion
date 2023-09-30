@@ -1,6 +1,4 @@
-﻿using Application.Common.Interfaces;
-
-namespace Application.Common.Behaviours;
+﻿namespace Application.Common.Behaviours;
 
 public class TransactionBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
 {
@@ -15,7 +13,7 @@ public class TransactionBehavior<TRequest, TResponse> : IPipelineBehavior<TReque
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         //sqlite不支持这样的事务
-        if (_dbContext.Database.ProviderName!.ToLower().EndsWith("sqlite")) 
+        if (_dbContext.Database.ProviderName!.ToLower().EndsWith("sqlite") == true)
         {
             return await next();
         } 

@@ -24,7 +24,8 @@ public class UpdateRoleCommandValidator : AbstractValidator<UpdateRoleCommand>
         RuleFor(v => v.RoleCode)
              .MaximumLength(50).WithMessage("超出最大长度50个字符")
              .NotEmpty().WithMessage("角色标识不能为空")
-             .MustAsync(BeUniqueRoleCode).WithMessage($"角色标识已存在");
+             .MustAsync(BeUniqueRoleCode).WithMessage($"角色标识已存在")
+             .Must(BeValidAlphabetOnly).WithMessage($"角色标识只能是字母"); ;
     }
 
     /// <summary>
@@ -52,8 +53,7 @@ public class UpdateRoleCommandValidator : AbstractValidator<UpdateRoleCommand>
     /// <returns></returns>
     private async Task<bool> BeUniqueRoleCode(UpdateRoleCommand command, string roleCode, CancellationToken cancellationToken)
     {
-        bool isAlphabetOnly = Regex.IsMatch(roleCode, "^[a-zA-Z]+$");
-        if (!isAlphabetOnly) return false;
+       
 
         var role = await _context.Roles.FirstOrDefaultAsync(x => x.RoleCode == roleCode, cancellationToken);
         if (role == null || role.Id == command.RoleId)
@@ -65,20 +65,12 @@ public class UpdateRoleCommandValidator : AbstractValidator<UpdateRoleCommand>
     }
 
     /// <summary>
-    /// 校验权限是否存在
+    /// 校验是否仅是字母
     /// </summary>
-    /// <param name="permissionIds">权限唯一标识</param>
-    /// <param name="cancellationToken">取消标记</param>
+    /// <param name="roleCode">角色标识</param>
     /// <returns></returns>
-    private async Task<bool> BeExistPermissions(List<long>? permissionIds, CancellationToken cancellationToken)
+    private bool BeValidAlphabetOnly(string roleCode)
     {
-        if (permissionIds != null && permissionIds.Count > 0)
-        {
-            permissionIds = permissionIds.Distinct().ToList();
-            var permissions =await _context.Permissions.Where(x=> permissionIds.Contains(x.Id)).ToListAsync(cancellationToken);
-            return permissions?.Count == permissionIds.Count;
-        }
-
-        return true;
+        return Regex.IsMatch(roleCode, "^[a-zA-Z]+$");
     }
 }

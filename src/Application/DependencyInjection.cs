@@ -14,6 +14,7 @@ public static class DependencyInjection
         services.AddMediatR(config => {
             config.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
             config.NotificationPublisher = new ParallelNoWaitPublisher();
+            config.AddOpenBehavior(typeof(PerformanceBehaviour<,>));
             config.AddOpenBehavior(typeof(UnhandledExceptionBehaviour<,>));
             config.AddOpenBehavior(typeof(RequestExceptionProcessorBehavior<,>));
             config.AddOpenBehavior(typeof(AuthorizationBehaviour<,>));
