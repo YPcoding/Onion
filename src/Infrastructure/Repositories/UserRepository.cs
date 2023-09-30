@@ -1,6 +1,5 @@
 ﻿using Domain.Entities.Identity;
 using Domain.Repositories;
-using Masuit.Tools.Systems;
 
 namespace Infrastructure.Repositories;
 
@@ -30,7 +29,7 @@ public class UserRepository : IUserRepository, IScopedDependency
         var phone = await FindByPhoneNumberAsync(phoneNum);
         if (phone != null) throw new Exception("手机号码已存在");
 
-        var password = SnowFlake.GetInstance().GetUniqueShortId(8);
+        var password = "123456";
         user = new User
         {
             UserName = userName,
@@ -115,7 +114,7 @@ public class UserRepository : IUserRepository, IScopedDependency
     {
         var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId);
         if (user == null) return (null, null);
-        var password = SnowFlake.GetInstance().GetUniqueShortId(8);
+        var password = "123456";
         user.PasswordHash = user.CreatePassword(password);
         _dbContext.Users.Update(user);
         if (await _dbContext.SaveChangesAsync() > 0)

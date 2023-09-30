@@ -17,7 +17,6 @@
 
   <ItemGroup>
     <PackageReference Include="IGeekFan.AspNetCore.Knife4jUI" Version="0.0.16" />
-    <PackageReference Include="Masuit.Tools.Core" Version="2.6.7" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.11" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="7.0.11" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="7.0.0" />

@@ -92,6 +92,29 @@ namespace Migrators.PostgreSQL.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "TestTables",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: false),
+                    DateTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    Type = table.Column<int>(type: "integer", nullable: false),
+                    Stuts = table.Column<bool>(type: "boolean", nullable: false),
+                    ConcurrencyStamp = table.Column<string>(type: "text", nullable: true),
+                    Created = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    LastModified = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    LastModifiedBy = table.Column<string>(type: "text", nullable: true),
+                    Deleted = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    DeletedBy = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TestTables", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
@@ -147,12 +170,14 @@ namespace Migrators.PostgreSQL.Migrations
                         name: "FK_RolePermissions_Permissions_PermissionId",
                         column: x => x.PermissionId,
                         principalTable: "Permissions",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_RolePermissions_Roles_RoleId",
                         column: x => x.RoleId,
                         principalTable: "Roles",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -177,7 +202,8 @@ namespace Migrators.PostgreSQL.Migrations
                         name: "FK_AuditTrails_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
                 });
 
             migrationBuilder.CreateTable(
@@ -196,12 +222,14 @@ namespace Migrators.PostgreSQL.Migrations
                         name: "FK_UserRoles_Roles_RoleId",
                         column: x => x.RoleId,
                         principalTable: "Roles",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_UserRoles_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -251,6 +279,9 @@ namespace Migrators.PostgreSQL.Migrations
 
             migrationBuilder.DropTable(
                 name: "RolePermissions");
+
+            migrationBuilder.DropTable(
+                name: "TestTables");
 
             migrationBuilder.DropTable(
                 name: "UserRoles");

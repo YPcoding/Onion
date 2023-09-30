@@ -1,9 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Domain.Entities.Audit;
-using Application.Features.AuditTrails.Caching;
-using Domain.Entities;
-using Masuit.Tools.Systems;
-using Microsoft.Extensions.Options;
+﻿using Domain.Entities.Audit;
 
 namespace Application.Features.AuditTrails.Commands.Add;
 

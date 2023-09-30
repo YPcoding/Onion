@@ -1,7 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Application.Features.Users.Caching;
-using Domain.Entities;
-using Masuit.Tools.Systems;
 using Microsoft.Extensions.Options;
 
 namespace Application.Features.Users.Commands.Add;
@@ -72,17 +70,20 @@ public class AddUserCommand : ICacheInvalidatorRequest<Result<long>>
 public class AddUserCommandHandler : IRequestHandler<AddUserCommand, Result<long>>
 {
     private readonly IApplicationDbContext _context;
+    private readonly ISnowFlakeService _snowFlakeService;
     private readonly IMapper _mapper;
     private readonly IOptions<SystemSettings> _optSystemSettings;
 
     public AddUserCommandHandler(
         IApplicationDbContext context,
         IMapper mapper,
-        IOptions<SystemSettings> optSystemSettings)
+        IOptions<SystemSettings> optSystemSettings,
+        ISnowFlakeService snowFlakeService)
     {
         _context = context;
         _mapper = mapper;
         _optSystemSettings = optSystemSettings;
+        _snowFlakeService = snowFlakeService;
     }
 
     /// <summary>
@@ -103,7 +104,7 @@ public class AddUserCommandHandler : IRequestHandler<AddUserCommand, Result<long
             {
                 user.UserRoles.Add(new UserRole
                 {
-                    Id = SnowFlake.GetInstance().GetLongId(),
+                    Id = _snowFlakeService.GenerateId(),
                     RoleId = roleId
                 });
             }

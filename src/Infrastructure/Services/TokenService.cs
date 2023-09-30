@@ -1,6 +1,5 @@
 ﻿using Application.Common.Configurations;
 using Application.Constants.ClaimTypes;
-using Masuit.Tools.DateTimeExt;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -16,7 +15,7 @@ namespace Infrastructure.Services
             {
                 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(options.SecurityKey));
                 var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-                var timestamp = DateTime.Now.AddMinutes(options.ExpireSeconds + options.RefreshExpiresSeconds).GetTotalSeconds().ToString();
+                var timestamp = DateTime.Now.AddMinutes(options.ExpireSeconds + options.RefreshExpiresSeconds).ToUnixTimestampSeconds().ToString();
                 claims = claims.Append(new Claim(ApplicationClaimTypes.RefreshExpires, timestamp)).ToArray();
 
                 var token = new JwtSecurityToken(

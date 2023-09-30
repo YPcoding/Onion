@@ -4,8 +4,7 @@ using Domain.Entities;
 using Domain.Entities.Identity;
 using Domain.Enums;
 using Infrastructure.Persistence;
-using Masuit.Tools;
-using Masuit.Tools.Systems;
+
 using Microsoft.Extensions.Options;
 using System.Linq.Dynamic.Core;
 
@@ -16,17 +15,20 @@ public class ApplicationDbContextInitializer
     private readonly ApplicationDbContext _context;
     private readonly IOptions<SystemSettings> _optSystemSettings;
     private readonly SystemService _systemService;
+    private readonly ISnowFlakeService _snowFlakeService;
 
     public ApplicationDbContextInitializer(
         ILogger<ApplicationDbContextInitializer> logger,
         ApplicationDbContext context,
         IOptions<SystemSettings> optSystemSettings,
-        SystemService systemService)
+        SystemService systemService,
+        ISnowFlakeService snowFlakeService)
     {
         _logger = logger;
         _context = context;
         _optSystemSettings = optSystemSettings;
         _systemService = systemService;
+        _snowFlakeService = snowFlakeService;
     }
 
     public async Task InitialiseAsync()
@@ -138,7 +140,7 @@ public class ApplicationDbContextInitializer
             {
                 var item = new RolePermission
                 {
-                    Id = SnowFlake.GetInstance().GetLongId(),
+                    Id = _snowFlakeService.GenerateId(),
                     PermissionId = permission.Id,
                     RoleId = (long)administratorRoleId!
                 };
@@ -155,7 +157,7 @@ public class ApplicationDbContextInitializer
             {
                 var item = new RolePermission
                 {
-                    Id = SnowFlake.GetInstance().GetLongId(),
+                    Id = _snowFlakeService.GenerateId(),
                     PermissionId = permission.Id,
                     RoleId = (long)userRoleId!
                 };

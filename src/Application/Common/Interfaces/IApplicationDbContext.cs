@@ -1,5 +1,6 @@
 ﻿using Domain.Entities.Audit;
 using Domain.Entities.Logger;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Application.Common.Interfaces;
 
@@ -15,4 +16,5 @@ public  interface IApplicationDbContext
     DbSet<TestTable> TestTables { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+    DatabaseFacade Database { get; }
 }

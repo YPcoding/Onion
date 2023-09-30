@@ -1,5 +1,4 @@
-﻿using Masuit.Tools;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using System.Reflection;
 using System.Xml;

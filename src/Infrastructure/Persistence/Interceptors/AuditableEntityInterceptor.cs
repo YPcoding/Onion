@@ -1,21 +1,21 @@
-﻿using AngleSharp.Text;
-using Domain.Enums;
-using Masuit.Tools;
-using Masuit.Tools.Systems;
+﻿using Domain.Enums;
 
 namespace Infrastructure.Persistence.Interceptors;
 
 public class AuditableEntityInterceptor : SaveChangesInterceptor
 {
     private readonly ICurrentUserService _currentUserService;
+    private readonly ISnowFlakeService _snowFlakeService;
     private readonly IDateTime _dateTime;
     private List<AuditTrail> _temporaryAuditTrailList = new();
     public AuditableEntityInterceptor(
         ICurrentUserService currentUserService,
-        IDateTime dateTime)
+        IDateTime dateTime,
+        ISnowFlakeService snowFlakeService)
     {
         _currentUserService = currentUserService;
         _dateTime = dateTime;
+        _snowFlakeService = snowFlakeService;
     }
 
     public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
@@ -39,7 +39,7 @@ public class AuditableEntityInterceptor : SaveChangesInterceptor
             {
                 case EntityState.Added:
                     if (entry.Entity.Id == 0)
-                        entry.Entity.Id = SnowFlake.GetInstance().GetLongId();
+                        entry.Entity.Id = _snowFlakeService.GenerateId();
                     break;
 
                 case EntityState.Modified:
@@ -53,7 +53,7 @@ public class AuditableEntityInterceptor : SaveChangesInterceptor
             {
                 case EntityState.Added:
                     if (entry.Entity.Id == 0)
-                        entry.Entity.Id = SnowFlake.GetInstance().GetLongId();
+                        entry.Entity.Id = _snowFlakeService.GenerateId();
                     entry.Entity.CreatedBy = userId?.ToString();
                     entry.Entity.Created = _dateTime.Now;
                     break;
@@ -96,7 +96,7 @@ public class AuditableEntityInterceptor : SaveChangesInterceptor
 
             var auditEntry = new AuditTrail()
             {
-                Id = SnowFlake.GetInstance().GetLongId(),
+                Id = _snowFlakeService.GenerateId(),
                 TableName = entry.Entity.GetType().Name,
                 UserId = long.TryParse(userId, out long result) ? result : null,
                 DateTime = _dateTime.Now,

@@ -1,6 +1,4 @@
-﻿using Masuit.Tools;
-
-namespace Application.Features.Users.Commands.Add;
+﻿namespace Application.Features.Users.Commands.Add;
 
 public class AddUserCommandValidator : AbstractValidator<AddUserCommand>
 {
@@ -32,7 +30,7 @@ public class AddUserCommandValidator : AbstractValidator<AddUserCommand>
     /// <returns></returns>
     private bool BeValidPasswordCanNotBeChinese(string password)
     {
-        return password.RegexMatch("^[^\u4e00-\u9fa5 ]{6,16}$");
+        return password.IsMatch("^[^\u4e00-\u9fa5 ]{6,16}$");
     }
 
     /// <summary>

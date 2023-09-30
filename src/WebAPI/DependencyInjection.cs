@@ -1,6 +1,6 @@
 ﻿using Application.Common.Mappings;
 using AutoMapper;
-using Masuit.Tools;
+
 
 namespace WebAPI;
 
@@ -10,7 +10,7 @@ public static class DependencyInjection
     /// 要扫描的程序集名称
     /// 默认为[^Application.|^Domain.|^Infrastructure.|^WebAPI.]多个使用|分隔
     /// </summary>
-    public static string MatchAssemblies = "^Application.|^Domain.|^Infrastructure.|^WebAPI.";
+    public static string MatchAssemblies = "^Common.|^Application.|^Domain.|^Infrastructure.|^WebAPI.";
 
     /// <summary>
     /// 自动依赖注入

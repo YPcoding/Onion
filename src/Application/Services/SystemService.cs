@@ -1,13 +1,14 @@
 ﻿using Application.Common.Helper;
-using Common.Extensions;
-using Masuit.Tools;
-using Masuit.Tools.Systems;
-using System;
 
 namespace Application.Services;
 
 public class SystemService : IScopedDependency
 {
+    private readonly ISnowFlakeService _snowFlakeService;
+    public SystemService(ISnowFlakeService snowFlakeService)
+    {
+        _snowFlakeService = snowFlakeService;
+    }
     public class SystemMenuSetting
     {
         public string Grop { get; set; }
@@ -49,7 +50,7 @@ public class SystemService : IScopedDependency
                     Icon = "lollipop",
                 };
             }
-            var menuId = SnowFlake.GetInstance().GetLongId();
+            var menuId = _snowFlakeService.GenerateId();
             allPermissions.Add(new Permission($"{setting.Grop}", $"{setting.Label}", $"{setting.Path}", menuOrder++, "", PermissionType.Menu, "", $"{setting.Icon}")
             {
                 Id = menuId
@@ -58,7 +59,7 @@ public class SystemService : IScopedDependency
             var pageOrder = 0;
             foreach (var page in menu!)
             {
-                var pageId = SnowFlake.GetInstance().GetLongId();
+                var pageId = _snowFlakeService.GenerateId();
                 var pagePath = $"{setting.Path}/{page.ControllerName.ToLower()}/index";
                 var name = $"{setting.Path.Replace("/", "").ToTitleCase()}{page.ControllerName}Page";
                 allPermissions.Add(new Permission(page.ControllerDescription, page.ControllerDescription, pagePath, pageOrder++, "", PermissionType.Page, name, "")
@@ -74,7 +75,7 @@ public class SystemService : IScopedDependency
                     if (dot.Description.IsNullOrEmpty()) continue;
                     allPermissions.Add(new Permission(page.ControllerDescription, dot.Description, path, dotOrder++, dot.HttpMethods, PermissionType.Dot, "", "")
                     {
-                        Id = SnowFlake.GetInstance().GetLongId(),
+                        Id = _snowFlakeService.GenerateId(),
                         SuperiorId = pageId
                     });
                 }

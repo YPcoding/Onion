@@ -1,6 +1,4 @@
 ﻿using Application.Features.Users.Caching;
-using Domain.Entities;
-using Masuit.Tools.Systems;
 using System.ComponentModel.DataAnnotations;
 
 namespace Application.Features.Roles.Commands.Update;
@@ -33,11 +31,13 @@ public class AssigningRoleCommand : ICacheInvalidatorRequest<Result<bool>>
 public class AssigningRoleCommandHandler : IRequestHandler<AssigningRoleCommand, Result<bool>>
 {
     private readonly IApplicationDbContext _context;
+    private readonly ISnowFlakeService _snowFlakeService;
 
     public AssigningRoleCommandHandler(
-        IApplicationDbContext context)
+        IApplicationDbContext context, ISnowFlakeService snowFlakeService)
     {
         _context = context;
+        _snowFlakeService = snowFlakeService;
     }
 
     /// <summary>
@@ -58,7 +58,7 @@ public class AssigningRoleCommandHandler : IRequestHandler<AssigningRoleCommand,
         {
             await _context.UserRoles.AddAsync(new UserRole
             {
-                Id = SnowFlake.GetInstance().GetLongId(),
+                Id = _snowFlakeService.GenerateId(),
                 UserId = request.UserId,
                 RoleId = roleId
             });

@@ -1,7 +1,4 @@
 ﻿using Application.Features.Users.Caching;
-using Domain.Entities;
-using Masuit.Tools;
-using Masuit.Tools.Systems;
 using System.ComponentModel.DataAnnotations;
 
 namespace Application.Features.Users.Commands.Update;
@@ -66,6 +63,7 @@ public class UpdateUserCommand : ICacheInvalidatorRequest<Result<long>>
 public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, Result<long>>
 {
     private readonly IApplicationDbContext _context;
+    private readonly ISnowFlakeService _snowFlakeService;
     private readonly IMapper _mapper;
 
     public UpdateUserCommandHandler(
@@ -99,7 +97,7 @@ public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, Resul
         {
             user.UserRoles.Add(new UserRole
             {
-                Id = SnowFlake.GetInstance().GetLongId(),
+                Id = _snowFlakeService.GenerateId(),
                 RoleId = roleId
             });
         });

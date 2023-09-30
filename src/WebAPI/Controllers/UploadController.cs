@@ -4,8 +4,7 @@ using Common.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Processing;
+using System.Drawing;
 
 namespace WebAPI.Controllers;
 
@@ -18,6 +17,8 @@ public class UploadController : ApiControllerBase
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IOptions<SystemSettings> _optSystemSettings;
 
+    public object SixLabors { get; private set; }
+
     public UploadController(
         IUploadService uploadService,
         IHttpContextAccessor httpContextAccessor,
@@ -26,44 +27,6 @@ public class UploadController : ApiControllerBase
         _uploadService = uploadService;
         _httpContextAccessor = httpContextAccessor;
         _optSystemSettings = optSystemSettings;
-    }
-
-
-    /// <summary>
-    /// 上传附件
-    /// </summary>
-    /// <returns>返回附件地址</returns>
-    [HttpPost("Enclosure")]
-    [AllowAnonymous]
-
-    public async Task<Result<string>> UploadEnclosureAsync(IFormFile file)
-    {
-        var filestream = file.OpenReadStream();
-        var imgStream = new MemoryStream();
-        await filestream.CopyToAsync(imgStream);
-        imgStream.Position = 0;
-        using (var outStream = new MemoryStream())
-        {
-            using (var image = Image.Load(imgStream))
-            {
-                image.Mutate(
-                   i => i.Resize(new ResizeOptions() { Mode = ResizeMode.Crop, Size = new Size(640, 320) }));
-                image.Save(outStream, SixLabors.ImageSharp.Formats.Png.PngFormat.Instance);
-                var filename = file.FileName;
-                var fi = new FileInfo(filename);
-                var ext = fi.Extension;
-                var result = await _uploadService.UploadAsync(new UploadRequest(Guid.NewGuid().ToString() + ext, UploadType.Image, outStream.ToArray()));
-                if (result == string.Empty)
-                {
-                    return await Result<string>.FailureAsync(new string[] { "上传失败" });
-                }
-
-                result = result.Replace("\\", "/");
-                var host = _optSystemSettings.Value.HostDomainName;
-
-                return await Result<string>.SuccessAsync($"{host}/{result}");
-            }
-        }
     }
 
     /// <summary>

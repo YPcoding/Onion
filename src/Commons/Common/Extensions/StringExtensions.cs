@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -7,6 +8,53 @@ namespace Common.Extensions;
 
 public static class StringExtensions
 {
+    /// <summary>
+    /// 执行忽略大小写的字符串比较，确定两个字符串是否相等。
+    /// </summary>
+    /// <param name="str1">要比较的第一个字符串。</param>
+    /// <param name="str2">要比较的第二个字符串。</param>
+    /// <returns>如果两个字符串相等（忽略大小写），则为 true；否则为 false。</returns>
+    public static bool EqualsIgnoreCase(this string str1, string str2)
+    {
+        return string.Equals(str1, str2, StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// 生成MD5哈希
+    /// </summary>
+    /// <param name="input">要哈希的原始字符串</param>
+    /// <param name="salt">可选的盐值（默认为null）</param>
+    /// <returns>MD5哈希</returns>
+    public static string MDString(this string input, string? salt = null)
+    {
+        using (MD5 md5 = MD5.Create())
+        {
+            byte[] inputBytes;
+
+            if (!salt.IsDefaultOrEmpty())
+            {
+                // 如果提供了盐值，将原始字符串和盐值拼接
+                inputBytes = Encoding.UTF8.GetBytes(input + salt);
+            }
+            else
+            {
+                // 如果没有提供盐值，直接使用原始字符串
+                inputBytes = Encoding.UTF8.GetBytes(input);
+            }
+
+            byte[] hashBytes = md5.ComputeHash(inputBytes);
+
+            // 将哈希字节数组转换为字符串表示形式
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < hashBytes.Length; i++)
+            {
+                builder.Append(hashBytes[i].ToString("x2")); // 使用小写十六进制表示
+            }
+
+            return builder.ToString();
+        }
+    }
+
     /// <summary>
     /// 首字母转大写
     /// </summary>
@@ -305,6 +353,22 @@ public static class StringExtensions
         {
             PropertyNameCaseInsensitive = true // 如果需要，可以忽略属性名称的大小写
         })!;
+    }
+
+    /// <summary>
+    /// 将字符串转换为 Int64（长整数）类型。如果转换失败，返回默认值。
+    /// </summary>
+    /// <param name="input">要转换的字符串</param>
+    /// <param name="defaultValue">转换失败时返回的默认值</param>
+    /// <returns>转换后的 Int64 值或默认值</returns>
+    public static long ToInt64OrDefault(this string input, long defaultValue = 0)
+    {
+        if (long.TryParse(input, out long result))
+        {
+            return result;
+        }
+
+        return defaultValue;
     }
 }
 

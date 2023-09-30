@@ -1,11 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Domain.Entities;
-using Application.Features.TestTables.Caching;
-using Domain.Entities;
-using Masuit.Tools.Systems;
-using Microsoft.Extensions.Options;
-
-namespace Application.Features.TestTables.Commands.Add;
+﻿namespace Application.Features.TestTables.Commands.Add;
 
 /// <summary>
 /// 添加测试表

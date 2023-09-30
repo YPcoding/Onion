@@ -1,5 +1,4 @@
-﻿using Masuit.Tools;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace Application.Features.Users.Commands.Update;
 
@@ -41,8 +40,7 @@ public class UpdateUserCommandValidator : AbstractValidator<UpdateUserCommand>
         }
         else 
         {
-            (bool isMatch, Match match) = email.MatchEmail();
-            return isMatch;
+            return email.IsValidEmail();
         }
     }
 
@@ -59,8 +57,7 @@ public class UpdateUserCommandValidator : AbstractValidator<UpdateUserCommand>
         }
         else
         {
-            bool isPhoneNumber = phoneNumber.MatchPhoneNumber();
-            return isPhoneNumber;
+            return phoneNumber.IsValidPhoneNumber();
         }
     }
 

@@ -12,10 +12,11 @@ using System.Text;
 using Infrastructure.Auth;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
-using Masuit.Tools;
+
 using FluentValidation;
 using CInfrastructure.Persistence;
 using Newtonsoft.Json;
+using System.Linq;
 
 namespace Infrastructure;
 
@@ -27,6 +28,7 @@ public static class DependencyInjection
         services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
         services.AddScoped<ISaveChangesInterceptor, DispatchDomainEventsInterceptor>();
         services.Configure<DatabaseSettings>(configuration.GetSection(DatabaseSettings.Key));
+        services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.Key));
         services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.Key));
         services.Configure<SystemSettings>(configuration.GetSection(SystemSettings.Key));
         services.AddSingleton(s => s.GetRequiredService<IOptions<DatabaseSettings>>().Value);
@@ -112,6 +114,12 @@ public static class DependencyInjection
             c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "WebAPI.xml"), true);
         });
         #endregion
+
+        #region 雪花ID
+        SnowFlakeSettings snowFlakeSettings = configuration.GetSection(SnowFlakeSettings.Key).Get<SnowFlakeSettings>()!;
+        services.AddSingleton<ISnowFlakeService>(new SnowFlakeService(snowFlakeSettings.WorkerId, snowFlakeSettings.DataCenterId));
+        #endregion
+
         return services;
     }
 }

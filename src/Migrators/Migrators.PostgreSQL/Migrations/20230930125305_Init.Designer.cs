@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Migrators.PostgreSQL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230926163902_Init")]
+    [Migration("20230930125305_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -344,6 +344,54 @@ namespace Migrators.PostgreSQL.Migrations
                     b.ToTable("RolePermissions");
                 });
 
+            modelBuilder.Entity("Domain.Entities.TestTable", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("Created")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("DateTime")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime?>("Deleted")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("Stuts")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TestTables");
+                });
+
             modelBuilder.Entity("Domain.Entities.UserRole", b =>
                 {
                     b.Property<long>("Id")
@@ -372,7 +420,7 @@ namespace Migrators.PostgreSQL.Migrations
                     b.HasOne("Domain.Entities.Identity.User", "Owner")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Owner");
                 });
@@ -381,8 +429,7 @@ namespace Migrators.PostgreSQL.Migrations
                 {
                     b.HasOne("Domain.Entities.Identity.User", "Superior")
                         .WithMany()
-                        .HasForeignKey("SuperiorId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .HasForeignKey("SuperiorId");
 
                     b.Navigation("Superior");
                 });
@@ -391,8 +438,7 @@ namespace Migrators.PostgreSQL.Migrations
                 {
                     b.HasOne("Domain.Entities.Permission", "Superior")
                         .WithMany()
-                        .HasForeignKey("SuperiorId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .HasForeignKey("SuperiorId");
 
                     b.Navigation("Superior");
                 });
@@ -402,13 +448,13 @@ namespace Migrators.PostgreSQL.Migrations
                     b.HasOne("Domain.Entities.Permission", "Permission")
                         .WithMany("RolePermissions")
                         .HasForeignKey("PermissionId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.Role", "Role")
                         .WithMany("RolePermissions")
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Permission");
@@ -421,13 +467,13 @@ namespace Migrators.PostgreSQL.Migrations
                     b.HasOne("Domain.Entities.Role", "Role")
                         .WithMany("UserRoles")
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.Identity.User", "User")
                         .WithMany("UserRoles")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Role");

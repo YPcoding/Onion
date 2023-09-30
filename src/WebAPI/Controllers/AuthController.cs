@@ -5,14 +5,11 @@ using Application.Features.Auth.Commands;
 using Application.Features.Auth.DTOs;
 using Application.Features.Permissions.DTOs;
 using Application.Features.Permissions.Queries.GetByUserId;
-using Masuit.Tools;
-using Masuit.Tools.DateTimeExt;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
-using System.ComponentModel;
 using System.Text;
 
 namespace WebAPI.Controllers
@@ -65,7 +62,7 @@ namespace WebAPI.Controllers
                 throw new ArgumentException("无法解析token");
 
             var refreshExpires = claims!.FirstOrDefault(a => a.Type == ApplicationClaimTypes.RefreshExpires)?.Value;
-            if (refreshExpires.IsNullOrEmpty() || refreshExpires.ToInt64() <= DateTime.Now.GetTotalSeconds())
+            if (refreshExpires!.IsNullOrEmpty() || refreshExpires!.ToInt64OrDefault() <= DateTime.Now.ToUnixTimestampSeconds())
                 throw new Exception("登录信息已过期");
 
             //验签
@@ -77,7 +74,7 @@ namespace WebAPI.Controllers
                 throw new Exception("验签失败");
             }
 
-            var userId = claims![0].Value.ToInt64();
+            var userId = claims![0].Value.ToInt64OrDefault();
             var userName = claims[1].Value;
 
             var newClaims = await _tokenService.CreateClaimsAsync(userId, userName);

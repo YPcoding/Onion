@@ -20,6 +20,7 @@ public static class DependencyInjection
             config.AddOpenBehavior(typeof(ValidationBehaviour<,>));
             config.AddOpenBehavior(typeof(MemoryCacheBehaviour<,>));
             config.AddOpenBehavior(typeof(CacheInvalidationBehaviour<,>));
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(TransactionBehavior<,>));
         });
         services.AddLazyCache();
 

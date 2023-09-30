@@ -1,6 +1,4 @@
-﻿using Masuit.Tools.Systems;
-
-namespace Infrastructure.Services;
+﻿namespace Infrastructure.Services;
 
 public class UploadService : IUploadService
 {

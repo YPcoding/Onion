@@ -1,6 +1,4 @@
 ﻿using Application.Features.Roles.Caching;
-using Domain.Entities;
-using Masuit.Tools.Systems;
 using System.ComponentModel.DataAnnotations;
 
 namespace Application.Features.Roles.Commands.Update;
@@ -34,14 +32,17 @@ public class UpdateRolePermissionMenuCommand : ICacheInvalidatorRequest<Result<b
 public class UpdateRolePermissionCommandHandler : IRequestHandler<UpdateRolePermissionMenuCommand, Result<bool>>
 {
     private readonly IApplicationDbContext _context;
+    private readonly ISnowFlakeService _snowFlakeService;
     private readonly IMapper _mapper;
 
     public UpdateRolePermissionCommandHandler(
         IApplicationDbContext context,
-        IMapper mapper)
+        IMapper mapper,
+        ISnowFlakeService snowFlakeService)
     {
         _context = context;
         _mapper = mapper;
+        _snowFlakeService = snowFlakeService;
     }
 
     /// <summary>
@@ -67,7 +68,7 @@ public class UpdateRolePermissionCommandHandler : IRequestHandler<UpdateRolePerm
 
         var newRolePermissions = request.PermissionIds.Select(permissionId => new RolePermission
         {
-            Id = SnowFlake.GetInstance().GetLongId(),
+            Id = _snowFlakeService.GenerateId(),
             RoleId = request.RoleId,
             PermissionId = permissionId
         }).ToList();

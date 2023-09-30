@@ -1,6 +1,4 @@
-﻿using AngleSharp.Dom;
-
-namespace Application.Common.Models;
+﻿namespace Application.Common.Models;
 
 /// <summary>
 /// 返回结果

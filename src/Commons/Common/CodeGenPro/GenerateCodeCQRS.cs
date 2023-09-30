@@ -1,6 +1,5 @@
 ﻿using Common.Enums;
 using System.ComponentModel.DataAnnotations;
-using System.IO;
 using System.Reflection;
 using System.Text;
 
@@ -263,7 +262,7 @@ $@"using System.ComponentModel.DataAnnotations;
 using {GenrateCodeHelper.RemoveSuffix($"{type.FullName}", $".{typeName}")};
 using {nameSpace}.{typeName}s.Caching;
 using Domain.Entities;
-using Masuit.Tools.Systems;
+_snowFlakeService.GenerateId()
 using Microsoft.Extensions.Options;
 
 namespace {nameSpace}.{typeName}s.Commands.Add;
@@ -916,7 +915,7 @@ $@"}}";
         var header =
 $@"using Ardalis.Specification;
 using {GenrateCodeHelper.RemoveSuffix($"{type.FullName}", $".{typeName}")};
-using Masuit.Tools;
+
 
 namespace {nameSpace}.{typeName}s.Specifications;
 

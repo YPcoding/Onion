@@ -1,5 +1,4 @@
-﻿using Masuit.Tools.Security;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Entities.Identity
@@ -130,7 +129,7 @@ namespace Domain.Entities.Identity
         /// <param name="password">密码</param>
         public string CreatePassword(string password) 
         {
-            return password.MDString3("Onion");
+            return password.MDString("Onion");
         }
 
         /// <summary>
