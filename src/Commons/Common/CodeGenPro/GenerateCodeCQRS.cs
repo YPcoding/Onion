@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using Common.Enums;
+using System.ComponentModel.DataAnnotations;
+using System.IO;
 using System.Reflection;
 using System.Text;
 
@@ -149,12 +151,43 @@ public class GenrateCodeHelper
         }
     }
 
+    /// <summary>
+    /// 获取类字段描述
+    /// </summary>
+    /// <param name="type"></param>
+    /// <returns></returns>
     public static string GetTypeDescription(Type type) 
     {
         return type.CustomAttributes?
             .FirstOrDefault(x => x.AttributeType.Name == "DescriptionAttribute")?
             .ConstructorArguments?
             .FirstOrDefault().Value?.ToString()!;
+    }
+
+    /// <summary>
+    /// 生成代码参数
+    /// </summary>
+    public class GenerateCodeParam
+    {
+        /// <summary>
+        /// 类名: 如 "Domain.Entities.Identity.User";
+        /// </summary>
+        [Required(ErrorMessage = $"缺少参数FullClassName")]
+        public string FullClassName { get; set; }
+        /// <summary>
+        /// 命名空间: 如 "Application.Features";
+        /// </summary>
+        public string? NameSpace { get; set; } = "Application.Features";
+        /// <summary>
+        /// 保存路径：如 "D:\\Programming\\Net\\Onion\\src\\Application\\Features";
+        /// </summary>
+        [Required(ErrorMessage = $"缺少参数SavePath")]
+        public string SavePath { get; set; }
+        /// <summary>
+        /// 生成代码类型（枚举）
+        /// </summary>
+        [Required(ErrorMessage = $"缺少参数Type")]
+        public GenerateCodeType Type { get; set; }
     }
 }
 

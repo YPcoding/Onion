@@ -25,13 +25,13 @@ public class SystemService : IScopedDependency
         IEnumerable<SystemMenuSetting> settings = new List<SystemMenuSetting>
         {
             new SystemMenuSetting { Grop="系统管理", Label="系统管理", Path="/system", Icon="lollipop" },
-            new SystemMenuSetting { Grop="日志管理", Label="日志管理", Path="/log", Icon="lollipop" }
+            new SystemMenuSetting { Grop="日志管理", Label="日志管理", Path="/log", Icon="lollipop" },
+            new SystemMenuSetting { Grop="代码生成器", Label="代码生成器", Path="/genrate", Icon="lollipop" }
         };
 
         var hiddenPages = new List<string>()
         {
             "授权管理",
-            "代码生成",
             "文件上传管理",
             "测试接口"
         };
@@ -56,7 +56,7 @@ public class SystemService : IScopedDependency
             });
 
             var pageOrder = 0;
-            foreach (var page in menu)
+            foreach (var page in menu!)
             {
                 var pageId = SnowFlake.GetInstance().GetLongId();
                 var pagePath = $"{setting.Path}/{page.ControllerName.ToLower()}/index";
