@@ -5,6 +5,7 @@ using static Common.CodeGenPro.GenrateCodeHelper;
 
 namespace Application.Features.GenerateCodes.Commands.Backend;
 
+[Map(typeof(GenerateCodeParam))]
 public class GenerateBackendCodeCommand : IRequest<Result<IEnumerable<string>>>
 {
     /// <summary>
