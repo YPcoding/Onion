@@ -1,7 +1,17 @@
-﻿namespace Common.Extensions;
+﻿using System.Net;
+using System.Text;
+using System.Text.Json;
+using System.Text.RegularExpressions;
+
+namespace Common.Extensions;
 
 public static class StringExtensions
 {
+    /// <summary>
+    /// 首字母转大写
+    /// </summary>
+    /// <param name="input"></param>
+    /// <returns></returns>
     public static string ToTitleCase(this string input)
     {
         if (string.IsNullOrEmpty(input))
@@ -21,6 +31,280 @@ public static class StringExtensions
 
         // 将单词重新组合成字符串
         return string.Join(" ", words);
+    }
+
+    // 检查字符串是否为空或 null
+    public static bool IsNullOrEmpty(this string str)
+    {
+        return string.IsNullOrEmpty(str);
+    }
+
+    // 检查字符串是否为空格或 null
+    public static bool IsNullOrWhiteSpace(this string str)
+    {
+        return string.IsNullOrWhiteSpace(str);
+    }
+
+    /// <summary>
+    /// 在字符串中查找所有匹配的子字符串，并返回它们的列表
+    /// </summary>
+    public static List<string> FindAllMatches(this string input, string pattern)
+    {
+        var matches = Regex.Matches(input, pattern);
+        return matches.Select(match => match.Value).ToList();
+    }
+
+    /// <summary>
+    /// 将字符串拆分为行，并返回行的列表
+    /// </summary>
+    public static List<string> SplitLines(this string input)
+    {
+        return input.Split(new[] { Environment.NewLine, "\n" }, StringSplitOptions.None).ToList();
+    }
+
+    /// <summary>
+    /// 移除字符串中的所有空格
+    /// </summary>
+    public static string RemoveSpaces(this string input)
+    {
+        return new string(input.Where(c => !char.IsWhiteSpace(c)).ToArray());
+    }
+
+    /// <summary>
+    /// 反转字符串
+    /// </summary>
+    public static string Reverse(this string input)
+    {
+        char[] charArray = input.ToCharArray();
+        Array.Reverse(charArray);
+        return new string(charArray);
+    }
+
+    /// <summary>
+    /// 判断字符串是否包含指定子字符串，不区分大小写
+    /// </summary>
+    public static bool ContainsIgnoreCase(this string input, string value)
+    {
+        return input.IndexOf(value, StringComparison.OrdinalIgnoreCase) >= 0;
+    }
+
+    /// <summary>
+    /// 截取字符串的一部分
+    /// </summary>
+    public static string SubstringSafe(this string input, int startIndex, int length)
+    {
+        if (input.Length <= startIndex)
+            return string.Empty;
+        if (startIndex + length > input.Length)
+            return input.Substring(startIndex);
+        return input.Substring(startIndex, length);
+    }
+
+    /// <summary>
+    /// 剔除字符串中的HTML标签
+    /// </summary>
+    public static string StripHtmlTags(this string input)
+    {
+        return Regex.Replace(input, "<.*?>", string.Empty);
+    }
+
+    /// <summary>
+    /// 将字符串转换为小写并移除空格
+    /// </summary>
+    public static string ToLowerAndRemoveSpaces(this string input)
+    {
+        return input.ToLower().RemoveSpaces();
+    }
+
+    /// <summary>
+    /// 检查字符串是否为有效URL
+    /// </summary>
+    public static bool IsValidUrl(this string input)
+    {
+        return Uri.TryCreate(input, UriKind.Absolute, out var uriResult)
+            && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+    }
+
+    /// <summary>
+    /// 将字符串转换为Base64编码
+    /// </summary>
+    public static string ToBase64(this string input)
+    {
+        var bytes = Encoding.UTF8.GetBytes(input);
+        return Convert.ToBase64String(bytes);
+    }
+
+    /// <summary>
+    /// 将Base64编码的字符串解码为原始字符串
+    /// </summary>
+    public static string FromBase64(this string base64Input)
+    {
+        var bytes = Convert.FromBase64String(base64Input);
+        return Encoding.UTF8.GetString(bytes);
+    }
+
+    /// <summary>
+    /// 将字符串中的所有空格替换为指定字符
+    /// </summary>
+    public static string ReplaceSpacesWith(this string input, char replacement)
+    {
+        return new string(input.Select(c => c == ' ' ? replacement : c).ToArray());
+    }
+
+    /// <summary>
+    /// 获取字符串的字节数组表示
+    /// </summary>
+    public static byte[] ToByteArray(this string input)
+    {
+        return Encoding.UTF8.GetBytes(input);
+    }
+
+    /// <summary>
+    /// 将字符串重复指定次数
+    /// </summary>
+    public static string Repeat(this string input, int count)
+    {
+        return string.Concat(Enumerable.Repeat(input, count));
+    }
+
+    /// <summary>
+    /// 将字符串分割为单词列表
+    /// </summary>
+    public static List<string> SplitIntoWords(this string input)
+    {
+        return input.Split(new[] { ' ', '\t', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+    }
+
+    /// <summary>
+    /// 判断字符串是否包含任何数字字符
+    /// </summary>
+    public static bool ContainsDigits(this string input)
+    {
+        return input.Any(char.IsDigit);
+    }
+
+    /// <summary>
+    /// 将字符串转换为驼峰命名法
+    /// </summary>
+    public static string ToCamelCase(this string input)
+    {
+        if (string.IsNullOrEmpty(input))
+            return input;
+
+        var words = input.Split(' ', '-', '_');
+        for (int i = 1; i < words.Length; i++)
+        {
+            words[i] = words[i].ToTitleCase();
+        }
+        return string.Join("", words);
+    }
+
+    /// <summary>
+    /// 将字符串转换为帕斯卡命名法
+    /// </summary>
+    public static string ToPascalCase(this string input)
+    {
+        if (string.IsNullOrEmpty(input))
+            return input;
+
+        var words = input.Split(' ', '-', '_');
+        for (int i = 0; i < words.Length; i++)
+        {
+            words[i] = words[i].ToTitleCase();
+        }
+        return string.Join("", words);
+    }
+
+    /// <summary>
+    /// 检查字符串是否为数字
+    /// </summary>
+    public static bool IsNumeric(this string input)
+    {
+        return double.TryParse(input, out _);
+    }
+
+    /// <summary>
+    /// 检查字符串是否包含特定前缀
+    /// </summary>
+    public static bool HasPrefix(this string input, string prefix)
+    {
+        return input.StartsWith(prefix);
+    }
+
+    /// <summary>
+    /// 检查字符串是否包含特定后缀
+    /// </summary>
+    public static bool HasSuffix(this string input, string suffix)
+    {
+        return input.EndsWith(suffix);
+    }
+
+    /// <summary>
+    /// 将字符串转换为全大写
+    /// </summary>
+    public static string ToUpperCase(this string input)
+    {
+        return input.ToUpper();
+    }
+
+    /// <summary>
+    /// 将字符串转换为全小写
+    /// </summary>
+    public static string ToLowerCase(this string input)
+    {
+        return input.ToLower();
+    }
+
+    /// <summary>
+    /// 检查字符串是否为空或仅包含空格
+    /// </summary>
+    public static bool IsNullOrWhitespace(this string input)
+    {
+        return string.IsNullOrWhiteSpace(input);
+    }
+
+    /// <summary>
+    /// 检查字符串是否为有效的IP地址
+    /// </summary>
+    public static bool IsValidIpAddress(this string input)
+    {
+        return IPAddress.TryParse(input, out _);
+    }
+
+
+    /// <summary>
+    /// 将字符串中的所有换行符替换为指定字符串
+    /// </summary>
+    public static string ReplaceNewlinesWith(this string input, string replacement)
+    {
+        return input.Replace("\r\n", replacement).Replace("\n", replacement).Replace("\r", replacement);
+    }
+
+    /// <summary>
+    /// 将字符串转换为可安全传递的URL编码格式
+    /// </summary>
+    public static string ToUrlEncoded(this string input)
+    {
+        return Uri.EscapeDataString(input);
+    }
+
+    /// <summary>
+    /// 将 JSON 字符串转换为指定类型的对象。
+    /// </summary>
+    /// <typeparam name="T">要转换的对象类型。</typeparam>
+    /// <param name="json">JSON 字符串。</param>
+    /// <returns>转换后的对象。</returns>
+    public static T FromJson<T>(this string json)
+    {
+        if (string.IsNullOrEmpty(json))
+        {
+            throw new ArgumentNullException(nameof(json), "JSON 字符串不能为空。");
+        }
+
+        return JsonSerializer.Deserialize<T>(json, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true // 如果需要，可以忽略属性名称的大小写
+        })!;
     }
 }
 

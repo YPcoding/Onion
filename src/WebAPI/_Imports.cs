@@ -5,3 +5,4 @@ global using Infrastructure;
 global using Infrastructure.Extensions;
 global using Application.Common.Models;
 global using Common.Interfaces;
+global using Common.Extensions;
