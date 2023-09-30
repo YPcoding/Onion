@@ -25,7 +25,7 @@ public static class SerilogExtensions
                 .MinimumLevel.Override("Serilog", LogEventLevel.Error)
                 .MinimumLevel.Override("Microsoft.EntityFrameworkCore.AddOrUpdate", LogEventLevel.Error)
                 .Enrich.FromLogContext()
-                .Enrich.WithUtcTime()
+                .Enrich.WithTime()
                 .WriteTo.Async(wt => wt.File("./log/log-.txt", rollingInterval: RollingInterval.Day))
                 .WriteTo.Async(wt =>
                     wt.Console(
@@ -114,7 +114,7 @@ public static class SerilogExtensions
                     DataLength = -1
                 }
             },
-            TimeStamp = { ConvertToUtc = true, ColumnName = "TimeStamp" },
+            TimeStamp = { ConvertToUtc = false, ColumnName = "TimeStamp" },
             LogEvent = { DataLength = 2048 }
         };
         columnOpts.PrimaryKey = columnOpts.Id;
@@ -174,16 +174,16 @@ public static class SerilogExtensions
     }
 
 
-    public static LoggerConfiguration WithUtcTime(this LoggerEnrichmentConfiguration enrichmentConfiguration)
+    public static LoggerConfiguration WithTime(this LoggerEnrichmentConfiguration enrichmentConfiguration)
     {
-        return enrichmentConfiguration.With<UtcTimestampEnricher>();
+        return enrichmentConfiguration.With<TimestampEnricher>();
     }
 }
 
-internal class UtcTimestampEnricher : ILogEventEnricher
+internal class TimestampEnricher : ILogEventEnricher
 {
     public void Enrich(LogEvent logEvent, ILogEventPropertyFactory pf)
     {
-        logEvent.AddOrUpdateProperty(pf.CreateProperty("TimeStamp", logEvent.Timestamp.UtcDateTime));
+        logEvent.AddOrUpdateProperty(pf.CreateProperty("TimeStamp", logEvent.Timestamp.DateTime));
     }
 }
