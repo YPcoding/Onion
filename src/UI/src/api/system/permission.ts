@@ -64,3 +64,8 @@ export const deletePermission = (data?: object) => {
     data
   });
 };
+
+/** 同步API权限 */
+export const syncAPIToPermission = () => {
+  return http.request<Result>("post", "/api/Permission/Sync/API");
+};

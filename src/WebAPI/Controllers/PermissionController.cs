@@ -1,10 +1,12 @@
 ﻿using Application.Features.Permissions.Commands.Add;
 using Application.Features.Permissions.Commands.Delete;
+using Application.Features.Permissions.Commands.SyncAPI;
 using Application.Features.Permissions.Commands.Update;
 using Application.Features.Permissions.DTOs;
 using Application.Features.Permissions.Queries.GetAll;
 using Application.Features.Permissions.Queries.GetById;
 using Microsoft.AspNetCore.Mvc;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace WebAPI.Controllers
 {
@@ -68,6 +70,15 @@ namespace WebAPI.Controllers
         {
             return await Mediator.Send(command);
         }
+
+        /// <summary>
+        /// 同步API权限
+        /// </summary>
+        /// <returns></returns>
         [HttpPost("Sync/API")]
+        public async Task<Result<string>> Sync()
+        {
+            return await Mediator.Send(new SyncAPIToPermissionCommand());
+        }
     }
 }

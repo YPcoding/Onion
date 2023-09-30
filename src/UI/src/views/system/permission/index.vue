@@ -26,6 +26,7 @@ const {
   resetForm,
   openDialog,
   handleDelete,
+  handleSyncAPI,
   handleSelectionChange
 } = usePermission();
 </script>
@@ -81,6 +82,14 @@ const {
       v-if="hasAuth('api:permission:query:all')"
     >
       <template #buttons>
+        <el-button
+          v-if="hasAuth('api:permission:add')"
+          type="primary"
+          :icon="useRenderIcon(Refresh)"
+          @click="handleSyncAPI()"
+        >
+          同步API
+        </el-button>
         <el-button
           v-if="hasAuth('api:permission:add')"
           type="primary"

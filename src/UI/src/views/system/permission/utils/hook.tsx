@@ -6,7 +6,8 @@ import {
   getPermissionList,
   addPermission,
   updatePermission,
-  deletePermission
+  deletePermission,
+  syncAPIToPermission
 } from "@/api/system/permission";
 import { usePublicHooks } from "../../hooks";
 import { addDialog } from "@/components/ReDialog";
@@ -221,6 +222,16 @@ export function usePermission() {
     onSearch();
   });
 
+  async function handleSyncAPI() {
+    var res = await syncAPIToPermission();
+    if (res.succeeded) {
+      message(`${res.data}`, { type: "success" });
+      onSearch();
+    } else {
+      message(`${res.data}`, { type: "error" });
+    }
+  }
+
   return {
     form,
     loading,
@@ -230,6 +241,7 @@ export function usePermission() {
     resetForm,
     openDialog,
     handleDelete,
+    handleSyncAPI,
     handleSelectionChange
   };
 }
