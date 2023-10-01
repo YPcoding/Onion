@@ -86,8 +86,7 @@ _Vue3+Vite4+Element-Plus+TypeScript_
 
 ### 前端
 
-1. 安装依赖： npm install -g pnpm
-   pnpm install
+1. 安装依赖： 1、npm install -g pnpm 2、pnpm install
 2. 启动项目： pnpm dev
 3. 安 装 包： pnpm add 包名
 4. 卸 载 包： pnpm remove 包名
