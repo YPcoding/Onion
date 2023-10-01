@@ -66,6 +66,11 @@ export function usePermission() {
       minWidth: 280
     },
     {
+      label: "分组",
+      prop: "group",
+      minWidth: 180
+    },
+    {
       label: "请求方法",
       prop: "httpMethods",
       minWidth: 100
@@ -228,7 +233,8 @@ export function usePermission() {
       message(`${res.data}`, { type: "success" });
       onSearch();
     } else {
-      message(`${res.data}`, { type: "error" });
+      console.log(res);
+      message(`${res.errorMessage}`, { type: "error" });
     }
   }
 

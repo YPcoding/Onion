@@ -1,5 +1,6 @@
 ﻿using Application.Features.Permissions.Caching;
 using Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Permissions.Commands.Delete;
 
@@ -50,17 +51,31 @@ public class DeletePermissionCommandHandler : IRequestHandler<DeletePermissionCo
     /// <returns>返回处理结果</returns>
     public async Task<Result<bool>> Handle(DeletePermissionCommand request, CancellationToken cancellationToken)
     {
-        var permissionsToDelete = await _context.Permissions
-            .Where(x => request.PermissionIds.Contains(x.Id) || request.PermissionIds.Contains((long)x.SuperiorId!))
-            .ToListAsync();
+        request.PermissionIds.ForEach(DeleteRecursive);
 
-        if (permissionsToDelete.Any())
+        // 提交更改到数据库
+        var isSuccess = await _context.SaveChangesAsync(cancellationToken) > 0;
+        return await Result<bool>.SuccessOrFailureAsync(isSuccess, isSuccess, new string[] { "操作失败" });
+
+        // 递归函数，用于删除权限及其所有子级
+        async void DeleteRecursive(long id)
         {
-            _context.Permissions.RemoveRange(permissionsToDelete);
-            var isSuccess = await _context.SaveChangesAsync(cancellationToken) > 0;
-            return await Result<bool>.SuccessOrFailureAsync(isSuccess, isSuccess, new string[] { "操作失败" });
-        }
+            var childrenToDelete = await _context.Permissions
+                .Where(p => p.SuperiorId == id)
+                .ToListAsync();
 
-        return await Result<bool>.FailureAsync(new string[] { "没有找到需要删除的权限" });
+            foreach (var child in childrenToDelete)
+            {
+                DeleteRecursive(child.Id); // 递归删除子级的子级
+            }
+
+            var permissionToDelete = await _context.Permissions
+                .SingleOrDefaultAsync(p => p.Id == id);
+
+            if (permissionToDelete != null)
+            {
+                _context.Permissions.Remove(permissionToDelete);
+            }
+        }
     }
 }

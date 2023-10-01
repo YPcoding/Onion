@@ -98,11 +98,11 @@ public class SystemService : IScopedDependency
                 if (permission.Type == PermissionType.Dot)
                 {
                     var permissionDotToReplaceSuperior = excludeMenus
-                      .Where(x => x.Group == permission.Group && x.Type == PermissionType.Page)
+                      .Where(x => x.Group == permission.Group && x.Type == PermissionType.Dot)
                       .FirstOrDefault();
                     if (permissionDotToReplaceSuperior != null)
                     {
-                        permission.SuperiorId = permissionDotToReplaceSuperior.Id;
+                        permission.SuperiorId = permissionDotToReplaceSuperior.SuperiorId;
                     }
                 }
                 if (permission.Type == PermissionType.Page)
