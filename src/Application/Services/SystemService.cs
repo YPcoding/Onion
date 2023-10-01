@@ -25,9 +25,9 @@ public class SystemService : IScopedDependency
 
         IEnumerable<SystemMenuSetting> settings = new List<SystemMenuSetting>
         {
-            new SystemMenuSetting { Grop="系统管理", Label="系统管理", Path="/system", Icon="lollipop" },
-            new SystemMenuSetting { Grop="日志管理", Label="日志管理", Path="/log", Icon="lollipop" },
-            new SystemMenuSetting { Grop="代码生成器", Label="代码生成器", Path="/genrate", Icon="lollipop" }
+            new SystemMenuSetting { Grop="系统管理", Label="系统管理", Path="/system", Icon="ep:setting" },
+            new SystemMenuSetting { Grop="日志管理", Label="日志管理", Path="/log", Icon="ep:coin" },
+            new SystemMenuSetting { Grop="代码生成器", Label="代码生成器", Path="/genrate", Icon="ep:opportunity" }
         };
 
         var hiddenPages = new List<string>()

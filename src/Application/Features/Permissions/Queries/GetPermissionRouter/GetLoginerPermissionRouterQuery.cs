@@ -65,8 +65,8 @@ public class GetLoginerPermissionRouterQueryHandler :
                             Auths = permissions.Where(x => x.SuperiorId == permission.Id)
                                     .Select(s => s.Code!.ToLower()).ToArray()
                         }
-                    }).ToList()
-            }).ToList();
+                    }).OrderBy(x => x.Meta.Rank).ToList()
+            }).OrderBy(x => x.Meta.Rank).ToList();
         return await Result<IEnumerable<PermissionRouterDto>>.SuccessAsync(routers);
     }
 

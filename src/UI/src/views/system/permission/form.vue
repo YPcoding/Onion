@@ -6,6 +6,7 @@ import { FormProps } from "./utils/types";
 import { usePublicHooks } from "../hooks";
 import { message } from "@/utils/message";
 import Segmented, { type OptionsType } from "@/components/ReSegmented";
+import IconSelect from "@/components/ReIcon/src/Select.vue";
 
 const props = withDefaults(defineProps<FormProps>(), {
   formInline: () => ({
@@ -103,7 +104,7 @@ onBeforeMount(async () => {
     optionsHttpMethodsValue = 0;
   }
 });
-
+const icon = ref("ep:add-location");
 defineExpose({ getRef });
 </script>
 
@@ -115,6 +116,11 @@ defineExpose({ getRef });
     label-width="82px"
   >
     <el-row :gutter="30">
+      <re-col v-if="newFormInline.type ===10">
+        <el-form-item label="图标" prop="icon">
+          <IconSelect v-model="newFormInline.icon" />
+        </el-form-item>
+      </re-col>
       <re-col>
         <el-form-item label="权限类型" prop="type">
           <Segmented
@@ -125,7 +131,7 @@ defineExpose({ getRef });
         </el-form-item>
       </re-col>
       <re-col>
-        <el-form-item label="上级节点">
+        <el-form-item label="上级节点" v-if="newFormInline.type ===20 || newFormInline.type ===30">
           <el-cascader
             class="w-full"
             v-model="newFormInline.superiorId"
@@ -153,7 +159,7 @@ defineExpose({ getRef });
           <el-input
             v-model="newFormInline.label"
             clearable
-            placeholder="请输入权限名称"
+            placeholder="请输入权限名称，如：系统管理"
           />
         </el-form-item>
       </re-col>
@@ -162,13 +168,13 @@ defineExpose({ getRef });
           <el-input
             v-model="newFormInline.path"
             clearable
-            placeholder="请输入路径"
+            placeholder="请输入路径，如：/system 或 /api/Auth/RefreshToken
+"
           />
         </el-form-item>
       </re-col>
-
       <re-col>
-        <el-form-item label="请求方式" prop="httpMethods">
+        <el-form-item label="请求方式" prop="httpMethods" v-if="newFormInline.type ===30">
           <Segmented
             :options="optionsHttpMethods"
             @change="onHttpMethodsChange"
@@ -266,10 +272,11 @@ defineExpose({ getRef });
       </re-col>
 
       <re-col>
-        <el-form-item label="描述">
+        <el-form-item label="描述" v-if="newFormInline.type ===20">
           <el-input
             v-model="newFormInline.description"
-            placeholder="请输入描述"
+            clearable
+            placeholder="请输入描述,如：SystemAuthPage"
           />
         </el-form-item>
       </re-col>
