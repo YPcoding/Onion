@@ -23,6 +23,7 @@
 		<ProjectReference Include="..\Application\Application.csproj" />
 		<ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
 		<ProjectReference Include="..\Migrators\Migrators.MSSQL\Migrators.MSSQL.csproj" />
+		<ProjectReference Include="..\Migrators\Migrators.MySql\Migrators.MySql.csproj" />
 		<ProjectReference Include="..\Migrators\Migrators.PostgreSQL\Migrators.PostgreSQL.csproj" />
 		<ProjectReference Include="..\Migrators\Migrators.SqLite\Migrators.SqLite.csproj" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.11">

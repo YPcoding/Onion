@@ -11,6 +11,7 @@ using Serilog;
 using System.Collections.ObjectModel;
 using ColumnOptions = Serilog.Sinks.MSSqlServer.ColumnOptions;
 using System.Data;
+using System.Diagnostics;
 
 namespace Infrastructure.Extensions;
 
@@ -31,6 +32,7 @@ public static class SerilogExtensions
                     wt.Console(
                         outputTemplate:
                         "[{Timestamp:HH:mm:ss} {Level:u3} {ClientIp}] {Message:lj}{NewLine}{Exception}"))
+                
                 .ApplyConfigPreferences(context.Configuration)
         );
     }
@@ -57,6 +59,9 @@ public static class SerilogExtensions
                 break;
             case DbProviderKeys.SqLite:
                 WriteToSqLite(serilogConfig, connectionString);
+                break;
+            case DbProviderKeys.MySql:
+                WriteToMySql(serilogConfig, connectionString);
                 break;
         }
     }
@@ -167,6 +172,18 @@ public static class SerilogExtensions
 
         const string tableName = "Loggers";
         serilogConfig.WriteTo.Async(wt => wt.SQLite(
+            connectionString,
+            tableName,
+            LogEventLevel.Information
+        ));
+    }
+
+    private static void WriteToMySql(LoggerConfiguration serilogConfig, string? connectionString)
+    {
+        if (string.IsNullOrEmpty(connectionString)) return;
+
+        const string tableName = "loggers";
+        serilogConfig.WriteTo.Async(wt => wt.MySQL(
             connectionString,
             tableName,
             LogEventLevel.Information

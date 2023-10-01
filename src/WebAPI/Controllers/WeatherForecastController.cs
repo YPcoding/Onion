@@ -39,6 +39,7 @@ public class WeatherForecastController : ApiControllerBase
     public async Task<int> Get()
     {
         await _hubContext.Clients.All.SendAsync("ReceiveNotification", "111");
+        _logger.LogInformation("ceshi");
         return 0;
     }
 }

@@ -28,7 +28,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Migrators.SqLite", "Migrato
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Commons", "Commons", "{C0C0301A-469B-46ED-9182-48B983FAD250}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Commons\Common\Common.csproj", "{1147AD89-25E2-4341-BF2B-049B9A164668}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "Commons\Common\Common.csproj", "{1147AD89-25E2-4341-BF2B-049B9A164668}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Migrators.MySql", "Migrators\Migrators.MySql\Migrators.MySql.csproj", "{E61FC598-B993-45F3-A4B7-D731871C5C7E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -68,6 +70,10 @@ Global
 		{1147AD89-25E2-4341-BF2B-049B9A164668}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1147AD89-25E2-4341-BF2B-049B9A164668}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1147AD89-25E2-4341-BF2B-049B9A164668}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E61FC598-B993-45F3-A4B7-D731871C5C7E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E61FC598-B993-45F3-A4B7-D731871C5C7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E61FC598-B993-45F3-A4B7-D731871C5C7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E61FC598-B993-45F3-A4B7-D731871C5C7E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -83,6 +89,7 @@ Global
 		{8074EF6C-0CC6-4FA9-8840-A99209DC5F58} = {D278842D-0F25-4A09-AF62-D86B9A4573E3}
 		{C0C0301A-469B-46ED-9182-48B983FAD250} = {0E6932A1-F7C2-4D93-B3BF-B043DB12F2F5}
 		{1147AD89-25E2-4341-BF2B-049B9A164668} = {C0C0301A-469B-46ED-9182-48B983FAD250}
+		{E61FC598-B993-45F3-A4B7-D731871C5C7E} = {D278842D-0F25-4A09-AF62-D86B9A4573E3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {675E20BB-529C-4E36-8B71-BFDB1C730CBC}
