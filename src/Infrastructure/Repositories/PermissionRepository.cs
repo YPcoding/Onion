@@ -19,6 +19,7 @@ namespace Infrastructure.Repositories
         /// 通过条件获取所有权限
         /// </summary>
         /// <param name="condition"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns>权限</returns>
         public async Task<List<Permission>> GetAllAsync(Expression<Func<Permission, bool>>? condition, CancellationToken cancellationToken = default)
         {

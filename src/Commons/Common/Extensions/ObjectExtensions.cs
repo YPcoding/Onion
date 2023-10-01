@@ -288,7 +288,7 @@ public static class ObjectExtensions
         {
             return str;
         }
-        return obj.ToString();
+        return obj.ToString()!;
     }
 
     /// <summary>
@@ -296,7 +296,7 @@ public static class ObjectExtensions
     /// </summary>
     public static string GetShortTypeFullName(this object obj)
     {
-        return obj.GetType().FullName;
+        return obj.GetType().FullName!;
     }
 
     /// <summary>

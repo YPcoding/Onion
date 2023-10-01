@@ -89,7 +89,7 @@ public class UpdateUserCommandValidator : AbstractValidator<UpdateUserCommand>
     {
         if (roleIds!.Any())
         {
-            roleIds = roleIds.Distinct().ToList();
+            roleIds = roleIds!.Distinct().ToList();
             var roles = await _context.Roles.Where(x => roleIds.Contains(x.Id)).ToListAsync(cancellationToken);
             return roles?.Count == roleIds.Count;
         }
