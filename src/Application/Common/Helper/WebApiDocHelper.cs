@@ -141,7 +141,7 @@ public class WebApiDocHelper
             if (parameters.Length > 0)
             {
                 parameter = parameters?[0]?.ParameterType?.FullName;
-                if (!parameter.IsNullOrEmpty())
+                if (!parameter!.IsNullOrEmpty())
                 {
                     parameter = $"({parameter})";
                 }
