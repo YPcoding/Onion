@@ -6,7 +6,6 @@ using Application.Features.Permissions.DTOs;
 using Application.Features.Permissions.Queries.GetAll;
 using Application.Features.Permissions.Queries.GetById;
 using Microsoft.AspNetCore.Mvc;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace WebAPI.Controllers
 {

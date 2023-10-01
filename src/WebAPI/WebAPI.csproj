@@ -22,15 +22,23 @@
 	<ItemGroup>
 		<ProjectReference Include="..\Application\Application.csproj" />
 		<ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
-		<ProjectReference Include="..\Migrators\Migrators.MSSQL\Migrators.MSSQL.csproj" />
-		<ProjectReference Include="..\Migrators\Migrators.MySql\Migrators.MySql.csproj" />
-		<ProjectReference Include="..\Migrators\Migrators.PostgreSQL\Migrators.PostgreSQL.csproj" />
-		<ProjectReference Include="..\Migrators\Migrators.SqLite\Migrators.SqLite.csproj" />
+		<ProjectReference Include="..\Migrators\Migrators.MSSQL\Migrators.MSSQL.csproj">
+		  <TreatAsUsed>true</TreatAsUsed>
+		</ProjectReference>
+		<ProjectReference Include="..\Migrators\Migrators.MySql\Migrators.MySql.csproj">
+		  <TreatAsUsed>true</TreatAsUsed>
+		</ProjectReference>
+		<ProjectReference Include="..\Migrators\Migrators.PostgreSQL\Migrators.PostgreSQL.csproj">
+		  <TreatAsUsed>true</TreatAsUsed>
+		</ProjectReference>
+		<ProjectReference Include="..\Migrators\Migrators.SqLite\Migrators.SqLite.csproj">
+		  <TreatAsUsed>true</TreatAsUsed>
+		</ProjectReference>
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.11">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<TreatAsUsed>true</TreatAsUsed>
 		</PackageReference>
-		<PackageReference Include="MiniExcel" Version="1.31.2" />
 	</ItemGroup>
 
 	<ItemGroup>

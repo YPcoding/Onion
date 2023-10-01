@@ -1,22 +1,20 @@
-﻿using Microsoft.Extensions.Options;
-using Application.Common.Configurations;
-using Infrastructure.Persistence;
-using Infrastructure.Extensions;
-using Infrastructure.Persistence.Interceptors;
-using Infrastructure.Common.Helper;
-using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.Mvc.Controllers;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using Infrastructure.Auth;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Mvc;
-
-using FluentValidation;
+﻿using Application.Common.Configurations;
 using CInfrastructure.Persistence;
+using FluentValidation;
+using Infrastructure.Auth;
+using Infrastructure.Common.Helper;
+using Infrastructure.Extensions;
+using Infrastructure.Persistence;
+using Infrastructure.Persistence.Interceptors;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
-using System.Linq;
+using System.Text;
 
 namespace Infrastructure;
 
