@@ -1,6 +1,4 @@
 ﻿using Application.Features.Permissions.Caching;
-using Domain.Entities;
-using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Permissions.Commands.Delete;
 
@@ -51,14 +49,17 @@ public class DeletePermissionCommandHandler : IRequestHandler<DeletePermissionCo
     /// <returns>返回处理结果</returns>
     public async Task<Result<bool>> Handle(DeletePermissionCommand request, CancellationToken cancellationToken)
     {
-        request.PermissionIds.ForEach(DeleteRecursive);
+        foreach (var permissionId in request.PermissionIds)
+        {
+            await DeleteRecursiveAsync(permissionId);
+        }
 
         // 提交更改到数据库
         var isSuccess = await _context.SaveChangesAsync(cancellationToken) > 0;
         return await Result<bool>.SuccessOrFailureAsync(isSuccess, isSuccess, new string[] { "操作失败" });
 
         // 递归函数，用于删除权限及其所有子级
-        async void DeleteRecursive(long id)
+        async Task DeleteRecursiveAsync(long id)
         {
             var childrenToDelete = await _context.Permissions
                 .Where(p => p.SuperiorId == id)
@@ -66,7 +67,7 @@ public class DeletePermissionCommandHandler : IRequestHandler<DeletePermissionCo
 
             foreach (var child in childrenToDelete)
             {
-                DeleteRecursive(child.Id); // 递归删除子级的子级
+                await DeleteRecursiveAsync(child.Id);// 递归删除子级的子级
             }
 
             var permissionToDelete = await _context.Permissions

@@ -68,10 +68,12 @@ public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, Resul
 
     public UpdateUserCommandHandler(
         IApplicationDbContext context,
-        IMapper mapper)
+        IMapper mapper,
+        ISnowFlakeService snowFlakeService)
     {
         _context = context;
         _mapper = mapper;
+        _snowFlakeService = snowFlakeService;
     }
 
     /// <summary>
