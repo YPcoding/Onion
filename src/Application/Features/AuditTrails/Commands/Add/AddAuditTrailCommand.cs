@@ -1,4 +1,8 @@
-﻿using Domain.Entities.Audit;
+﻿using System.ComponentModel.DataAnnotations;
+using Domain.Entities.Audit;
+using Application.Features.AuditTrails.Caching;
+using Domain.Entities;
+using Microsoft.Extensions.Options;
 
 namespace Application.Features.AuditTrails.Commands.Add;
 

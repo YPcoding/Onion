@@ -3,7 +3,6 @@ using Application.Features.AuditTrails.Commands.Add;
 using Application.Features.AuditTrails.Commands.Delete;
 using Application.Features.AuditTrails.Commands.Update;
 using Application.Features.AuditTrails.Queries.Pagination;
-using Domain.Entities.Audit;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel;
 

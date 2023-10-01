@@ -262,7 +262,6 @@ $@"using System.ComponentModel.DataAnnotations;
 using {GenrateCodeHelper.RemoveSuffix($"{type.FullName}", $".{typeName}")};
 using {nameSpace}.{typeName}s.Caching;
 using Domain.Entities;
-_snowFlakeService.GenerateId()
 using Microsoft.Extensions.Options;
 
 namespace {nameSpace}.{typeName}s.Commands.Add;
@@ -1252,7 +1251,7 @@ import {{
   onbatchDelete{typeName}
 }} from ""@/api/{lastFolder}/{typeName.ToLower()}"";
 import {{ type PaginationProps }} from ""@pureadmin/table"";
-import {{ usePublicHooks }} from ""../../hooks"";
+import {{ usePublicHooks }} from ""@/views/system/hooks"";
 import {{ message }} from ""@/utils/message"";
 import {{ getKeyList }} from ""@pureadmin/utils"";
 import type {{ FormItemProps }} from ""../utils/types"";
@@ -1974,7 +1973,7 @@ import {{ ref }} from ""vue"";
 import ReCol from ""@/components/ReCol"";
 import {{ formRules }} from ""../utils/rule"";
 import {{ FormProps }} from ""../utils/types"";
-import {{ usePublicHooks }} from ""../../hooks"";";
+import {{ usePublicHooks }} from ""@/views/system/hooks"";";
 
         formPropsHeader =
 $@"

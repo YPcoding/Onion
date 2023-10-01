@@ -1,6 +1,6 @@
 ﻿namespace Domain.Entities
 {
-    public class Role : BaseAuditableEntity
+    public class Role : BaseAuditableEntity, IAuditTrial
     {
         public Role()
         {
