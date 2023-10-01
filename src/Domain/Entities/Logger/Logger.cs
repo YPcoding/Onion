@@ -63,4 +63,9 @@ public class Logger : IEntity<long>
     /// </summary>
     [Description("日志事件")]
     public string? LogEvent { get; set; }
+    /// <summary>
+    /// 发生时间
+    /// </summary>
+    [Description("时间戳")]
+    public DateTime _TS { get; set; } = DateTime.Now;
 }

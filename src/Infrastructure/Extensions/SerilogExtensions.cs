@@ -11,7 +11,6 @@ using Serilog;
 using System.Collections.ObjectModel;
 using ColumnOptions = Serilog.Sinks.MSSqlServer.ColumnOptions;
 using System.Data;
-using System.Diagnostics;
 
 namespace Infrastructure.Extensions;
 
@@ -31,8 +30,7 @@ public static class SerilogExtensions
                 .WriteTo.Async(wt =>
                     wt.Console(
                         outputTemplate:
-                        "[{Timestamp:HH:mm:ss} {Level:u3} {ClientIp}] {Message:lj}{NewLine}{Exception}"))
-                
+                        "[{Timestamp:HH:mm:ss} {Level:u3} {ClientIp}] {Message:lj}{NewLine}{Exception}"))                
                 .ApplyConfigPreferences(context.Configuration)
         );
     }
@@ -170,6 +168,7 @@ public static class SerilogExtensions
     {
         if (string.IsNullOrEmpty(connectionString)) return;
 
+        //SQLite不支持自定义数据表列，因此日志不记录到Loggers表中，除非更改表名
         const string tableName = "Loggers";
         serilogConfig.WriteTo.Async(wt => wt.SQLite(
             connectionString,
@@ -182,14 +181,14 @@ public static class SerilogExtensions
     {
         if (string.IsNullOrEmpty(connectionString)) return;
 
-        const string tableName = "loggers";
+        //MySql不支持自定义数据表列，因此日志不记录到Loggers表中，除非更改表名
+        const string tableName = "Loggers";
         serilogConfig.WriteTo.Async(wt => wt.MySQL(
             connectionString,
             tableName,
             LogEventLevel.Information
         ));
     }
-
 
     public static LoggerConfiguration WithTime(this LoggerEnrichmentConfiguration enrichmentConfiguration)
     {
