@@ -17,15 +17,7 @@ export function viteBuildInfo(): Plugin {
       outDir = resolvedConfig.build?.outDir ?? "dist";
     },
     buildStart() {
-      console.log(
-        bold(
-          green(
-            `👏欢迎使用${blue(
-              "[vue-pure-admin]"
-            )}，如果您感觉不错，记得点击后面链接给个star哦💖 https://github.com/pure-admin/vue-pure-admin`
-          )
-        )
-      );
+      console.log(bold(green(`👏欢迎使用${blue("[洋葱架构]")}`)));
       if (config.command === "build") {
         startTime = dayjs(new Date());
       }
