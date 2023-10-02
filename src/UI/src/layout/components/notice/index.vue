@@ -34,18 +34,21 @@ const subscribeToEvent = () => {
 };
 
 function addNotice(messageText) {
-
-  notices.value.map(v => (
+  console.log(JSON.parse(messageText));
+  const notice =JSON.parse(messageText);
+  if (notice) {
+    notices.value.map(v => (
     v.key="1",
     v.name="通知",
     v.list.push({
-        avatar:"https://gw.alipayobjects.com/zos/rmsportal/ThXAXghbEsBCCSDihZxY.png",
-        title: "你收到了 13 份新周报",
-        datetime: "一年前",
-        description: "",
-        type: "1"
+        avatar:notice.sender.profilePictureDataUrl,
+        title: notice.title,
+        datetime: notice.created,
+        description: notice.content,
+        type: notice.notificationType
       })));
   notices.value.map(v => (noticesNum.value =v.list.length ));
+  }
 }
 
 

@@ -25,7 +25,7 @@ public class Notification : BaseAuditableSoftDeleteEntity, IAuditTrial
     /// </summary>
     [Description("发送者")]
     public long? SenderId { get; set; }
-    public User Sender { get; set; }
+    public User? Sender { get; set; }
 
     /// <summary>
     /// 通知类型
@@ -37,7 +37,7 @@ public class Notification : BaseAuditableSoftDeleteEntity, IAuditTrial
     /// 相关链接
     /// </summary>
     [Description("相关链接")]
-    public string Link { get; set; }
+    public string? Link { get; set; }
 
     // 导航属性，表示通知与接收者的多对多关系
     public ICollection<NotificationRecipient> Recipients { get; set; } = new List<NotificationRecipient>();
