@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { type CSSProperties, ref, computed, onMounted } from "vue";
 import { useUserStoreHook } from "@/store/modules/user";
+import { hasAuth, getAuths } from "@/router/utils";
 import {
   getGenerateCodeInfo,
   generateBackendCode,
@@ -50,7 +51,8 @@ async function handleGenrate() {
   if (
     backendSavePath.value !== "" &&
     namespaceName.value !== "" &&
-    selectedEntityOption.value !== ""
+    selectedEntityOption.value !== "" &&
+    hasAuth('api:code:backend')
   ) {
     var data = (
       await generateBackendCode({
@@ -62,7 +64,7 @@ async function handleGenrate() {
     ).data;
     console.log(data);
   }
-  if (frontendSavePath.value !== "" && selectedEntityOption.value !== "") {
+  if (frontendSavePath.value !== "" && selectedEntityOption.value !== ""&&hasAuth('api:code:frontend')) {
     var data = (
       await generateFrontendCode({
         fullClassName: selectedEntityOption.value,
@@ -93,7 +95,7 @@ function buildOptions(data) {
 </script>
 
 <template>
-  <el-space direction="vertical" size="large">
+  <el-space direction="vertical" size="large" v-if="hasAuth('api:code:query:save:path')||hasAuth('api:code:backend')||hasAuth('api:code:frontend')">
     <el-tag :style="elStyle" size="large" effect="dark"> 代码生成器 </el-tag>
     <el-card shadow="never" :style="elStyle">
       <span>默认命名空间：</span>
@@ -118,7 +120,7 @@ function buildOptions(data) {
         />
       </el-select>
     </el-card>
-    <el-card shadow="never" :style="elStyle">
+    <el-card shadow="never" :style="elStyle" v-if="hasAuth('api:code:backend')">
       <span>选择保存后端代码路径：</span>
       <el-input
         v-model="backendSavePath"
@@ -127,7 +129,7 @@ function buildOptions(data) {
         class="!w-[480px]"
       />
     </el-card>
-    <el-card shadow="never" :style="elStyle">
+    <el-card shadow="never" :style="elStyle" v-if="hasAuth('api:code:frontend')">
       <span>选择保存前端代码路径：</span>
       <el-input
         v-model="frontendSavePath"
@@ -136,6 +138,6 @@ function buildOptions(data) {
         class="!w-[480px]"
       />
     </el-card>
-    <el-button type="primary" @click="handleGenrate"> 生成代码 </el-button>
+    <el-button type="primary" @click="handleGenrate" v-if="hasAuth('api:code:backend')||hasAuth('api:code:frontend')"> 生成代码 </el-button>
   </el-space>
 </template>
