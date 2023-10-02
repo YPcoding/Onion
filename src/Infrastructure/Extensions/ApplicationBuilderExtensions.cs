@@ -9,6 +9,8 @@ public static class ApplicationBuilderExtensions
     {
         app.UseHttpsRedirection();
         app.UseStaticFiles();
+        // 启用响应压缩
+        app.UseResponseCompression();
         app.UseExceptionHandler("/Error");
         if (!Directory.Exists(Path.Combine(Directory.GetCurrentDirectory(), @"Files")))
         {

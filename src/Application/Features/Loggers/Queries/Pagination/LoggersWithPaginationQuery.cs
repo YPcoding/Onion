@@ -1,9 +1,7 @@
 ﻿using Application.Common.Extensions;
 using Domain.Entities.Logger;
-using Application.Features.Loggers.Caching;
 using Application.Features.Loggers.DTOs;
 using Application.Features.Loggers.Specifications;
-using Application.Features.Permissions.Caching;
 
 namespace Application.Features.Loggers.Queries.Pagination;
 

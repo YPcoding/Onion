@@ -6,9 +6,8 @@ export default {
   meta: {
     icon: "informationLine",
     title: $t("menus.hsabnormal"),
-    // showLink: false,
-    rank: 9,
-    hide: true
+    showLink: false,
+    rank: 9
   },
   children: [
     {

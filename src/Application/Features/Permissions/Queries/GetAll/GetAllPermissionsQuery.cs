@@ -44,6 +44,7 @@ public class GetAllPermissionsQueryHandler :
     {
         var permission = await _context.Permissions
             .ProjectTo<PermissionDto>(_mapper.ConfigurationProvider)
+            .OrderBy(x=>x.Sort)
             .ToListAsync(cancellationToken);
         return await Result<IEnumerable<PermissionDto>>.SuccessAsync(permission);
     }

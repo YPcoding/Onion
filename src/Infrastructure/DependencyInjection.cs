@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -119,6 +120,25 @@ public static class DependencyInjection
         #endregion
 
         services.AddSignalR();
+
+        //响应压缩
+        services.AddResponseCompression(options =>
+        {
+            options.EnableForHttps = true; // 启用 HTTPS 时也应用压缩
+            options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[]
+            {
+                "text/plain",
+                "text/html",
+                "text/css",
+                "application/javascript",
+                "text/javascript",
+                "application/json",
+                "text/json",
+                "application/xml",
+                "text/xml",
+                "image/svg+xml"
+            });
+        });
 
         return services;
     }
