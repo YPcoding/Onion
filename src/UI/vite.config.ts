@@ -46,13 +46,13 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
       proxy: {
         "/api": {
           // 这里填写后端地址
-          target: "https://localhost:3000",
+          target: "https://localhost:7251",
           changeOrigin: true,
           rewrite: path => path.replace(/^\/api/, "")
         },
         "/Files": {
           // 这里填写后端地址
-          target: "https://localhost:3000",
+          target: "https://localhost:7251",
           changeOrigin: true,
           rewrite: path => path.replace(/^\/api/, "")
         }

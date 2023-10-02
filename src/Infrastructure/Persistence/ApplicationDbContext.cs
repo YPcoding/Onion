@@ -31,14 +31,14 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         builder.ApplyGlobalFilters<ISoftDelete>(s => s.Deleted == null);
 
-        foreach (var entityType in builder.Model.GetEntityTypes())
-        {
-            foreach (var foreignKey in entityType.GetForeignKeys())
-            {
-                // 删除外键约束
-                foreignKey.DeleteBehavior = DeleteBehavior.NoAction;
-            }
-        }
+        //foreach (var entityType in builder.Model.GetEntityTypes())
+        //{
+        //    foreach (var foreignKey in entityType.GetForeignKeys())
+        //    {
+        //        // 删除外键约束
+        //        foreignKey.DeleteBehavior = DeleteBehavior.NoAction;
+        //    }
+        //}
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

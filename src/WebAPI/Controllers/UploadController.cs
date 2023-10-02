@@ -100,4 +100,32 @@ public class UploadController : ApiControllerBase
             }
         }
     }
+
+    /// <summary>
+    /// 上传文件
+    /// </summary>
+    /// <returns>返回图片URL</returns>
+    [HttpPost("File")]
+    public async Task<Result<string>> UploadFile(IFormFile file)
+    {
+        if (file == null || file.Length == 0)
+        {
+            return await Result<string>.FailureAsync(new string[] { "文件无效" });
+        }
+
+        // 获取文件名
+        string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+        string filePath = Path.Combine("Files", "Uploads", fileName);
+        string fileUrl = $"{_optSystemSettings.Value.HostDomainName}/{filePath}";
+
+        // 创建目录（如果不存在）
+        Directory.CreateDirectory(Path.Combine("Files", "Uploads"));
+
+        using (var stream = new FileStream(filePath, FileMode.Create))
+        {
+            await file.CopyToAsync(stream);
+        }
+
+        return await Result<string>.SuccessAsync(fileUrl);
+    }
 }

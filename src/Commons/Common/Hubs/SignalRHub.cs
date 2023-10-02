@@ -10,7 +10,12 @@ public class SignalRHub : Hub
 {
     private static readonly ConcurrentDictionary<string, string> OnlineUsers = new();
 
-    public async Task SendNotification(string message)
+    /// <summary>
+    /// 向所有客户发送一条通知
+    /// </summary>
+    /// <param name="message"></param>
+    /// <returns></returns>
+    public async Task SendNotificationAsync(string message)
     {
         // 客户端方法，接收消息
         await Clients.All.SendAsync("ReceiveNotification", message);
