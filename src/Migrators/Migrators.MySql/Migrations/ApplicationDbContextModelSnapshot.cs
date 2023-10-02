@@ -191,12 +191,91 @@ namespace Migrators.MySql.Migrations
                     b.Property<string>("UserName")
                         .HasColumnType("longtext");
 
-                    b.Property<DateTime>("_TS")
-                        .HasColumnType("datetime(6)");
-
                     b.HasKey("Id");
 
                     b.ToTable("Loggers");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Notifications.Notification", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("Created")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("Deleted")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Link")
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("NotificationType")
+                        .HasColumnType("int");
+
+                    b.Property<long?>("SenderId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SenderId");
+
+                    b.ToTable("Notifications");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Notifications.NotificationRecipient", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("NotificationId")
+                        .HasColumnType("int");
+
+                    b.Property<long>("NotificationId1")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("RecipientId")
+                        .HasColumnType("int");
+
+                    b.Property<long>("RecipientId1")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NotificationId1");
+
+                    b.HasIndex("RecipientId1");
+
+                    b.ToTable("NotificationRecipient");
                 });
 
             modelBuilder.Entity("Domain.Entities.Permission", b =>
@@ -413,7 +492,7 @@ namespace Migrators.MySql.Migrations
                     b.HasOne("Domain.Entities.Identity.User", "Owner")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("Owner");
                 });
@@ -422,16 +501,47 @@ namespace Migrators.MySql.Migrations
                 {
                     b.HasOne("Domain.Entities.Identity.User", "Superior")
                         .WithMany()
-                        .HasForeignKey("SuperiorId");
+                        .HasForeignKey("SuperiorId")
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("Superior");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Notifications.Notification", b =>
+                {
+                    b.HasOne("Domain.Entities.Identity.User", "Sender")
+                        .WithMany()
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("Sender");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Notifications.NotificationRecipient", b =>
+                {
+                    b.HasOne("Domain.Entities.Notifications.Notification", "Notification")
+                        .WithMany("Recipients")
+                        .HasForeignKey("NotificationId1")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Identity.User", "Recipient")
+                        .WithMany()
+                        .HasForeignKey("RecipientId1")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Notification");
+
+                    b.Navigation("Recipient");
                 });
 
             modelBuilder.Entity("Domain.Entities.Permission", b =>
                 {
                     b.HasOne("Domain.Entities.Permission", "Superior")
                         .WithMany()
-                        .HasForeignKey("SuperiorId");
+                        .HasForeignKey("SuperiorId")
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("Superior");
                 });
@@ -441,13 +551,13 @@ namespace Migrators.MySql.Migrations
                     b.HasOne("Domain.Entities.Permission", "Permission")
                         .WithMany("RolePermissions")
                         .HasForeignKey("PermissionId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.Role", "Role")
                         .WithMany("RolePermissions")
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Permission");
@@ -460,13 +570,13 @@ namespace Migrators.MySql.Migrations
                     b.HasOne("Domain.Entities.Role", "Role")
                         .WithMany("UserRoles")
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.Identity.User", "User")
                         .WithMany("UserRoles")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Role");
@@ -477,6 +587,11 @@ namespace Migrators.MySql.Migrations
             modelBuilder.Entity("Domain.Entities.Identity.User", b =>
                 {
                     b.Navigation("UserRoles");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Notifications.Notification", b =>
+                {
+                    b.Navigation("Recipients");
                 });
 
             modelBuilder.Entity("Domain.Entities.Permission", b =>

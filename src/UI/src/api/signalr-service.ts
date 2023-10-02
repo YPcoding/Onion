@@ -38,6 +38,19 @@ class signalRService {
     }
     return this.hubConnection;
   }
+
+  public async sendMessage(user: string, message: string): Promise<void> {
+    if (!this.hubConnection) {
+      throw new Error("SignalR Hub connection is not established.");
+    }
+
+    try {
+      // 调用 SignalR Hub 中的方法，并传递参数
+      await this.hubConnection.invoke("SendPublicMessageAsync", user, message);
+    } catch (error) {
+      console.error("Error sending message:", error);
+    }
+  }
 }
 
 export default signalRService;

@@ -1,5 +1,6 @@
 ﻿using Domain.Entities.Audit;
 using Domain.Entities.Logger;
+using Domain.Entities.Notifications;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Application.Common.Interfaces;
@@ -14,6 +15,7 @@ public  interface IApplicationDbContext
     DbSet<Permission> Permissions { get; }
     DbSet<RolePermission> RolePermissions { get; }
     DbSet<TestTable> TestTables { get; }
+    DbSet<Notification> Notifications { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     DatabaseFacade Database { get; }

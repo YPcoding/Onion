@@ -84,6 +84,10 @@ public class GenrateCodeHelper
         if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
         {
             typeName = typeName.Replace("Nullable<", "").Replace(">", "?");
+            if (!typeName.Contains("?"))
+            {
+                typeName = $"{typeName}?";
+            }
         }
 
         return typeName;

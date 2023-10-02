@@ -162,7 +162,6 @@ const subscribeToEvent = () => {
       .getHubConnection()
       .off("ReceivePublicMessage"); // 取消旧事件的订阅
 
-    console.log("订阅新事件");
     hubConnection.value
       .getHubConnection()
       .on("ReceivePublicMessage", (userName, message) => {

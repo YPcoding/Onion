@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 
 namespace Application.Common.Interfaces;
 
-// <summary>
+/// <summary>
 /// SignalR Hub 用于处理聊天相关操作。
 /// </summary>
 public class SignalRHub : Hub
@@ -50,6 +50,7 @@ public class SignalRHub : Hub
         await Clients.AllExcept(Context.ConnectionId).SendAsync("ReceivePublicMessage", user, message);
     }
 
+
     /// <summary>
     /// 加入指定聊天组。
     /// </summary>
@@ -89,7 +90,7 @@ public class SignalRHub : Hub
     /// 客户端断开连接时的逻辑。
     /// </summary>
     /// <param name="exception">断开连接时可能发生的异常</param>
-    public override async Task OnDisconnectedAsync(Exception exception)
+    public override async Task OnDisconnectedAsync(Exception? exception)
     {
         var connectionId = Context.ConnectionId;
         if (OnlineUsers.TryRemove(connectionId, out var userName)) await SendPublicMessageAsync(userName, "下线");

@@ -1,6 +1,7 @@
 ﻿using Domain.Entities;
 using Domain.Entities.Identity;
 using Domain.Entities.Logger;
+using Domain.Entities.Notifications;
 using Infrastructure.Persistence.Extensions;
 using System.Reflection;
 
@@ -22,6 +23,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<Permission> Permissions { get; set; }
     public DbSet<RolePermission> RolePermissions { get; set; }
     public DbSet<TestTable> TestTables { get; set; }
+    public DbSet<Notification> Notifications { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -29,14 +31,14 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         builder.ApplyGlobalFilters<ISoftDelete>(s => s.Deleted == null);
 
-        //foreach (var entityType in builder.Model.GetEntityTypes())
-        //{
-        //    foreach (var foreignKey in entityType.GetForeignKeys())
-        //    {
-        //        // 删除外键约束
-        //        foreignKey.DeleteBehavior = DeleteBehavior.NoAction;
-        //    }
-        //}
+        foreach (var entityType in builder.Model.GetEntityTypes())
+        {
+            foreach (var foreignKey in entityType.GetForeignKeys())
+            {
+                // 删除外键约束
+                foreignKey.DeleteBehavior = DeleteBehavior.NoAction;
+            }
+        }
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
