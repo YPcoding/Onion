@@ -1,6 +1,7 @@
 ﻿using Application.Common.Configurations;
 using CInfrastructure.Persistence;
 using FluentValidation;
+using Google.Protobuf.WellKnownTypes;
 using Infrastructure.Auth;
 using Infrastructure.Common.Helper;
 using Infrastructure.Extensions;
@@ -58,9 +59,9 @@ public static class DependencyInjection
             options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             options.DefaultChallengeScheme = nameof(ResponseAuthenticationHandler); //401
             options.DefaultForbidScheme = nameof(ResponseAuthenticationHandler);    //403
-        }).AddJwtBearer(x =>
+        }).AddJwtBearer(options =>
         {
-            x.TokenValidationParameters = new()
+            options.TokenValidationParameters = new()
             {
                 ValidateIssuer = true,
                 ValidateAudience = true,
@@ -69,6 +70,23 @@ public static class DependencyInjection
                 ValidIssuer = jwtSettings.Issuer,
                 ValidAudience = jwtSettings.Audience,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecurityKey))
+            };
+            options.Events = new JwtBearerEvents
+            {
+                OnMessageReceived = context =>
+                {
+                    var accessToken = context.Request.Query["access_token"];
+
+                    // If the request is for our hub...
+                    var path = context.HttpContext.Request.Path;
+                    if (!string.IsNullOrEmpty(accessToken) &&
+                        (path.StartsWithSegments("/signalRHub")))
+                    {
+                        // Read the token out of the query string
+                        context.Token = accessToken;
+                    }
+                    return Task.CompletedTask;
+                }
             };
         }).AddScheme<AuthenticationSchemeOptions, ResponseAuthenticationHandler>(nameof(ResponseAuthenticationHandler), o => { }); ;
         services.AddControllers().AddNewtonsoftJson(options =>

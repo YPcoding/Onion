@@ -33,10 +33,10 @@ public static class ApplicationBuilderExtensions
         });
         app.UseCors(builder =>
         {
-            builder.SetIsOriginAllowed(_ => true)
-                  .AllowCredentials()
+            builder.SetIsOriginAllowed(origin => true)
                   .AllowAnyHeader()
-                  .AllowAnyMethod();
+           .AllowAnyMethod()
+           .AllowCredentials();
         });
         app.UseEndpoints(endpoints =>
         {

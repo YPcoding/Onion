@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using System.Collections.Concurrent;
 
 namespace Application.Common.Interfaces;
 
@@ -7,6 +8,8 @@ namespace Application.Common.Interfaces;
 /// </summary>
 public class SignalRHub : Hub
 {
+    private static readonly ConcurrentDictionary<string, string> OnlineUsers = new();
+
     public async Task SendNotification(string message)
     {
         // 客户端方法，接收消息
@@ -63,6 +66,12 @@ public class SignalRHub : Hub
     /// </summary>
     public override async Task OnConnectedAsync()
     {
+        var connectionId = Context.ConnectionId;
+        var userName = Context.User?.Identity?.Name ?? string.Empty;
+        if (!OnlineUsers.ContainsKey(connectionId)) OnlineUsers.TryAdd(connectionId, userName);
+
+        await SendPublicMessageAsync(userName,"上线");
+
         // 客户端连接时的逻辑
         await base.OnConnectedAsync();
     }
