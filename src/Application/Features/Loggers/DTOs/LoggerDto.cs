@@ -24,19 +24,7 @@ namespace Application.Features.Loggers.DTOs
         /// 唯一标识
         /// </summary>
         [Description("唯一标识")]
-        public long Id { get; set; }    
-
-        /// <summary>
-        /// 消息
-        /// </summary>
-        [Description("消息")]
-        public string Message { get; set; }    
-
-        /// <summary>
-        /// 消息模板
-        /// </summary>
-        [Description("消息模板")]
-        public string MessageTemplate { get; set; }    
+        public long Id { get; set; }       
 
         /// <summary>
         /// 消息等级
@@ -48,13 +36,7 @@ namespace Application.Features.Loggers.DTOs
         /// 发生时间
         /// </summary>
         [Description("发生时间")]
-        public DateTime TimeStamp { get; set; }    
-
-        /// <summary>
-        /// 异常
-        /// </summary>
-        [Description("异常")]
-        public string Exception { get; set; }    
+        public DateTime TimeStamp { get; set; }     
 
         /// <summary>
         /// 用户名
@@ -73,12 +55,6 @@ namespace Application.Features.Loggers.DTOs
         /// </summary>
         [Description("IP")]
         public string ClientAgent { get; set; }    
-
-        /// <summary>
-        /// 特征
-        /// </summary>
-        [Description("特征")]
-        public string Properties { get; set; }    
 
         /// <summary>
         /// 日志事件

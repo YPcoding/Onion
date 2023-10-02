@@ -10,7 +10,7 @@ namespace Application.Features.Loggers.Queries.Pagination;
 /// <summary>
 /// 日志分页查询
 /// </summary>
-public class LoggersWithPaginationQuery : LoggerAdvancedFilter, ICacheableRequest<Result<PaginatedData<LoggerDto>>>
+public class LoggersWithPaginationQuery : LoggerAdvancedFilter, IRequest<Result<PaginatedData<LoggerDto>>>
 {
     public override string ToString()
     {
@@ -20,10 +20,10 @@ public class LoggersWithPaginationQuery : LoggerAdvancedFilter, ICacheableReques
 
     [JsonIgnore]
     public LoggerAdvancedPaginationSpec Specification => new LoggerAdvancedPaginationSpec(this);
-    [JsonIgnore]
-    public string CacheKey => LoggerCacheKey.GetPaginationCacheKey($"{this}");
-    [JsonIgnore]
-    public MemoryCacheEntryOptions? Options => PermissionCacheKey.MemoryCacheEntryOptions;
+    //[JsonIgnore]
+    //public string CacheKey => LoggerCacheKey.GetPaginationCacheKey($"{this}");
+    //[JsonIgnore]
+    //public MemoryCacheEntryOptions? Options => PermissionCacheKey.MemoryCacheEntryOptions;
 }
 
 /// <summary>
