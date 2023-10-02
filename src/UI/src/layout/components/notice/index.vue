@@ -1,14 +1,54 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted} from "vue";
 import { noticesData } from "./data";
 import NoticeList from "./noticeList.vue";
 import Bell from "@iconify-icons/ep/bell";
+import { message } from "@/utils/message";
+import signalRService from '@/api/signalr-service';
 
+const hubConnection = ref(null);
 const noticesNum = ref(0);
 const notices = ref(noticesData);
 const activeKey = ref(noticesData[0].key);
 
-notices.value.map(v => (noticesNum.value += v.list.length));
+onMounted(() => {
+  // 获取 SignalR 服务实例
+  hubConnection.value = signalRService.getInstance();
+  // 调用订阅事件函数
+  subscribeToEvent();
+});
+
+const subscribeToEvent = () => {
+  if (hubConnection.value) {
+    hubConnection.value
+      .getHubConnection()
+      .off("ReceiveNotification"); // 取消旧事件的订阅
+
+    hubConnection.value
+      .getHubConnection()
+      .on("ReceiveNotification", (message) => {
+        addNotice(message);
+        
+      });
+  }
+};
+
+function addNotice(messageText) {
+
+  notices.value.map(v => (
+    v.key="1",
+    v.name="通知",
+    v.list.push({
+        avatar:"https://gw.alipayobjects.com/zos/rmsportal/ThXAXghbEsBCCSDihZxY.png",
+        title: "你收到了 13 份新周报",
+        datetime: "一年前",
+        description: "",
+        type: "1"
+      })));
+  notices.value.map(v => (noticesNum.value =v.list.length ));
+}
+
+
 </script>
 
 <template>
