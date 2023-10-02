@@ -91,6 +91,9 @@ public class SignalRHub : Hub
     /// <param name="exception">断开连接时可能发生的异常</param>
     public override async Task OnDisconnectedAsync(Exception exception)
     {
+        var connectionId = Context.ConnectionId;
+        if (OnlineUsers.TryRemove(connectionId, out var userName)) await SendPublicMessageAsync(userName, "下线");
+
         // 客户端断开连接时的逻辑
         await base.OnDisconnectedAsync(exception);
     }

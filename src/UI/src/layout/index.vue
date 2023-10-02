@@ -9,6 +9,8 @@ import { useAppStoreHook } from "@/store/modules/app";
 import { useSettingStoreHook } from "@/store/modules/settings";
 import { deviceDetection, useDark, useGlobal } from "@pureadmin/utils";
 import { useDataThemeChange } from "@/layout/hooks/useDataThemeChange";
+import { message } from "@/utils/message";
+import signalRService from '@/api/signalr-service';
 import {
   h,
   ref,
@@ -27,6 +29,7 @@ import Vertical from "./components/sidebar/vertical.vue";
 import Horizontal from "./components/sidebar/horizontal.vue";
 import backTop from "@/assets/svg/back_top.svg?component";
 
+const hubConnection = ref(null);
 const appWrapperRef = ref();
 const { isDark } = useDark();
 const { layout } = useLayout();
@@ -108,6 +111,12 @@ useResizeObserver(appWrapperRef, entries => {
 });
 
 onMounted(() => {
+
+  // 获取 SignalR 服务实例
+  hubConnection.value = signalRService.getInstance();
+  // 调用订阅事件函数
+  subscribeToEvent();
+
   if (isMobile) {
     toggle("mobile", false);
   }
@@ -146,6 +155,30 @@ const layoutHeader = defineComponent({
     );
   }
 });
+
+const subscribeToEvent = () => {
+  if (hubConnection.value) {
+    hubConnection.value
+      .getHubConnection()
+      .off("ReceivePublicMessage"); // 取消旧事件的订阅
+
+    console.log("订阅新事件");
+    hubConnection.value
+      .getHubConnection()
+      .on("ReceivePublicMessage", (userName, message) => {
+        online(userName,message);
+      });
+  }
+};
+
+function online(userName, messageText) {
+  if (messageText==="上线") {
+    message(`${userName} ${messageText}`, { customClass: 'el', type: 'success' });
+  }if (messageText==="下线") {
+    message(`${userName} ${messageText}`, { customClass: 'el', type: 'warning' });
+  }
+
+}
 </script>
 
 <template>

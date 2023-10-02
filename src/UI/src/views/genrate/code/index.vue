@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { type CSSProperties, ref, computed, onMounted } from "vue";
 import { hasAuth } from "@/router/utils";
-import signalRService from '@/api/signalr-service';
 import {
   getGenerateCodeInfo,
   generateBackendCode,
@@ -19,7 +18,6 @@ const elStyle = computed((): CSSProperties => {
   };
 });
 
-const hubConnection = ref(null);
 const entityOptions = ref([]);
 const backendSavePath = ref("");
 const frontendSavePath = ref("");
@@ -27,25 +25,8 @@ const selectedEntityOption = ref("");
 const namespaceName = ref("");
 const loading = ref(true);
 
-
-const subscribeToEvent = () => {
-      if (hubConnection.value) {
-        hubConnection.value
-          .getHubConnection()
-          .on("ReceivePublicMessage", (userName, message) => {
-            // 处理事件数据
-            console.log("Received event:", userName,message);
-          });
-      }
-    };
-
 //生命周期钩子函数
 onMounted(async () => {
-
-    // 获取 SignalR 服务实例
-    hubConnection.value = signalRService.getInstance();
-    // 调用订阅事件函数
-    subscribeToEvent();
     onSearch();
 });
 
