@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 
 namespace Application.Common.Interfaces;
 
-/// <summary>
+// <summary>
 /// SignalR Hub 用于处理聊天相关操作。
 /// </summary>
 public class SignalRHub : Hub
@@ -19,15 +19,20 @@ public class SignalRHub : Hub
     /// <summary>
     /// 向指定用户发送私人消息。
     /// </summary>
-    public async Task SendPrivateMessageAsync(string user, string message)
+    /// <param name="userId">目标用户ID</param>
+    /// <param name="message">要发送的消息</param>
+    public async Task SendPrivateMessageAsync(string userId, string message)
     {
         // 向指定用户发送消息
-        await Clients.User(user).SendAsync("ReceivePrivateMessage", message);
+        await Clients.User(userId).SendAsync("ReceivePrivateMessage", message);
     }
 
     /// <summary>
     /// 向指定群组发送群组消息。
     /// </summary>
+    /// <param name="groupName">目标群组名称</param>
+    /// <param name="user">发送消息的用户</param>
+    /// <param name="message">要发送的消息</param>
     public async Task SendGroupMessageAsync(string groupName, string user, string message)
     {
         // 向指定群组发送消息
@@ -37,6 +42,8 @@ public class SignalRHub : Hub
     /// <summary>
     /// 向所有连接的客户端发送公共消息。
     /// </summary>
+    /// <param name="user">发送消息的用户</param>
+    /// <param name="message">要发送的消息</param>
     public async Task SendPublicMessageAsync(string user, string message)
     {
         // 向所有连接的客户端发送消息
@@ -46,6 +53,7 @@ public class SignalRHub : Hub
     /// <summary>
     /// 加入指定聊天组。
     /// </summary>
+    /// <param name="groupName">聊天组名称</param>
     public async Task JoinGroupAsync(string groupName)
     {
         // 加入指定聊天组
@@ -55,6 +63,7 @@ public class SignalRHub : Hub
     /// <summary>
     /// 离开指定聊天组。
     /// </summary>
+    /// <param name="groupName">聊天组名称</param>
     public async Task LeaveGroupAsync(string groupName)
     {
         // 离开指定聊天组
@@ -70,7 +79,7 @@ public class SignalRHub : Hub
         var userName = Context.User?.Identity?.Name ?? string.Empty;
         if (!OnlineUsers.ContainsKey(connectionId)) OnlineUsers.TryAdd(connectionId, userName);
 
-        await SendPublicMessageAsync(userName,"上线");
+        await SendPublicMessageAsync(userName, "上线");
 
         // 客户端连接时的逻辑
         await base.OnConnectedAsync();
@@ -79,6 +88,7 @@ public class SignalRHub : Hub
     /// <summary>
     /// 客户端断开连接时的逻辑。
     /// </summary>
+    /// <param name="exception">断开连接时可能发生的异常</param>
     public override async Task OnDisconnectedAsync(Exception exception)
     {
         // 客户端断开连接时的逻辑
