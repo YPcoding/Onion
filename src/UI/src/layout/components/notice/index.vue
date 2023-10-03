@@ -34,7 +34,7 @@ const subscribeToEvent = () => {
 };
 
 function addNotice(messageText) {
-  console.log(JSON.parse(messageText));
+  console.log(messageText);
   const notice =JSON.parse(messageText);
   if (notice) {
     notices.value.map(v => (
