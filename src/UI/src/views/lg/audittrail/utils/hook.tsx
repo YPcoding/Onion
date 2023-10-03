@@ -103,7 +103,20 @@ export function useAuditTrail(tableRef: Ref, treeRef: Ref) {
     {
       label: "类型",
       prop: "auditType",
-      minWidth: 100
+      minWidth: 100,
+      formatter: row => {
+        if (row.auditType === 0) {
+          return "未知";
+        } else if (row.auditType === 1) {
+          return "添加";
+        } else if (row.auditType === 2) {
+          return "修改";
+        } else if (row.auditType === 3) {
+          return "删除";
+        } else {
+          return "未知的类型";
+        }
+      }
     },
     {
       label: "审计时间",
