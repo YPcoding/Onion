@@ -1,9 +1,7 @@
 ﻿using Application.Common.Configurations;
 using CInfrastructure.Persistence;
 using FluentValidation;
-using Google.Protobuf.WellKnownTypes;
 using Infrastructure.Auth;
-using Infrastructure.Common.Helper;
 using Infrastructure.Extensions;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Interceptors;
@@ -76,7 +74,6 @@ public static class DependencyInjection
                 OnMessageReceived = context =>
                 {
                     var accessToken = context.Request.Query["access_token"];
-
                     // If the request is for our hub...
                     var path = context.HttpContext.Request.Path;
                     if (!string.IsNullOrEmpty(accessToken) &&

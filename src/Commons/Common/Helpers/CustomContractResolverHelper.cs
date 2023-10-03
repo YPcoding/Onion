@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace Infrastructure.Common.Helper;
+namespace Common.Helpers;
 
 public class CustomContractResolver : CamelCasePropertyNamesContractResolver
 {
