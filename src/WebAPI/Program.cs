@@ -12,7 +12,6 @@ builder.Services.AddInfrastructureServices(builder.Configuration)
     .AddWebAPIServices()
     .AddAutoMapper();
 
-
 var app = builder.Build();
 
 app.UseInfrastructure(builder.Configuration);
@@ -31,33 +30,49 @@ if (app.Environment.IsDevelopment())
         await initializer.SeedAsync();
     }
 }
-
 await app.RunAsync();
 
 
 /// <summary>
-/// 获取控制台输出信息，并重定向
+/// 重定向控制台使用SignalR输出到前端
 /// </summary>
 public class WebApiConsoleWriter : TextWriter
 {
     private readonly IHubContext<SignalRHub> _hubContext;
+    private readonly StringBuilder _buffer = new StringBuilder();
+    private readonly TimeSpan _sendInterval = TimeSpan.FromMilliseconds(1); // 调整发送间隔
 
     public WebApiConsoleWriter(IHubContext<SignalRHub> hubContext)
     {
         _hubContext = hubContext;
+        Task.Factory.StartNew(() => PeriodicSendBufferAsync(), TaskCreationOptions.LongRunning);
     }
 
     public override Encoding Encoding => Encoding.UTF8;
 
-    public override async void Write(char value)
+    public override void Write(char value)
     {
-        // 将字符发送到 SignalR Hub 或者其他适当的位置
-        await _hubContext.Clients.All.SendAsync("ReceiveNotification", value.ToString());
+        _buffer.Append(value);
     }
 
-    public override async void Write(string? value)
+    public override void Write(string? value)
     {
-        // 将字符串发送到 SignalR Hub 或者其他适当的位置
-        await _hubContext.Clients.All.SendAsync("ReceiveNotification", value);
+        _buffer.Append(value);
+    }
+
+    private async Task PeriodicSendBufferAsync()
+    {
+        while (true)
+        {
+            await Task.Delay(_sendInterval);
+
+            if (_buffer.Length > 0)
+            {
+                var message = _buffer.ToString();
+                _buffer.Clear();
+
+                await _hubContext.Clients.All.SendAsync("ReceiveNotification", message);
+            }
+        }
     }
 }

@@ -87,12 +87,12 @@ public static class DependencyInjection
     {
         List<(Type from, Type[] targets)> maps = new List<(Type from, Type[] targets)>();
         Assembly[] allAssemblies = new Assembly[]
-   {
-            Assembly.Load("Application"),
-            Assembly.Load("Domain"),
-            Assembly.Load("Infrastructure"),
-            Assembly.Load("WebAPI"),
-   };
+        {
+              Assembly.Load("Application"),
+              Assembly.Load("Domain"),
+              Assembly.Load("Infrastructure"),
+              Assembly.Load("WebAPI"),
+        };
         Type[] allTypes = allAssemblies.SelectMany(x => x.GetTypes()).ToArray();
 
         maps.AddRange(allTypes.Where(x => x.GetCustomAttribute<MapAttribute>() != null)

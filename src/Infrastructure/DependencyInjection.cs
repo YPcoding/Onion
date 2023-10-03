@@ -26,7 +26,8 @@ public static class DependencyInjection
         IConfiguration configuration)
     {
         services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
-        services.AddScoped<ISaveChangesInterceptor, DispatchDomainEventsInterceptor>();
+        services.AddScoped<ISaveChangesInterceptor, DispatchDomainEventsInterceptor>();//
+        services.AddScoped<IDbCommandInterceptor, ExecutionTimeInterceptor>();
         services.Configure<DatabaseSettings>(configuration.GetSection(DatabaseSettings.Key));
         services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.Key));
         services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.Key));
@@ -36,10 +37,9 @@ public static class DependencyInjection
         {
             var databaseSettings = p.GetRequiredService<IOptions<DatabaseSettings>>().Value;
             m.AddInterceptors(p.GetServices<ISaveChangesInterceptor>());
-            m.AddInterceptors(new ExecutionTimeInterceptor());
+            m.AddInterceptors(p.GetServices<IDbCommandInterceptor>());
             m.UseDatabase(databaseSettings.DBProvider, databaseSettings.ConnectionString);
-            // 配置 SQL 查询日志
-            m.UseLoggerFactory(LoggerFactory.Create(builder =>
+            m.UseLoggerFactory(LoggerFactory.Create(builder => // 配置 SQL 查询日志
             {
                 builder
                     .AddFilter((category, level) => category == DbLoggerCategory.Database.Command.Name && level == LogLevel.Information)
