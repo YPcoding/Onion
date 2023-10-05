@@ -284,6 +284,365 @@ namespace WebAPI.Controllers
                              }
                          }
                      },
+                     new PermissionMuenDto()
+                     {
+                         Name = "other",
+                         Path= "/other",
+                         Meta=new MuenMeta()
+                         {
+                             Title="其他",
+                             Icon="el-icon-more-filled",
+                             Type="menu",
+                         },
+                         Children=new List<PermissionMuenDto>()
+                         {
+                             new PermissionMuenDto()
+                             {
+                                 Path = "/other/directive",
+                                 Name= "directive",
+                                 Meta=new MuenMeta()
+                                 {
+                                     Title="指令",
+                                     Icon="el-icon-price-tag",
+                                     Type="menu",
+                                 },
+                                 Component="other/directive"
+                             },
+                             new PermissionMuenDto()
+                             {
+                                 Path = "/other/viewTags",
+                                 Name= "viewTags",
+                                 Meta=new MuenMeta()
+                                 {
+                                     Title="标签操作",
+                                     Icon="el-icon-files",
+                                     Type="menu",
+                                 },
+                                 Component="other/viewTags",
+                                 Children=new List<PermissionMuenDto>()
+                                 {
+                                     new PermissionMuenDto()
+                                     {
+                                         Path = "/other/fullpage",
+                                         Name= "fullpage",
+                                         Meta=new MuenMeta()
+                                         {
+                                             Title="整页路由",
+                                             Icon="el-icon-monitor",
+                                             Fullpage=true,
+                                             Hidden=true,
+                                             Type="menu",
+                                         },
+                                         Component="other/fullpage"
+                                     }    
+                                 }
+                             },
+                             new PermissionMuenDto()
+                             {
+                                 Path="/other/verificate",
+                                 Name="verificate",
+                                 Meta=new MuenMeta()
+                                 {
+                                     Title="表单验证",
+                                     Icon="el-icon-open",
+                                     Type="menu",
+                                 },
+                                 Component="other/verificate"
+                             },
+                             new PermissionMuenDto()
+                             {
+                                 Path="/other/loadJS",
+                                 Name="loadJS",
+                                 Meta=new MuenMeta()
+                                 {
+                                     Title="异步加载JS",
+                                     Icon="el-icon-open",
+                                     Type="menu",
+                                 },
+                                 Component="other/loadJS"
+                             },
+                             new PermissionMuenDto()
+                             {
+                                 Path="/link",
+                                 Name="link",
+                                 Meta=new MuenMeta()
+                                 {
+                                     Title="外部链接",
+                                     Icon="el-icon-link",
+                                     Type="menu",
+                                 },
+                                 Children=new List<PermissionMuenDto>()
+                                 {
+                                     new PermissionMuenDto()
+                                     {
+                                         Path="https://baidu.com",
+                                         Name = "百度",
+                                         Meta=new MuenMeta()
+                                         {
+                                             Title="百度",
+                                             Icon="el-icon-position",
+                                             Type="link",
+                                         }
+                                     },
+                                     new PermissionMuenDto()
+                                     {
+                                         Path="https://www.google.cn",
+                                         Name = "谷歌",
+                                         Meta=new MuenMeta()
+                                         {
+                                             Title="谷歌",
+                                             Type="link",
+                                         }
+                                     }
+                                 }
+                             },
+                             new PermissionMuenDto()
+                             {
+                                 Path="/iframe",
+                                 Name="iframe",
+                                 Meta=new MuenMeta()
+                                 {
+                                     Title="Iframe",
+                                     Icon="el-icon-position",
+                                     Type="menu",
+                                 },
+                                 Children=new List<PermissionMuenDto>()
+                                 {
+                                     new PermissionMuenDto()
+                                     {
+                                         Path="https://v3.cn.vuejs.org",
+                                         Name = "vue3",
+                                         Meta=new MuenMeta()
+                                         {
+                                             Title="VUE 3",
+                                             Type="iframe"
+                                         }
+                                     },
+                                     new PermissionMuenDto()
+                                     {
+                                         Path="https://element-plus.gitee.io",
+                                         Name = "elementplus",
+                                         Meta=new MuenMeta()
+                                         {
+                                             Title="Element Plus",
+                                             Type="iframe",
+                                         }
+                                     },
+                                     new PermissionMuenDto()
+                                     {
+                                         Path="https://lolicode.gitee.io/scui-doc",
+                                         Name = "scuidoc",
+                                         Meta=new MuenMeta()
+                                         {
+                                             Title="SCUI文档",
+                                             Type="iframe",
+                                         }
+                                     }
+                                 }
+                             }
+                         }
+                     },
+                     new PermissionMuenDto()
+                     {
+                         Name="test",
+                         Path="/test",
+                         Meta=new MuenMeta()
+                         {
+                             Title = "实验室",
+                             Icon="el-icon-mouse",
+                             Type="menu",
+                         },
+                         Children= new List<PermissionMuenDto>()
+                         {
+                             new PermissionMuenDto()
+                             {
+                                 Path="test/autocode",
+                                 Name="autocode",
+                                 Meta=new MuenMeta()
+                                 {
+                                     Title="代码生成器",
+                                     Icon="sc-icon-code",
+                                     Type="menu",
+                                 },
+                                 Component="test/autocode/index",
+                                 Children= new List<PermissionMuenDto>()
+                                 {
+                                      new PermissionMuenDto()
+                                      {
+                                          Path="/test/autocode/table",
+                                          Name="autocode-table",
+                                          Meta=new MuenMeta()
+                                          {
+                                              Title="CRUD代码生成",
+                                              Hidden=true,
+                                              Active="/test/autocode",
+                                              Type="menu"
+                                          },
+                                          Component="test/autocode/table"
+                                      },
+                                      new PermissionMuenDto()
+                                      {
+                                          Path="/test/codebug",
+                                          Name="codebug",
+                                          Meta=new MuenMeta()
+                                          {
+                                              Title="异常处理",
+                                              Icon="sc-icon-bug-line",
+                                              Type="menu"
+                                          },
+                                          Component="test/codebug"
+                                      }
+                                 }
+                             }
+                         }
+
+                     },
+                     new PermissionMuenDto()
+                     {
+                         Name="setting",
+                         Path="/setting",
+                         Meta=new MuenMeta()
+                         {
+                             Title="配置",
+                             Icon="el-icon-setting",
+                             Type="menu",
+                         },
+                         Children=new List<PermissionMuenDto>()
+                         {
+                             new PermissionMuenDto()
+                             {
+                                 Path="/setting/system",
+                                 Name="system",
+                                 Meta=new MuenMeta()
+                                 {
+                                     Title="系统设置",
+                                     Icon="el-icon-tools",
+                                     Type="menu",
+                                 },
+                                 Component="setting/system",
+                             },
+                             new PermissionMuenDto()
+                             {
+                                 Path="/setting/user",
+                                 Name="user",
+                                 Meta=new MuenMeta()
+                                 {
+                                     Title="用户管理",
+                                     Icon="el-icon-user-filled",
+                                     Type="menu",
+                                 },
+                                 Component="setting/user",
+                             },
+                             new PermissionMuenDto()
+                             {
+                                 Path="/setting/role",
+                                 Name="role",
+                                 Meta=new MuenMeta()
+                                 {
+                                     Title="角色管理",
+                                     Icon="el-icon-notebook",
+                                     Type="menu",
+                                 },
+                                 Component="setting/role",
+                             },
+                             new PermissionMuenDto()
+                             {
+                                 Path="/setting/dept",
+                                 Name="dept",
+                                 Meta=new MuenMeta()
+                                 {
+                                     Title="部门管理",
+                                     Icon="sc-icon-organization",
+                                     Type="menu",
+                                 },
+                                 Component="setting/dept",
+                             },
+                             new PermissionMuenDto()
+                             {
+                                 Path="/setting/dic",
+                                 Name="dic",
+                                 Meta=new MuenMeta()
+                                 {
+                                     Title="字典管理",
+                                     Icon="el-icon-document",
+                                     Type="menu",
+                                 },
+                                 Component="setting/dic",
+                             },
+                             new PermissionMuenDto()
+                             {
+                                 Path="/setting/table",
+                                 Name="tableSetting",
+                                 Meta=new MuenMeta()
+                                 {
+                                     Title="表格列管理",
+                                     Icon="el-icon-scale-to-original",
+                                     Type="menu",
+                                 },
+                                 Component="setting/table",
+                             },
+                             new PermissionMuenDto()
+                             {
+                                 Path="/setting/menu",
+                                 Name="settingMenu",
+                                 Meta=new MuenMeta()
+                                 {
+                                     Title="菜单管理",
+                                     Icon="el-icon-fold",
+                                     Type="menu",
+                                 },
+                                 Component="setting/menu",
+                             },
+                             new PermissionMuenDto()
+                             {
+                                 Path="/setting/task",
+                                 Name="task",
+                                 Meta=new MuenMeta()
+                                 {
+                                     Title="计划任务",
+                                     Icon="el-icon-alarm-clock",
+                                     Type="menu",
+                                 },
+                                 Component="setting/task",
+                             },
+                             new PermissionMuenDto()
+                             {
+                                 Path="/setting/client",
+                                 Name="client",
+                                 Meta=new MuenMeta()
+                                 {
+                                     Title="应用管理",
+                                     Icon="el-icon-help-filled",
+                                     Type="menu",
+                                 },
+                                 Component="setting/client",
+                             },
+                             new PermissionMuenDto()
+                             {
+                                 Path="/setting/log",
+                                 Name="log",
+                                 Meta=new MuenMeta()
+                                 {
+                                     Title="系统日志",
+                                     Icon="el-icon-warning",
+                                     Type="menu",
+                                 },
+                                 Component="setting/log",
+                             },
+                         }
+                     },
+                     new PermissionMuenDto()
+                     {
+                         Path="/other/about",
+                         Name="about",
+                         Meta=new MuenMeta()
+                         {
+                             Title="关于",
+                             Icon="el-icon-info-filled",
+                             Type="menu",
+                         },
+                         Component="other/about"
+                     }
                  },
                 Permissions = new List<string> {""},
             }) ;
