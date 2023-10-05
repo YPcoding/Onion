@@ -43,10 +43,31 @@ export default {
 	},
 	role: {
 		list: {
-			url: `${config.API_URL}/system/role/list2`,
+			url: `${config.API_URL}/Role/PaginationQuery`,
 			name: "获取角色列表",
-			get: async function (params) {
-				return await http.get(this.url, params)
+			post: async function (params) {
+				return await http.post(this.url, params)
+			}
+		},
+		add: {
+			url: `${config.API_URL}/Role/Add`,
+			name: "新增角色",
+			post: async function (params) {
+				return await http.post(this.url, params)
+			}
+		},
+		update: {
+			url: `${config.API_URL}/Role/Update`,
+			name: "修改角色",
+			put: async function (params) {
+				return await http.put(this.url, params)
+			}
+		},
+		delete: {
+			url: `${config.API_URL}/Role/Delete`,
+			name: "批量删除角色",
+			delete: async function (params) {
+				return await http.delete(this.url, params)
 			}
 		}
 	},

@@ -98,7 +98,8 @@
 			//监听从props里拿到值了
 			data(){
 				this.tableData = this.data;
-				this.total = this.tableData.length;
+				console.log("zongyema",this.total)
+				//this.total = this.tableData.length;
 			},
 			apiObj(){
 				this.tableParams = this.params;
@@ -152,7 +153,7 @@
 				this.getData();
 			}else if(this.data){
 				this.tableData = this.data;
-				this.total = this.tableData.length
+				//this.total = this.tableData.length
 			}
 		},
 		activated(){
@@ -216,12 +217,14 @@
 				this.$emit('dataChange', res, this.tableData)
 			},
 			//分页点击
-			paginationChange(){
+			paginationChange(val){
+				this.$emit('pagination-change', val);
 				this.getData();
 			},
 			//条数变化
 			pageSizeChange(size){
 				this.scPageSize = size
+				this.$emit('pagesize', size);
 				this.getData();
 			},
 			//刷新数据
@@ -363,7 +366,7 @@
 					this.tableData.splice(this.tableData.findIndex(item => item[rowKey]===key), 1)
 				})
 			},
-			//原生方法转发
+			//原生方法转发selection
 			clearSelection(){
 				this.$refs.scTable.clearSelection()
 			},

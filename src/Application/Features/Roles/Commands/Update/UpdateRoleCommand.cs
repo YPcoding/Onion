@@ -30,6 +30,18 @@ public class UpdateRoleCommand : ICacheInvalidatorRequest<Result<long>>
     public string RoleCode { get; set; }
 
     /// <summary>
+    /// 是否激活
+    /// </summary>
+    [Required(ErrorMessage = "是否激活必填")]
+    public bool IsActive { get; set; }
+
+    /// <summary>
+    /// 排序
+    /// </summary>
+    [Required(ErrorMessage = "排序必填")]
+    public int Sort { get; set; }
+
+    /// <summary>
     /// 角色描述
     /// </summary>
     [Required(ErrorMessage = "角色描述必填")]

@@ -37,10 +37,16 @@ axios.interceptors.response.use(
 	},
 	(error) => {
 		if (error.response) {
+			console.log("4000", error.response.data.error)
 			if (error.response.status == 404) {
 				ElNotification.error({
 					title: '请求错误',
 					message: "Status:404，正在请求不存在的服务器记录！"
+				})
+			} else if (error.response.status == 400) {
+				ElNotification.error({
+					title: '请求错误',
+					message: error.response.data.error
 				})
 			} else if (error.response.status == 500) {
 				ElNotification.error({
@@ -66,7 +72,7 @@ axios.interceptors.response.use(
 			} else {
 				ElNotification.error({
 					title: '请求错误',
-					message: error.message || `Status:${error.response.status}，未知错误！`
+					message: error.response.data.error || `Status:${error.response.status}，未知错误！`
 				})
 			}
 		} else {

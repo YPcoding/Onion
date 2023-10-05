@@ -102,6 +102,7 @@
 		methods: {
 			async save(name,val,type,defaultValue){
 				let response = await this.$API.system.user.saveUserProfileSettings.post(name,`${val}`,type,defaultValue);
+
 				if (response?.succeeded) {
 					this.$message.success("设置成功") 
 			    }else{
