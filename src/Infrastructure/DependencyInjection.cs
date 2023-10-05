@@ -86,15 +86,7 @@ public static class DependencyInjection
                     return Task.CompletedTask;
                 }
             };
-        }).AddScheme<AuthenticationSchemeOptions, ResponseAuthenticationHandler>(nameof(ResponseAuthenticationHandler), o => { }); ;
-        //services.AddControllers().AddNewtonsoftJson(options =>
-        //{
-        //    options.SerializerSettings.DateFormatString = "yyyy-MM-dd HH:mm:ss.fff";//格式化时间格式          
-        //    options.SerializerSettings.ContractResolver = new CustomContractResolver();//解决long类型数据精度丢失问题
-        //    options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore; // 忽略空值属性
-        //    options.SerializerSettings.NullValueHandling = (NullValueHandling)DefaultValueHandling.Ignore;// 忽略默认值属性
-        //    options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-        //});
+        }).AddScheme<AuthenticationSchemeOptions, ResponseAuthenticationHandler>(nameof(ResponseAuthenticationHandler), o => { });
         services.AddControllers().AddJsonOptions(options =>
         {
             options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase; // 使用驼峰命名法
