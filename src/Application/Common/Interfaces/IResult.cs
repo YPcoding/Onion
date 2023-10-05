@@ -17,7 +17,7 @@ public interface IResult
     /// <summary>
     /// 错误信息
     /// </summary>
-    string ErrorMessage { get; }
+    string Error { get; }
 }
 public interface IResult<out T> : IResult
 {

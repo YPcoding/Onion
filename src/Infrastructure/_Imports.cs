@@ -19,4 +19,6 @@ global using Domain.Common;
 global using Domain.Entities.Audit;
 global using Common.Extensions;
 global using Common.Helpers;
+global using Common.Utilities;
+
 

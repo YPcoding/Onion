@@ -16,9 +16,9 @@ namespace Domain.Entities.Identity
 
 
         /// <summary>
-        /// 用户名
+        /// 账号
         /// </summary>
-        [Description("用户名")]
+        [Description("账号")]
         public virtual string? UserName { get; set; }
 
         /// <summary>
@@ -32,6 +32,36 @@ namespace Domain.Entities.Identity
             }
             set { }
         }
+
+        /// <summary>
+        /// 真实姓名
+        /// </summary>
+        [Description("真实姓名")]
+        public virtual string? Realname { get; set; }
+
+        /// <summary>
+        /// 昵称
+        /// </summary>
+        [Description("昵称")]
+        public virtual string? Nickname { get; set; }
+
+        /// <summary>
+        /// 性别
+        /// </summary>
+        [Description("性别")]
+        public virtual GenderType GenderType { get; set; }
+
+        /// <summary>
+        /// 生日
+        /// </summary>
+        [Description("生日")]
+        public DateTime? Birthday { get; set; }
+
+        /// <summary>
+        /// 个性签名
+        /// </summary>
+        [Description("个性签名")]
+        public string? Signature { get; set; }
 
         /// <summary>
         /// 邮箱

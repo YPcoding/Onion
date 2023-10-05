@@ -39,9 +39,9 @@ internal class ExceptionHandlingMiddleware : IMiddleware
             {
                 case ServerException e:
                     response.StatusCode = (int)e.StatusCode;
-                    if (e.ErrorMessages is not null)
+                    if (e.Error is not null)
                     {
-                        responseModel = await Result.FailureAsync(e.ErrorMessages.ToArray());
+                        responseModel = await Result.FailureAsync(e.Error.ToArray());
                     }
                     break;
                 case KeyNotFoundException:

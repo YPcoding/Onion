@@ -68,6 +68,7 @@
 				}
 			},
 			'config.lang'(val){
+				console.log("aaa",val)
 				this.$i18n.locale = val
 				this.$TOOL.data.set("APP_LANG", val);
 			},

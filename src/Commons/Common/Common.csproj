@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Utilities\" />
     <Folder Include="Models\" />
     <Folder Include="Logging\" />
     <Folder Include="Caching\" />

@@ -29,7 +29,7 @@ public class Result : IResult
     /// <summary>
     /// 错误信息
     /// </summary>
-    public string ErrorMessage => string.Join(", ", Errors ?? new string[] { });
+    public string Error => string.Join(", ", Errors ?? new string[] { });
 
     /// <summary>
     /// 状态码 0成功 1失败

@@ -4,7 +4,7 @@
 			<el-container>
 				<el-header style="height: auto;display: block;">
 					<div class="user-info-top">
-						<el-avatar :size="70" src="img/avatar.jpg"></el-avatar>
+						<el-avatar :size="70" :src="user.profilePictureDataUrl"></el-avatar>
 						<h2>{{ user.userName }}</h2>
 						<p><el-tag effect="dark" round size="large" disable-transitions>{{ user.role }}</el-tag></p>
 					</div>
@@ -105,10 +105,18 @@
 					}
 				],
 				user: {
-					userName: "Sakuya",
-					role: "超级管理员",
+					userName: "",
+					role: "",
 				},
 				page: "account"
+			}
+		},
+		async mounted() {
+			var userInfo = this.$TOOL.data.get("USER_INFO");
+			var roles = this.$TOOL.data.get("ROLES");
+			this.user = userInfo;
+			if (roles[0] !== undefined) {				
+			    this.user.role=roles[0]
 			}
 		},
 		//路由跳转进来 判断from是否有特殊标识做特殊处理

@@ -13,8 +13,9 @@ using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Newtonsoft.Json;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Infrastructure;
 
@@ -86,15 +87,25 @@ public static class DependencyInjection
                 }
             };
         }).AddScheme<AuthenticationSchemeOptions, ResponseAuthenticationHandler>(nameof(ResponseAuthenticationHandler), o => { }); ;
-        services.AddControllers().AddNewtonsoftJson(options =>
+        //services.AddControllers().AddNewtonsoftJson(options =>
+        //{
+        //    options.SerializerSettings.DateFormatString = "yyyy-MM-dd HH:mm:ss.fff";//格式化时间格式          
+        //    options.SerializerSettings.ContractResolver = new CustomContractResolver();//解决long类型数据精度丢失问题
+        //    options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore; // 忽略空值属性
+        //    options.SerializerSettings.NullValueHandling = (NullValueHandling)DefaultValueHandling.Ignore;// 忽略默认值属性
+        //    options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+        //});
+        services.AddControllers().AddJsonOptions(options =>
         {
-            //格式化时间格式
-            options.SerializerSettings.DateFormatString = "yyyy-MM-dd HH:mm:ss.fff";
-            //解决long类型数据精度丢失问题
-            options.SerializerSettings.ContractResolver = new CustomContractResolver();
-            options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore; // 忽略空值属性
-            options.SerializerSettings.NullValueHandling = (NullValueHandling)DefaultValueHandling.Ignore;// 忽略默认值属性
+            options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase; // 使用驼峰命名法
+            options.JsonSerializerOptions.WriteIndented = true; // 格式化输出
+            //options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()); // 枚举使用字符串表示
+            options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull; // 忽略默认值属性
+            options.JsonSerializerOptions.AllowTrailingCommas = true; // 允许尾随逗号
+            options.JsonSerializerOptions.Converters.Add(new CustomDateTimeConverter("yyyy-MM-dd HH:mm:ss.fff")); // 自定义日期格式化
+            options.JsonSerializerOptions.Converters.Add(new LongConverter());//解决long类型数据精度丢失问题
         });
+
         services.AddEndpointsApiExplorer();
         services.Configure<ApiBehaviorOptions>(options => //请求参数校验
         {

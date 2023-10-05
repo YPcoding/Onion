@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Migrators.MySql.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20231002111349_Init")]
-    partial class Init
+    [Migration("20231004065501_Init2")]
+    partial class Init2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -69,6 +69,9 @@ namespace Migrators.MySql.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("Birthday")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<string>("ConcurrencyStamp")
                         .HasColumnType("longtext");
 
@@ -92,6 +95,9 @@ namespace Migrators.MySql.Migrations
                         .HasMaxLength(1)
                         .HasColumnType("tinyint(1)");
 
+                    b.Property<int>("GenderType")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("tinyint(1)");
 
@@ -110,6 +116,9 @@ namespace Migrators.MySql.Migrations
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Nickname")
+                        .HasColumnType("longtext");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(50)
@@ -134,9 +143,15 @@ namespace Migrators.MySql.Migrations
                     b.Property<string>("ProfilePictureDataUrl")
                         .HasColumnType("text");
 
+                    b.Property<string>("Realname")
+                        .HasColumnType("longtext");
+
                     b.Property<string>("SecurityStamp")
                         .HasMaxLength(36)
                         .HasColumnType("varchar(36)");
+
+                    b.Property<string>("Signature")
+                        .HasColumnType("longtext");
 
                     b.Property<long?>("SuperiorId")
                         .HasColumnType("bigint");
@@ -495,7 +510,7 @@ namespace Migrators.MySql.Migrations
                     b.HasOne("Domain.Entities.Identity.User", "Owner")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Owner");
                 });
@@ -504,8 +519,7 @@ namespace Migrators.MySql.Migrations
                 {
                     b.HasOne("Domain.Entities.Identity.User", "Superior")
                         .WithMany()
-                        .HasForeignKey("SuperiorId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .HasForeignKey("SuperiorId");
 
                     b.Navigation("Superior");
                 });
@@ -514,8 +528,7 @@ namespace Migrators.MySql.Migrations
                 {
                     b.HasOne("Domain.Entities.Identity.User", "Sender")
                         .WithMany()
-                        .HasForeignKey("SenderId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .HasForeignKey("SenderId");
 
                     b.Navigation("Sender");
                 });
@@ -525,13 +538,13 @@ namespace Migrators.MySql.Migrations
                     b.HasOne("Domain.Entities.Notifications.Notification", "Notification")
                         .WithMany("Recipients")
                         .HasForeignKey("NotificationId1")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.Identity.User", "Recipient")
                         .WithMany()
                         .HasForeignKey("RecipientId1")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Notification");
@@ -543,8 +556,7 @@ namespace Migrators.MySql.Migrations
                 {
                     b.HasOne("Domain.Entities.Permission", "Superior")
                         .WithMany()
-                        .HasForeignKey("SuperiorId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .HasForeignKey("SuperiorId");
 
                     b.Navigation("Superior");
                 });
@@ -554,13 +566,13 @@ namespace Migrators.MySql.Migrations
                     b.HasOne("Domain.Entities.Permission", "Permission")
                         .WithMany("RolePermissions")
                         .HasForeignKey("PermissionId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.Role", "Role")
                         .WithMany("RolePermissions")
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Permission");
@@ -573,13 +585,13 @@ namespace Migrators.MySql.Migrations
                     b.HasOne("Domain.Entities.Role", "Role")
                         .WithMany("UserRoles")
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.Identity.User", "User")
                         .WithMany("UserRoles")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Role");

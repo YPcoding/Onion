@@ -1,4 +1,5 @@
-﻿using Application.Features.Roles.Commands.Update;
+﻿using Application.Common.Interfaces;
+using Application.Features.Roles.Commands.Update;
 using Application.Features.Users.Commands.Add;
 using Application.Features.Users.Commands.Delete;
 using Application.Features.Users.Commands.Update;
@@ -15,6 +16,15 @@ namespace WebAPI.Controllers;
 /// </summary>
 public class UserController : ApiControllerBase
 {
+
+    private readonly ICurrentUserService _currentUserService;
+
+    public UserController(ICurrentUserService currentUserService)
+    {
+        _currentUserService = currentUserService;
+    }
+
+
     /// <summary>
     /// 分页查询
     /// </summary>
@@ -36,6 +46,26 @@ public class UserController : ApiControllerBase
     public async Task<Result<UserDto>> GetByIdQuery(long userId)
     {
         return await Mediator.Send(new GetUserByIdQuery { UserId = userId });
+    }
+
+    /// <summary>
+    /// 获取个人信息
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("Info/Query")]
+    public async Task<Result<UserDto>> GetUserInfoQuery()
+    {
+        return await Mediator.Send(new GetUserByIdQuery { UserId = _currentUserService.CurrentUserId });
+    }
+
+    /// <summary>
+    /// 修改个人信息
+    /// </summary>
+    /// <returns></returns>
+    [HttpPut("Info")]
+    public async Task<Result<long>> UpdateUserInfo(UpdateUserInfoCommand command)
+    {
+        return await Mediator.Send(command);
     }
 
     /// <summary>
@@ -105,6 +135,16 @@ public class UserController : ApiControllerBase
     /// <returns></returns>
     [HttpPut("Reset/Password")]
     public async Task<Result<long>> ResetPassword(ResetPasswordCommand command)
+    {
+        return await Mediator.Send(command);
+    }
+
+    /// <summary>
+    /// 更改密码
+    /// </summary>
+    /// <returns></returns>
+    [HttpPut("Change/Password")]
+    public async Task<Result<bool>> ChangePassword(ChangePasswordCommand command)
     {
         return await Mediator.Send(command);
     }

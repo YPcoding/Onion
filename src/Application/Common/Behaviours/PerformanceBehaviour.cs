@@ -58,7 +58,7 @@ public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
         }
 
         string requestPath = _httpContextAccessor.HttpContext?.Request.Path!;
-        _logger.LogInformation($"【用户：{userName} 请求接口：{requestPath}。请求参数：{request.ToJson()}，响应：{response!.ToJson()}】请求花费了：({elapsedMilliseconds} 毫秒)");
+        _logger.LogInformation($"【用户：{userName} 请求接口：{requestPath}。请求参数：{request.ToJson()}，响应：{response!.ToJsonWithSensitiveFilter(new string[] {"Data" })}】请求花费了：({elapsedMilliseconds} 毫秒)");
         return response;
     }
 }

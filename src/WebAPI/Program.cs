@@ -16,9 +16,9 @@ var app = builder.Build();
 
 app.UseInfrastructure(builder.Configuration);
 
-var hubContext = app.Services.GetRequiredService<IHubContext<SignalRHub>>();
-var consoleWriter = new WebApiConsoleWriter(hubContext);
-Console.SetOut(consoleWriter);
+//var hubContext = app.Services.GetRequiredService<IHubContext<SignalRHub>>();
+//var consoleWriter = new WebApiConsoleWriter(hubContext);
+//Console.SetOut(consoleWriter);
 
 if (app.Environment.IsDevelopment())
 {
