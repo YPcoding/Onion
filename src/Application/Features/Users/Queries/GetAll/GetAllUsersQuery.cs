@@ -22,9 +22,7 @@ public class GetUserQuery : ICacheableRequest<Result<UserDto>>
     public MemoryCacheEntryOptions? Options => UserCacheKey.MemoryCacheEntryOptions;
 }
 
-public class GetAllUsersQueryHandler :
-    IRequestHandler<GetAllUsersQuery, Result<IEnumerable<UserDto>>>,
-    IRequestHandler<GetUserQuery, Result<UserDto>>
+public class GetAllUsersQueryHandler :IRequestHandler<GetAllUsersQuery, Result<IEnumerable<UserDto>>>, IRequestHandler<GetUserQuery, Result<UserDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;

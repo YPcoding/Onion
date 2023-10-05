@@ -89,13 +89,13 @@ public static class DependencyInjection
         }).AddScheme<AuthenticationSchemeOptions, ResponseAuthenticationHandler>(nameof(ResponseAuthenticationHandler), o => { });
         services.AddControllers().AddJsonOptions(options =>
         {
-            options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase; // 使用驼峰命名法
             options.JsonSerializerOptions.WriteIndented = true; // 格式化输出
-            //options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()); // 枚举使用字符串表示
-            options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull; // 忽略默认值属性
             options.JsonSerializerOptions.AllowTrailingCommas = true; // 允许尾随逗号
-            options.JsonSerializerOptions.Converters.Add(new CustomDateTimeConverter("yyyy-MM-dd HH:mm:ss.fff")); // 自定义日期格式化
+            options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase; // 使用驼峰命名法
+            options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull; // 忽略默认值属性
             options.JsonSerializerOptions.Converters.Add(new LongConverter());//解决long类型数据精度丢失问题
+           // options.JsonSerializerOptions.Converters.Add(new EnumWithDescriptionConverter()); // 枚举使用描述表示
+            options.JsonSerializerOptions.Converters.Add(new CustomDateTimeConverter("yyyy-MM-dd HH:mm:ss.fff")); // 自定义日期格式化
         });
 
         services.AddEndpointsApiExplorer();

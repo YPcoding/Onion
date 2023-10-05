@@ -1,6 +1,5 @@
 <template>
 	<el-form ref="form" label-width="120px" label-position="left" style="padding:0 20px;">
-		<el-alert title="以下配置可实时预览，开发者可在 config/index.js 中配置默认值，非常不建议在生产环境下开放布局设置" type="error" :closable="false"></el-alert>
 		<el-divider></el-divider>
 		<el-form-item :label="$t('user.nightmode')">
 			<el-switch v-model="dark"></el-switch>
@@ -49,28 +48,44 @@
 				colorPrimary: this.$TOOL.data.get('APP_COLOR') || this.$CONFIG.COLOR || '#409EFF'
 			}
 		},
+		methods: {
+			async save(name,val,type,defaultValue){
+				let response = await this.$API.system.user.saveUserProfileSettings.post(name,`${val}`,type,defaultValue);
+				if (response.succeeded) {
+					this.$message.success("设置成功") //
+			    }else{
+					this.$message.success("设置失败")
+				}
+			}
+		},
 		watch: {
 			layout(val) {
 				this.$store.commit("SET_layout", val)
+				this.save("SET_layout",this.layout,"string","default");
 			},
 			menuIsCollapse(){
 				this.$store.commit("TOGGLE_menuIsCollapse")
+				this.save("TOGGLE_menuIsCollapse",this.menuIsCollapse,"boolean","true");
 			},
 			layoutTags(){
 				this.$store.commit("TOGGLE_layoutTags")
+				this.save("TOGGLE_layoutTags",this.layoutTags,"boolean","true");
 			},
 			dark(val){
 				if(val){
 					document.documentElement.classList.add("dark")
 					this.$TOOL.data.set("APP_DARK", val)
+					this.save("APP_DARK",val,"boolean","true");
 				}else{
 					document.documentElement.classList.remove("dark")
 					this.$TOOL.data.remove("APP_DARK")
+					this.save("APP_DARK","","boolean","true");
 				}
 			},
 			lang(val){
 				this.$i18n.locale = val
 				this.$TOOL.data.set("APP_LANG", val);
+				this.save("APP_LANG",val,"string","zh-cn");
 			},
 			colorPrimary(val){
 				if(!val){
@@ -85,6 +100,7 @@
 					document.documentElement.style.setProperty(`--el-color-primary-dark-${i}`, colorTool.darken(val,i/10));
 				}
 				this.$TOOL.data.set("APP_COLOR", val);
+				this.save("APP_COLOR",val,"string","#409EFF");
 			}
 		}
 	}

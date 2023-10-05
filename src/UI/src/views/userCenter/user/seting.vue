@@ -51,9 +51,9 @@
 				colorList: ['#409EFF', '#009688', '#536dfe', '#ff5c93', '#c62f2f', '#fd726d'],
 				config: {
 					lang: this.$TOOL.data.get('APP_LANG') || this.$CONFIG.LANG,
-					dark: this.$TOOL.data.get('APP_DARK') || false,
-					colorPrimary: this.$TOOL.data.get('APP_COLOR') || this.$CONFIG.COLOR || '#409EFF',
-					autoExit: this.$TOOL.data.get('AUTO_EXIT') || 0,
+					dark: this.$TOOL.data.get('APP_DARK')|| this.$CONFIG.DARK  || false,
+					colorPrimary: this.$TOOL.data.get('APP_COLOR')|| this.$CONFIG.COLOR || '#409EFF',
+					autoExit: this.$TOOL.data.get('AUTO_EXIT')|| this.$CONFIG.EXIT|| 0,
 				}
 			}
 		},
@@ -62,15 +62,17 @@
 				if(val){
 					document.documentElement.classList.add("dark")
 					this.$TOOL.data.set("APP_DARK", val)
+					this.save("APP_DARK",val,"boolean","false")
 				}else{
 					document.documentElement.classList.remove("dark")
 					this.$TOOL.data.remove("APP_DARK")
+					this.save("APP_DARK","","boolean","false")
 				}
 			},
 			'config.lang'(val){
-				console.log("aaa",val)
 				this.$i18n.locale = val
 				this.$TOOL.data.set("APP_LANG", val);
+				this.save("APP_LANG",val,"string",`${this.$CONFIG.LANG}`)			
 			},
 			'config.colorPrimary'(val){
 				if(!val){
@@ -85,15 +87,28 @@
 					document.documentElement.style.setProperty(`--el-color-primary-dark-${i}`, colorTool.darken(val,i/10));
 				}
 				this.$TOOL.data.set("APP_COLOR", val);
+				this.save("APP_COLOR",val,"string","#409EFF")
 			},
 			'config.autoExit'(val){
 				if(val == 0){
 					this.$TOOL.data.remove("AUTO_EXIT")
+					this.save("AUTO_EXIT","","integer","0")
 				}else{
 					this.$TOOL.data.set("AUTO_EXIT", val)
+					this.save("AUTO_EXIT",val,"integer","0")
 				}
 			},
 		},
+		methods: {
+			async save(name,val,type,defaultValue){
+				let response = await this.$API.system.user.saveUserProfileSettings.post(name,`${val}`,type,defaultValue);
+				if (response?.succeeded) {
+					this.$message.success("设置成功") 
+			    }else{
+					this.$message.success("设置失败")
+				}
+			}
+		}
 	}
 </script>
 

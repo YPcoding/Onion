@@ -2,6 +2,7 @@
 using Domain.Entities.Identity;
 using Domain.Entities.Logger;
 using Domain.Entities.Notifications;
+using Domain.Entities.Settings;
 using Infrastructure.Persistence.Extensions;
 using System.Reflection;
 
@@ -24,6 +25,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<RolePermission> RolePermissions { get; set; }
     public DbSet<TestTable> TestTables { get; set; }
     public DbSet<Notification> Notifications { get; set; }
+    public DbSet<UserProfileSetting> UserProfileSettings { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

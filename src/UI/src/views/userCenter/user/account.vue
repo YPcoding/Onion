@@ -58,9 +58,9 @@
 			    }
 			},
 			async save(){
-				this.isSaving =true;
+				this.isSaving = true;
 				var response = await this.$API.system.user.updateInfo.put(this.form);
-			    if (response.succeeded) {
+			    if (response?.succeeded) {
 					this.$message.success("修改成功")
 					this.search();
 			    }

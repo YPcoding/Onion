@@ -27,10 +27,10 @@ namespace Common.Extensions
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             };
 
-            if (sensitiveFields.Any())
+            if (sensitiveFields!.Any())
             {
                 // 添加敏感字段过滤器
-                options.Converters.Add(new SensitiveFieldsConverter(sensitiveFields));
+                options.Converters.Add(new SensitiveFieldsConverter(sensitiveFields!));
             }
 
             // 执行 JSON 序列化

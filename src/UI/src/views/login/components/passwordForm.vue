@@ -31,6 +31,9 @@
 </template>
 
 <script>
+	import colorTool from '@/utils/color'
+	import tool from '@/utils/tool'
+
 	export default {
 		data() {
 			return {
@@ -113,13 +116,71 @@
 					this.$message.warning(menu.error)
 					return false
 				}
+				//设置个人设置
+				let response = await this.$API.system.user.getUserProfileSettings.get();
+				if (response.succeeded) {
+					let settings = response.data
+					if (settings !== null && settings.length > 0) {
+						for (const element of settings) {			
+							let key = element.settingName;
+							let type = element.valueType;
+							let val = element.settingValue;
+							let convertval= this.convertToType(val,type);
+							if (key === "APP_DARK" && convertval) {
+								document.documentElement.classList.add("dark")
+							}
+							if (key === "APP_LANG") {
+								this.$i18n.locale = convertval
+							}
+							if (key == "APP_COLOR") {
+								document.documentElement.style.setProperty('--el-color-primary', convertval);
+				                for (let i = 1; i <= 9; i++) {
+					                document.documentElement.style.setProperty(`--el-color-primary-light-${i}`, colorTool.lighten(convertval,i/10));
+				                }
+				                for (let i = 1; i <= 9; i++) {
+					                document.documentElement.style.setProperty(`--el-color-primary-dark-${i}`, colorTool.darken(convertval,i/10));
+				                }
+							}
+							if (key === "SET_layout") {
+								this.$store.state.global.layout = convertval
+							}
+							if (key === "TOGGLE_layoutTags") {
+								this.$store.state.global.layoutTags = convertval
+							}
+							if (key === "TOGGLE_menuIsCollapse") {
+								this.$store.state.global.menuIsCollapse = convertval
+							}
+							if (key === "AUTO_EXIT") {
+								this.$TOOL.cookie.set("TOKEN", tool.cookie.get("TOKEN"), {
+						            expires: convertval*60
+					            })
+							}
+						    this.$TOOL.data.set(key,convertval)
+                        }
+				    }
+			    }
 
 				this.$router.replace({
 					path: '/'
 				})
+				
 				this.$message.success("Login Success 登录成功")
 				this.islogin = false
 			},
+			 convertToType(value, targetType) {
+                switch (targetType) {
+                    case 'number':
+                        return parseFloat(value);
+                    case 'integer':
+                        return parseInt(value);
+                    case 'boolean':
+                        return (value === 'true');
+                    case 'date':
+                        return new Date(value);
+                    default:
+                        return value;
+                }
+            }
 		}
 	}
 </script>

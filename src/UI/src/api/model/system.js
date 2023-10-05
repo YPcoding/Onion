@@ -87,6 +87,20 @@ export default {
 			put: async function (params) {
 				return await http.put(this.url, params)
 			}
+		},
+		saveUserProfileSettings: {
+			url: `${config.API_URL}/UserProfileSetting/Save`,
+			name: "个人设置",
+			post: async function (name, val, type, defaultValue) {
+				return await http.post(this.url, { settingName: name, settingValue: val, valueType: type, defaultValue: defaultValue })
+			}
+		},
+		getUserProfileSettings: {
+			url: `${config.API_URL}/UserProfileSetting/Query`,
+			name: "个人设置",
+			get: async function () {
+				return await http.get(this.url)
+			}
 		}
 	},
 	app: {

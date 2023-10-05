@@ -1,4 +1,6 @@
-﻿using Application.Features.Auth.DTOs;
+﻿using Application.Common.Interfaces.Caching;
+using Application.Features.Auth.DTOs;
+using Application.Features.Users.Caching;
 using Application.Features.Users.DTOs;
 using Domain.Repositories;
 using Domain.Services;
@@ -10,7 +12,7 @@ namespace Application.Features.Auth.Commands;
 /// <summary>
 /// 通过用户名和密码登录
 /// </summary>
-public class LoginByUserNameAndPasswordCommand : IRequest<Result<LoginResultDto>>
+public class LoginByUserNameAndPasswordCommand : ICacheInvalidatorRequest<Result<LoginResultDto>>
 {
     /// <summary>
     /// 用户名
@@ -23,6 +25,15 @@ public class LoginByUserNameAndPasswordCommand : IRequest<Result<LoginResultDto>
     /// </summary>
     [Required(ErrorMessage = "密码是必填的")]
     public string Password { get; set; }
+
+    /// <summary>
+    /// 缓存Key值
+    /// </summary>
+    [JsonIgnore]
+    public string CacheKey => UserCacheKey.GetAllCacheKey;
+
+    [JsonIgnore]
+    public CancellationTokenSource? SharedExpiryTokenSource => UserCacheKey.SharedExpiryTokenSource();
 }
 
 /// <summary>
@@ -76,8 +87,9 @@ public class LoginByUserNameAndPasswordCommandHandler : IRequestHandler<LoginByU
             }
 
             user.IsUnLock();
-            await _userRepository.UpdateAsync(user);
         }
+        user.AccessFailedCount = 0;
+        await _userRepository.UpdateAsync(user);
 
         var claims = await _tokenService.CreateClaimsAsync(user.Id, user.UserName!);
         string token = await _tokenService.BuildAsync(claims, _optJwtSettings.Value);
