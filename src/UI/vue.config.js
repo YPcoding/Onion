@@ -2,7 +2,7 @@ const { defineConfig } = require('@vue/cli-service')
 
 module.exports = defineConfig({
 	//设置为空打包后不分更目录还是多级目录
-	publicPath:'',
+	publicPath: '',
 	//build编译后存放静态文件的目录
 	//assetsDir: "static",
 
@@ -11,13 +11,13 @@ module.exports = defineConfig({
 
 	//开发服务,build后的生产模式还需nginx代理
 	devServer: {
-        allowedHosts: 'all',
+		allowedHosts: 'all',
 		open: false, //运行后自动打开浏览器
 		port: process.env.VUE_APP_PORT, //挂载端口
 		proxy: {
 			'/api': {
 				target: process.env.VUE_APP_API_BASEURL,
-				ws: true,
+				ws: false,
 				pathRewrite: {
 					'^/api': '/'
 				}
@@ -27,9 +27,9 @@ module.exports = defineConfig({
 
 	chainWebpack: config => {
 		// 移除 prefetch 插件
-		config.plugins.delete('preload');
-		config.plugins.delete('prefetch');
-		config.resolve.alias.set('vue-i18n', 'vue-i18n/dist/vue-i18n.cjs.js');
+		config.plugins.delete('preload')
+		config.plugins.delete('prefetch')
+		config.resolve.alias.set('vue-i18n', 'vue-i18n/dist/vue-i18n.cjs.js')
 	},
 
 	configureWebpack: {

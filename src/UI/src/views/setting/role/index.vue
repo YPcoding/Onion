@@ -154,18 +154,24 @@
 			},
 			//表格选择后回调事件
 			selectionChange(selection){
-				console.log("biange", selection)
 				this.selection = selection;
 			},
 			//表格内开关
-			changeSwitch(val, row){
-				row.status = row.status == '1'?'0':'1'
+			async changeSwitch(val, row){
+				row.isActive = row.isActive === true?false:true
 				row.$switch_status = true;
-				setTimeout(()=>{
+				var res = await this.$API.system.role.isActive.put({
+					roleId:row.roleId,
+					isActive:val,
+					concurrencyStamp:row.concurrencyStamp});
+				if(res.succeeded && res.data){
 					delete row.$switch_status;
-					row.status = val;
+					row.isActive = val;
 					this.$message.success("操作成功")
-				}, 500)
+				} else {
+					this.$message.error(res.error)
+				}
+				this.query();
 			},
 			//搜索
 			upsearch(){
@@ -202,8 +208,7 @@
 				this.query();
 			},
 			//行改变
-			handleCurrentPageChange(newPage) {
-				 console.log("1", newPage)			
+			handleCurrentPageChange() {			
             },
 			pageSizeChange(size){
 				this.pageSize = size;

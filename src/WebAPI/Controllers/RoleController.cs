@@ -92,6 +92,17 @@ public class RoleController : ApiControllerBase
     }
 
     /// <summary>
+    /// 修改角色是否激活
+    /// </summary>
+    /// <returns></returns>
+    [HttpPut("IsActive")]
+
+    public async Task<Result<bool>> IsActive(UpdatedRoleIsActiveCommand command)
+    {
+        return await Mediator.Send(command);
+    }
+
+    /// <summary>
     /// 修改角色菜单权限
     /// </summary>
     /// <returns></returns>

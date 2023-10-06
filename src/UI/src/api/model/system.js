@@ -63,6 +63,13 @@ export default {
 				return await http.put(this.url, params)
 			}
 		},
+		isActive: {
+			url: `${config.API_URL}/Role/IsActive`,
+			name: "修改角色是否激活",
+			put: async function (params) {
+				return await http.put(this.url, params)
+			}
+		},
 		delete: {
 			url: `${config.API_URL}/Role/Delete`,
 			name: "批量删除角色",
