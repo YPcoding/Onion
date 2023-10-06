@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using Domain.Entities.Departments;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Entities.Identity
@@ -147,6 +148,13 @@ namespace Domain.Entities.Identity
         public long? SuperiorId { get; set; } = null;
         [ForeignKey("SuperiorId")]
         public User? Superior { get; set; } = null;
+
+        /// <summary>
+        /// 部门
+        /// </summary>
+        public virtual long? DepartmentId { get; set; } = null;
+
+        public virtual Department? Department { get; set; }
 
         /// <summary>
         /// 用户角色

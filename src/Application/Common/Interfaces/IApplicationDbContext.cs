@@ -1,4 +1,5 @@
 ﻿using Domain.Entities.Audit;
+using Domain.Entities.Departments;
 using Domain.Entities.Logger;
 using Domain.Entities.Notifications;
 using Domain.Entities.Settings;
@@ -18,6 +19,7 @@ public  interface IApplicationDbContext
     DbSet<TestTable> TestTables { get; }
     DbSet<Notification> Notifications { get; }
     DbSet<UserProfileSetting> UserProfileSettings { get; }
+    DbSet<Department> Departments { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     DatabaseFacade Database { get; }

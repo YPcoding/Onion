@@ -1,4 +1,5 @@
 ﻿using Domain.Entities;
+using Domain.Entities.Departments;
 using Domain.Entities.Identity;
 using Domain.Entities.Logger;
 using Domain.Entities.Notifications;
@@ -26,6 +27,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<TestTable> TestTables { get; set; }
     public DbSet<Notification> Notifications { get; set; }
     public DbSet<UserProfileSetting> UserProfileSettings { get; set; }
+    public DbSet<Department> Departments { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

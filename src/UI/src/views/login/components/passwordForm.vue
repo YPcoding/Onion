@@ -32,7 +32,7 @@
 
 <script>
 	import colorTool from '@/utils/color'
-	import tool from '@/utils/tool'
+	//import tool from '@/utils/tool'
 
 	export default {
 		data() {
@@ -150,11 +150,12 @@
 							if (key === "TOGGLE_menuIsCollapse") {
 								this.$store.state.global.menuIsCollapse = convertval
 							}
-							if (key === "AUTO_EXIT") {
-								this.$TOOL.cookie.set("TOKEN", tool.cookie.get("TOKEN"), {
-						            expires: convertval*60
-					            })
-							}
+							// if (key === "AUTO_EXIT") {
+							// 	// this.$TOOL.cookie.set("TOKEN", tool.cookie.get("TOKEN"), {
+						    //     //     expires: convertval*60
+					        //     // })
+							// 	this.$TOOL.data.set("AUTO_EXIT", convertval)
+							// }
 						    this.$TOOL.data.set(key,convertval)
                         }
 				    }

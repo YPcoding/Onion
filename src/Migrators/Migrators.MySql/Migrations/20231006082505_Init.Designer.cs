@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Migrators.MySql.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20231005142515_Init6")]
-    partial class Init6
+    [Migration("20231006082505_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -61,6 +61,54 @@ namespace Migrators.MySql.Migrations
                     b.ToTable("AuditTrails");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Departments.Department", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("Created")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("Deleted")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("DepartmentName")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("longtext");
+
+                    b.Property<bool?>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("Sort")
+                        .HasColumnType("int");
+
+                    b.Property<long?>("SuperiorId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SuperiorId");
+
+                    b.ToTable("Departments");
+                });
+
             modelBuilder.Entity("Domain.Entities.Identity.User", b =>
                 {
                     b.Property<long>("Id")
@@ -86,6 +134,9 @@ namespace Migrators.MySql.Migrations
 
                     b.Property<string>("DeletedBy")
                         .HasColumnType("longtext");
+
+                    b.Property<long?>("DepartmentId")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Email")
                         .HasMaxLength(50)
@@ -166,6 +217,8 @@ namespace Migrators.MySql.Migrations
                         .HasColumnType("varchar(20)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DepartmentId");
 
                     b.HasIndex("SuperiorId");
 
@@ -346,6 +399,9 @@ namespace Migrators.MySql.Migrations
                     b.Property<string>("LastModifiedBy")
                         .HasColumnType("longtext");
 
+                    b.Property<string>("Name")
+                        .HasColumnType("longtext");
+
                     b.Property<bool?>("NewWindow")
                         .HasColumnType("tinyint(1)");
 
@@ -360,6 +416,9 @@ namespace Migrators.MySql.Migrations
 
                     b.Property<long?>("SuperiorId")
                         .HasColumnType("bigint");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("longtext");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
@@ -564,11 +623,26 @@ namespace Migrators.MySql.Migrations
                     b.Navigation("Owner");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Departments.Department", b =>
+                {
+                    b.HasOne("Domain.Entities.Departments.Department", "Superior")
+                        .WithMany()
+                        .HasForeignKey("SuperiorId");
+
+                    b.Navigation("Superior");
+                });
+
             modelBuilder.Entity("Domain.Entities.Identity.User", b =>
                 {
+                    b.HasOne("Domain.Entities.Departments.Department", "Department")
+                        .WithMany()
+                        .HasForeignKey("DepartmentId");
+
                     b.HasOne("Domain.Entities.Identity.User", "Superior")
                         .WithMany()
                         .HasForeignKey("SuperiorId");
+
+                    b.Navigation("Department");
 
                     b.Navigation("Superior");
                 });

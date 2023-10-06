@@ -13,18 +13,18 @@
 			</div>
 		</el-header>
 		<el-main class="nopadding">
-			<scTable ref="table" :apiObj="apiObj" row-key="id" @selection-change="selectionChange" hidePagination>
+			<scTable ref="table" :data="treeData" row-key="id" @selection-change="selectionChange" hidePagination>
 				<el-table-column type="selection" width="50"></el-table-column>
-				<el-table-column label="部门名称" prop="label" width="250"></el-table-column>
+				<el-table-column label="部门名称" prop="departmentName" width="250"></el-table-column>
 				<el-table-column label="排序" prop="sort" width="150"></el-table-column>
-				<el-table-column label="状态" prop="status" width="150">
+				<el-table-column label="状态" prop="isActive" width="150">
 					<template #default="scope">
-						<el-tag v-if="scope.row.status==1" type="success">启用</el-tag>
-						<el-tag v-if="scope.row.status==0" type="danger">停用</el-tag>
+						<el-tag v-if="scope.row.isActive===true" type="success">启用</el-tag>
+						<el-tag v-if="scope.row.isActive===false" type="danger">停用</el-tag>
 					</template>
 				</el-table-column>
-				<el-table-column label="创建时间" prop="date" width="180"></el-table-column>
-				<el-table-column label="备注" prop="remark" min-width="300"></el-table-column>
+				<el-table-column label="创建时间" prop="created" width="180"></el-table-column>
+				<el-table-column label="备注" prop="description" min-width="300"></el-table-column>
 				<el-table-column label="操作" fixed="right" align="right" width="170">
 					<template #default="scope">
 						<el-button-group>
@@ -60,12 +60,16 @@
 				dialog: {
 					save: false
 				},
-				apiObj: this.$API.system.dept.list,
+				data: [],
 				selection: [],
 				search: {
 					keyword: null
-				}
+				},
+				treeData:[]
 			}
+		},
+		async mounted() {
+			this.upsearch();
 		},
 		methods: {
 			//添加
@@ -90,14 +94,15 @@
 				})
 			},
 			//删除
-			async table_del(row){
-				var reqData = {id: row.id}
-				var res = await this.$API.demo.post.post(reqData);
-				if(res.code == 200){
+			async table_del(row){			
+				var reqData = {"departmentIds": [row.departmentId]}
+				var res = await this.$API.system.dept.delete.delete(reqData);
+				if(res.succeeded&&res.data){
 					this.$refs.table.refresh()
 					this.$message.success("删除成功")
+					this.upsearch();
 				}else{
-					this.$alert(res.message, "提示", {type: 'error'})
+					this.$alert(res.error, "提示", {type: 'error'})
 				}
 			},
 			//批量删除
@@ -118,8 +123,9 @@
 				this.selection = selection;
 			},
 			//搜索
-			upsearch(){
-
+			async upsearch(){
+				 var res = await this.$API.system.dept.list.post({"departmentName":this.search.keyword});
+				 this.treeData = this.convertToElTreeData(res?.data);
 			},
 			//根据ID获取树结构
 			filterTree(id){
@@ -137,12 +143,33 @@
 				filter(this.$refs.table.tableData)
 				return target
 			},
-			//本地更新数据
-			handleSaveSuccess(data, mode){
-				if(mode=='add'){
-					this.$refs.table.refresh()
-				}else if(mode=='edit'){
-					this.$refs.table.refresh()
+			convertToElTreeData(data, parentId = null) {
+                const treeData = [];
+                for (const item of data) {
+                    if ((item.superiorId === parentId) || (parentId === null && !item.superiorId)) {
+                        const children = this.convertToElTreeData(data, item.id);
+                        const treeNode = {
+                            id: item.id,
+							parentId: item.superiorId,
+							sort:item.sort,
+                            departmentName: item.departmentName,
+							isActive: item.isActive,
+							created: item.created,
+							description: item.description,
+							departmentId:item.departmentId,
+							concurrencyStamp:item.concurrencyStamp,
+                            children: children.length > 0 ? children : null,
+                        };
+                        treeData.push(treeNode);
+                    }
+                }
+                return treeData;
+            },
+		},
+		watch:{
+			'dialog.save'(val){
+				if (!val) {
+					this.upsearch();
 				}
 			}
 		}

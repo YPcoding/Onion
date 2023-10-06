@@ -94,10 +94,31 @@ export default {
 	},
 	dept: {
 		list: {
-			url: `${config.API_URL}/system/dept/list`,
+			url: `${config.API_URL}/Department/Query/All`,
 			name: "获取部门列表",
-			get: async function (params) {
-				return await http.get(this.url, params)
+			post: async function (params) {
+				return await http.post(this.url, params)
+			}
+		},
+		add: {
+			url: `${config.API_URL}/Department/Add`,
+			name: "新增部门",
+			post: async function (params) {
+				return await http.post(this.url, params)
+			}
+		},
+		update: {
+			url: `${config.API_URL}/Department/Update`,
+			name: "修改部门",
+			put: async function (params) {
+				return await http.put(this.url, params)
+			}
+		},
+		delete: {
+			url: `${config.API_URL}/Department/delete`,
+			name: "删除部门",
+			delete: async function (params) {
+				return await http.delete(this.url, params)
 			}
 		}
 	},

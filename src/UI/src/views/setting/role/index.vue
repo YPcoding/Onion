@@ -219,9 +219,6 @@
 			}
 		},
 		watch:{
-			'pageSize'(val){
-				console.log("22222222", val)
-			},
 			'dialog.permission'(val){
 				if (!val) {
 					this.query();
