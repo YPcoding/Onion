@@ -11,10 +11,24 @@ export default {
 			}
 		},
 		list: {
-			url: `${config.API_URL}/system/menu/list`,
+			url: `${config.API_URL}/Permission/Query/All`,
 			name: "获取菜单",
 			get: async function () {
 				return await http.get(this.url)
+			}
+		},
+		roleMenus: {
+			url: `${config.API_URL}/Role/Query/Permission/By`,
+			name: "获取角色菜单",
+			get: async function (roleId) {
+				return await http.get(`${this.url}/${roleId}`)
+			}
+		},
+		permissionMenus: {
+			url: `${config.API_URL}/Role/Permission/Menu`,
+			name: "修改角色菜单权限",
+			put: async function (params) {
+				return await http.put(this.url, params)
 			}
 		}
 	},

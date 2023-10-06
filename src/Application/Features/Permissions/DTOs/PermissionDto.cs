@@ -113,5 +113,15 @@ namespace Application.Features.Permissions.DTOs
         /// 创建时间
         /// </summary>
         public DateTime? Created { get; set;}
+
+        /// <summary>
+        /// 标题
+        /// </summary>
+        public string? Title { get; set; }
+
+        /// <summary>
+        /// 名称
+        /// </summary>
+        public string? Name { get; set; }
     }
 }

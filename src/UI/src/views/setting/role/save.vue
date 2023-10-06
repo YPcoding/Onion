@@ -42,8 +42,8 @@
 					roleId:"",
 					roleName: "",
 					roleCode: "",
-					sort: null,
-					isActive: null,
+					sort: 0,
+					isActive: true,
 					description: "",
 					concurrencyStamp:""
 				},

@@ -49,6 +49,7 @@ public class Permission : BaseAuditableEntity
         Description = description;
         HttpMethods = httpMethods;
         Icon = icon;
+        Title = label;
     }
 
     /// <summary>
@@ -136,6 +137,16 @@ public class Permission : BaseAuditableEntity
     /// 分组名称
     /// </summary>
     public string? Group { get; set; }
+
+    /// <summary>
+    /// 标题
+    /// </summary>
+    public string? Title { get; set; }
+
+    /// <summary>
+    /// 名称
+    /// </summary>
+    public string? Name { get; set; }
 
     /// <summary>
     /// 添加菜单

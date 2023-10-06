@@ -3,10 +3,10 @@
 		<el-tabs tab-position="top">
 			<el-tab-pane label="菜单权限">
 				<div class="treeMain">
-					<el-tree ref="menu" node-key="name" :data="menu.list" :props="menu.props" show-checkbox></el-tree>
+					<el-tree ref="menu" node-key="id" :data="menu.list" :props="menu.props" show-checkbox></el-tree>
 				</div>
 			</el-tab-pane>
-			<el-tab-pane label="数据权限">
+			<!-- <el-tab-pane label="数据权限">
 				<el-form label-width="100px" label-position="left">
 					<el-form-item label="规则类型">
 						<el-select v-model="data.dataType" placeholder="请选择">
@@ -27,8 +27,8 @@
 						<el-input v-model="data.rule" clearable type="textarea" :rows="6" placeholder="请输入自定义规则代码"></el-input>
 					</el-form-item>
 				</el-form>
-			</el-tab-pane>
-			<el-tab-pane label="控制台模块">
+			</el-tab-pane> -->
+			<!-- <el-tab-pane label="控制台模块">
 				<div class="treeMain">
 					<el-tree ref="grid" node-key="key" :data="grid.list" :props="grid.props" :default-checked-keys="grid.checked" show-checkbox></el-tree>
 				</div>
@@ -45,7 +45,7 @@
 						<div class="el-form-item-msg">用于控制角色登录后控制台的视图</div>
 					</el-form-item>
 				</el-form>
-			</el-tab-pane>
+			</el-tab-pane> -->
 		</el-tabs>
 		<template #footer>
 			<el-button @click="visible=false" >取 消</el-button>
@@ -61,12 +61,15 @@
 			return {
 				visible: false,
 				isSaveing: false,
+				selectedNodes: [], 
+				roleId:"",
+				concurrencyStamp:"",
 				menu: {
 					list: [],
 					checked: [],
 					props: {
 						label: (data)=>{
-							return data.meta.title
+							return data.title
 						}
 					}
 				},
@@ -106,41 +109,50 @@
 			}
 		},
 		mounted() {
-			this.getMenu()
-			this.getDept()
-			this.getGrid()
+			//this.getMenu()
+			// this.getDept()
+			// this.getGrid()
 		},
 		methods: {
-			open(){
+			open(selection){
+				this.roleId = selection[0].roleId;
+				this.concurrencyStamp = selection[0].concurrencyStamp;
+				this.getMenu();
 				this.visible = true;
 			},
-			submit(){
+			async submit(){
 				this.isSaveing = true;
 
-				//选中的和半选的合并后传值接口
-				var checkedKeys = this.$refs.menu.getCheckedKeys().concat(this.$refs.menu.getHalfCheckedKeys())
-				console.log(checkedKeys)
+				let checkedKeys = this.$refs.menu.getCheckedKeys().concat(this.$refs.menu.getHalfCheckedKeys())
 
-				var checkedKeys_dept = this.$refs.dept.getCheckedKeys().concat(this.$refs.dept.getHalfCheckedKeys())
-				console.log(checkedKeys_dept)
-
-				setTimeout(()=>{
-					this.isSaveing = false;
-					this.visible = false;
+				var res = await this.$API.system.menu.permissionMenus.put({
+					roleId:this.roleId,
+					permissionIds:checkedKeys,
+					concurrencyStamp:this.concurrencyStamp
+				})
+				if(res.succeeded && res.data){
 					this.$message.success("操作成功")
 					this.$emit('success')
-				},1000)
+				} else {
+					this.$message.error(res.error)
+				}
+				this.isSaveing = false;
+				this.visible = false;
 			},
 			async getMenu(){
-				var res = await this.$API.system.menu.list.get()
-				this.menu.list = res.data
+				var res = await this.$API.system.menu.roleMenus.get(this.roleId)
+				if(res.succeeded && res.data.length > 0){
+					this.menu.list = this.convertToElTreeData(res.data);
 
-				//获取接口返回的之前选中的和半选的合并，处理过滤掉有叶子节点的key
-				this.menu.checked = ["system", "user", "user.add", "user.edit", "user.del", "directive.edit", "other", "directive"]
-				this.$nextTick(() => {
-					let filterKeys = this.menu.checked.filter(key => this.$refs.menu.getNode(key).isLeaf)
-					this.$refs.menu.setCheckedKeys(filterKeys, true)
-				})
+				    this.menu.checked =   res.data?.filter(item=>item.has===true)?.map(item => item.permissionId)
+				    this.$nextTick(() => {
+					    let filterKeys = this.menu.checked.filter(key => this.$refs.menu.getNode(key).isLeaf)
+					    this.$refs.menu.setCheckedKeys(filterKeys, true)
+				    })
+				} else {
+					this.$message.success("数据为空")
+				}
+				
 			},
 			async getDept(){
 				var res = await this.$API.system.dept.list.get();
@@ -180,7 +192,22 @@
 						title: "关于项目"
 					}
 				]
-			}
+			},
+			convertToElTreeData(data, parentId = null) {
+                const treeData = [];
+                for (const item of data) {
+                    if ((item.superiorId === parentId) || (parentId === null && !item.superiorId)) {
+                        const children = this.convertToElTreeData(data, item.permissionId);
+                        const treeNode = {
+                            id: item.id,
+                            title: item.label,
+                            children: children.length > 0 ? children : null,
+                        };
+                        treeData.push(treeNode);
+                    }
+                }
+                return treeData;
+            },
 		}
 	}
 </script>

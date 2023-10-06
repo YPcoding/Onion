@@ -56,6 +56,7 @@
 
 	export default {
 		name: 'role',
+		roleId:"",
 		components: {
 			saveDialog,
 			permissionDialog
@@ -116,7 +117,7 @@
 			permission(){
 				this.dialog.permission = true
 				this.$nextTick(() => {
-					this.$refs.permissionDialog.open()
+					this.$refs.permissionDialog.open(this.selection)
 				})
 			},
 			//删除
@@ -155,6 +156,7 @@
 			//表格选择后回调事件
 			selectionChange(selection){
 				this.selection = selection;
+				this.roleId = selection[0]?.roleId;
 			},
 			//表格内开关
 			async changeSwitch(val, row){
@@ -219,6 +221,11 @@
 		watch:{
 			'pageSize'(val){
 				console.log("22222222", val)
+			},
+			'dialog.permission'(val){
+				if (!val) {
+					this.query();
+				}
 			}
 		}
 	}
