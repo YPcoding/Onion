@@ -134,7 +134,7 @@ public class UserController : ApiControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpPut("Reset/Password")]
-    public async Task<Result<long>> ResetPassword(ResetPasswordCommand command)
+    public async Task<Result<bool>> ResetPassword(ResetPasswordCommand command)
     {
         return await Mediator.Send(command);
     }

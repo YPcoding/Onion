@@ -192,6 +192,20 @@ export default {
 			delete: async function (params) {
 				return await http.delete(this.url, params)
 			}
+		},
+		assigningRole: {
+			url: `${config.API_URL}/User/Assigning/Role`,
+			name: "分配角色",
+			put: async function (params) {
+				return await http.put(this.url, params)
+			}
+		},
+		resetPassword: {
+			url: `${config.API_URL}/User/Reset/Password`,
+			name: "分配角色",
+			put: async function (params) {
+				return await http.put(this.url, params)
+			}
 		}
 	},
 	app: {

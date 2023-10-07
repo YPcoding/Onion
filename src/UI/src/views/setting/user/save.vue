@@ -142,7 +142,6 @@
 					if (valid) {
 						this.isSaveing = true;
 						var res = null;
-						//console.log("this.form.departmentIds",this.form.departmentId )
 						if (this.mode === 'add') {
 						    res = await this.$API.system.user.add.post(this.form);
 						} else {

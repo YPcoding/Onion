@@ -1,4 +1,5 @@
 ﻿using Application.Features.Users.Caching;
+using Domain.Entities;
 using System.ComponentModel.DataAnnotations;
 
 namespace Application.Features.Roles.Commands.Update;
@@ -12,7 +13,8 @@ public class AssigningRoleCommand : ICacheInvalidatorRequest<Result<bool>>
     /// 用户唯一标识
     /// </summary>
     [Required(ErrorMessage = "用户唯一标识必填")]
-    public long UserId { get; set; }
+
+    public List<long> UserIds { get; set; }
 
     /// <summary>
     /// 角色唯一标识
@@ -48,21 +50,33 @@ public class AssigningRoleCommandHandler : IRequestHandler<AssigningRoleCommand,
     /// <returns>返回处理结果</returns>
     public async Task<Result<bool>> Handle(AssigningRoleCommand request, CancellationToken cancellationToken)
     {
-        var userRoles = await _context.UserRoles.Where(x => x.UserId == request.UserId).ToListAsync();
+        var userRoles = await _context.UserRoles.Where(x => request.UserIds.Contains(x.UserId)).ToListAsync();
         if (userRoles.Any())
         {
             _context.UserRoles.RemoveRange(userRoles);
         }
         request.RoleIds = request.RoleIds?.Distinct().ToList();
-        foreach (var roleId in request?.RoleIds!) 
+        request.UserIds = request.UserIds.Distinct().ToList();
+
+        userRoles = new List<UserRole>();
+        foreach (var userId in request.UserIds) 
         {
-            await _context.UserRoles.AddAsync(new UserRole
+            foreach (var roleId in request?.RoleIds!)
             {
-                Id = _snowFlakeService.GenerateId(),
-                UserId = request.UserId,
-                RoleId = roleId
-            });
+                var userRole = new UserRole()          
+                {
+                    Id = _snowFlakeService.GenerateId(),
+                    UserId = userId,
+                    RoleId = roleId
+                };
+                userRoles.Add(userRole);
+            }
         }
+        if (userRoles.Any()) 
+        {
+          await  _context.UserRoles.AddRangeAsync(userRoles);
+        }
+
         var isSuccess = await _context.SaveChangesAsync(cancellationToken) > 0;
 
         return await Result<bool>.SuccessOrFailureAsync(

@@ -15,8 +15,8 @@
 					<div class="left-panel">
 						<el-button type="primary" icon="el-icon-plus" @click="add"></el-button>
 						<el-button type="danger" plain icon="el-icon-delete" :disabled="selection.length==0" @click="batch_del"></el-button>
-						<el-button type="primary" plain :disabled="selection.length==0">分配角色</el-button>
-						<el-button type="primary" plain :disabled="selection.length==0">密码重置</el-button>
+						<el-button type="primary" plain :disabled="selection.length==0" @click="assigningRole">分配角色</el-button>
+						<el-button type="primary" plain :disabled="selection.length==0" @click="resetPassword">密码重置</el-button>
 					</div>
 					<div class="right-panel">
 						<div class="right-panel-search">
@@ -65,23 +65,31 @@
 				</el-main>
 		</el-container>
 	</el-container>
-
+	
 	<save-dialog v-if="dialog.save" ref="saveDialog" @success="handleSuccess" @closed="dialog.save=false"></save-dialog>
+	<role-dialog v-if="dialog.role" ref="roleDialog" @closed="dialog.role=false"></role-dialog>
+	<password-dialog v-if="dialog.password" ref="passwordDialog" @closed="dialog.password=false"></password-dialog>
 
 </template>
 
 <script>
 	import saveDialog from './save'
+	import roleDialog from './role'
+	import passwordDialog from './password'
 
 	export default {
 		name: 'user',
 		components: {
-			saveDialog
+			saveDialog,
+			roleDialog,
+			passwordDialog
 		},
 		data() {
 			return {
 				dialog: {
-					save: false
+					save: false,
+					role: false,
+					password:false,
 				},
 				showGrouploading: false,
 				groupFilterText: '',
@@ -101,6 +109,22 @@
 			this.query();
 		},
 		methods: {
+			//分配角色
+			assigningRole(){
+				this.dialog.role = true			
+				const userIds = this.selection.map(item => item.userId);
+				this.$nextTick(() => {
+					this.$refs.roleDialog.open(userIds)
+				})
+			},
+			//重置密码
+			resetPassword(){
+				this.dialog.password = true			
+				const userIds = this.selection.map(item => item.userId);
+				this.$nextTick(() => {
+					this.$refs.passwordDialog.open(userIds)
+				})
+			},
 			//添加
 			add(){
 				this.dialog.save = true
@@ -257,6 +281,11 @@
 				this.$refs.group.filter(val);
 			},
 			'dialog.save'(val){
+				if (!val) {
+					this.upsearch();
+				}
+			},
+			'dialog.role'(val){
 				if (!val) {
 					this.upsearch();
 				}
