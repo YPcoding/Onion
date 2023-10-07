@@ -16,17 +16,20 @@ public class UploadController : ApiControllerBase
     private readonly IUploadService _uploadService;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IOptions<SystemSettings> _optSystemSettings;
+    private readonly ISnowFlakeService _snowflakeService;
 
     public object SixLabors { get; private set; }
 
     public UploadController(
         IUploadService uploadService,
         IHttpContextAccessor httpContextAccessor,
-        IOptions<SystemSettings> optSystemSettings)
+        IOptions<SystemSettings> optSystemSettings,
+        ISnowFlakeService snowflakeService)
     {
         _uploadService = uploadService;
         _httpContextAccessor = httpContextAccessor;
         _optSystemSettings = optSystemSettings;
+        _snowflakeService = snowflakeService;
     }
 
     /// <summary>
@@ -106,11 +109,11 @@ public class UploadController : ApiControllerBase
     /// </summary>
     /// <returns>返回图片URL</returns>
     [HttpPost("File")]
-    public async Task<Result<string>> UploadFile(IFormFile file)
+    public async Task<Result<dynamic>> UploadFile(IFormFile file)
     {
         if (file == null || file.Length == 0)
         {
-            return await Result<string>.FailureAsync(new string[] { "文件无效" });
+            return await Result<dynamic>.FailureAsync(new string[] { "文件无效" });
         }
 
         // 获取文件名
@@ -126,6 +129,11 @@ public class UploadController : ApiControllerBase
             await file.CopyToAsync(stream);
         }
 
-        return await Result<string>.SuccessAsync(fileUrl);
+        return await Result<dynamic>.SuccessAsync(new 
+        { 
+            Id= _snowflakeService.GenerateId(),
+            Src = fileUrl,
+            FileName = fileName
+        });
     }
 }

@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Application.Features.Users.Caching;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Options;
 
 namespace Application.Features.Users.Commands.Add;
@@ -15,6 +17,12 @@ public class AddUserCommand : ICacheInvalidatorRequest<Result<long>>
     /// </summary>
     [Required(ErrorMessage = "用户名是必填的")]
     public string UserName { get; set; }
+
+    /// <summary>
+    /// 真实姓名
+    /// </summary>
+    [Description("真实姓名")]
+    public virtual string? Realname { get; set; }
 
     /// <summary>
     /// 密码
@@ -53,6 +61,16 @@ public class AddUserCommand : ICacheInvalidatorRequest<Result<long>>
     /// 上级节点
     /// </summary>
     public long? SuperiorId { get; set; }
+
+    /// <summary>
+    /// 部门唯一标识
+    /// </summary>
+    public long? DepartmentId { get; set; }
+
+    /// <summary>
+    /// 头像图片
+    /// </summary>
+    public string? ProfilePictureDataUrl { get; set; }
 
     /// <summary>
     /// 缓存Key值
@@ -96,7 +114,6 @@ public class AddUserCommandHandler : IRequestHandler<AddUserCommand, Result<long
     {
         var user = _mapper.Map<User>(request);
         user.PasswordHash = user.CreatePassword(request.Password);
-        user.ProfilePictureDataUrl = $"{_optSystemSettings.Value.HostDomainName}/Image/2.png";
         user.AddDomainEvent(new CreatedEvent<User>(user));
         if (request.RoleIds != null)
         {

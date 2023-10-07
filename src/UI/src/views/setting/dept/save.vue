@@ -2,7 +2,7 @@
 	<el-dialog :title="titleMap[mode]" v-model="visible" :width="500" destroy-on-close @closed="$emit('closed')">
 		<el-form :model="form" :rules="rules" :disabled="mode=='show'" ref="dialogForm" label-width="100px">
 			<el-form-item label="上级部门" prop="superiorId">
-				<el-cascader v-model="form.superiorId" :options="groups" :props="groupsProps" :show-all-levels="false" clearable style="width: 100%;"></el-cascader>
+				<el-cascader v-model="form.superiorId"  :options="groups" :props="groupsProps" :show-all-levels="true" clearable style="width: 100%;"></el-cascader>
 			</el-form-item>
 			<el-form-item label="部门名称" prop="departmentName">
 				<el-input v-model="form.departmentName" placeholder="请输入部门名称" clearable></el-input>
@@ -68,7 +68,8 @@
 				groupsProps: {
 					value: "id",
 					emitPath: false,
-					checkStrictly: true
+					checkStrictly: true,
+					children:"children"
 				}
 			}
 		},
@@ -93,7 +94,6 @@
 					if (valid) {
 						this.isSaveing = true;
 						let res = null
-						console.log("部门", this.form)
 						if (this.mode === 'add') {
 							 res = await this.$API.system.dept.add.post(this.form);
 						} else {

@@ -13,11 +13,15 @@ public interface IResult
     /// <summary>
     /// 状态码
     /// </summary>
-    int Code { get; init; }
+    int Code { get;}
     /// <summary>
     /// 错误信息
     /// </summary>
     string Error { get; }
+    /// <summary>
+    /// 提示信息
+    /// </summary>
+    string Message { get; }
 }
 public interface IResult<out T> : IResult
 {

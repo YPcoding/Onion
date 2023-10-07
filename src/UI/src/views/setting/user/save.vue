@@ -1,29 +1,29 @@
 <template>
 	<el-dialog :title="titleMap[mode]" v-model="visible" :width="500" destroy-on-close @closed="$emit('closed')">
 		<el-form :model="form" :rules="rules" :disabled="mode=='show'" ref="dialogForm" label-width="100px" label-position="left">
-			<el-form-item label="头像" prop="avatar">
-				<sc-upload v-model="form.avatar" title="上传头像"></sc-upload>
+			<el-form-item label="头像" prop="profilePictureDataUrl">
+				<sc-upload v-model="form.profilePictureDataUrl" title="上传头像"></sc-upload>
 			</el-form-item>
-			<el-form-item label="登录账号" prop="userName">
+			<el-form-item label="登录账号" prop="userName" v-if="mode=='add'">
 				<el-input v-model="form.userName" placeholder="用于登录系统" clearable></el-input>
 			</el-form-item>
-			<el-form-item label="姓名" prop="name">
-				<el-input v-model="form.name" placeholder="请输入完整的真实姓名" clearable></el-input>
+			<el-form-item label="姓名" prop="realname">
+				<el-input v-model="form.realname" placeholder="请输入完整的真实姓名" clearable></el-input>
 			</el-form-item>
 			<template v-if="mode=='add'">
 				<el-form-item label="登录密码" prop="password">
 					<el-input type="password" v-model="form.password" clearable show-password></el-input>
 				</el-form-item>
-				<el-form-item label="确认密码" prop="password2">
-					<el-input type="password" v-model="form.password2" clearable show-password></el-input>
+				<el-form-item label="确认密码" prop="confirmPassword">
+					<el-input type="password" v-model="form.confirmPassword" clearable show-password></el-input>
 				</el-form-item>
 			</template>
-			<el-form-item label="所属部门" prop="dept">
-				<el-cascader v-model="form.dept" :options="depts" :props="deptsProps" clearable style="width: 100%;"></el-cascader>
+			<el-form-item label="所属部门" prop="departmentId">
+				<el-cascader v-model="form.departmentId" :options="depts" :props="deptsProps" :show-all-levels="true" clearable style="width: 100%;"></el-cascader>
 			</el-form-item>
-			<el-form-item label="所属角色" prop="group">
-				<el-select v-model="form.group" multiple filterable style="width: 100%">
-					<el-option v-for="item in groups" :key="item.id" :label="item.label" :value="item.id"/>
+			<el-form-item label="所属角色" prop="roleIds">
+				<el-select v-model="form.roleIds" multiple filterable style="width: 100%">
+					<el-option v-for="item in groups" :key="item.roleId" :label="item.roleName" :value="item.roleId"/>
 				</el-select>
 			</el-form-item>
 		</el-form>
@@ -49,12 +49,16 @@
 				isSaveing: false,
 				//表单数据
 				form: {
-					id:"",
+					userId:"",
 					userName: "",
-					avatar: "",
-					name: "",
-					dept: "",
-					group: []
+					realname:"",
+					password: "",
+					confirmPassword:"",
+					roleIds:[],
+					superiorId:null,
+					departmentId:null,
+					departmentIds:null,
+					profilePictureDataUrl:""
 				},
 				//验证规则
 				rules: {
@@ -70,13 +74,13 @@
 					password: [
 						{required: true, message: '请输入登录密码'},
 						{validator: (rule, value, callback) => {
-							if (this.form.password2 !== '') {
-								this.$refs.dialogForm.validateField('password2');
+							if (this.form.confirmPassword !== '') {
+								this.$refs.dialogForm.validateField('confirmPassword');
 							}
 							callback();
 						}}
 					],
-					password2: [
+					confirmPassword: [
 						{required: true, message: '请再次输入密码'},
 						{validator: (rule, value, callback) => {
 							if (value !== this.form.password) {
@@ -102,8 +106,10 @@
 				},
 				depts: [],
 				deptsProps: {
-					value: "id",
-					checkStrictly: true
+					value: "departmentId",
+					emitPath: false,
+					checkStrictly: true,
+					children:"children"
 				}
 			}
 		},
@@ -119,44 +125,78 @@
 				return this
 			},
 			//加载树数据
-			async getGroup(){
-				var res = await this.$API.system.role.list.get();
-				this.groups = res.data.rows;
+			async getGroup(){			
+				var res = await this.$API.system.role.all.get();
+				this.groups = res.data;
 			},
 			async getDept(){
-				var res = await this.$API.system.dept.list.get();
-				this.depts = res.data;
+				var res = await this.$API.system.dept.list.post();
+				this.showGrouploading = true;
+				this.treeData = this.convertToElTreeDeptData(res?.data);
+				this.showGrouploading = false;
+				this.depts = this.treeData;
 			},
 			//表单提交方法
 			submit(){
 				this.$refs.dialogForm.validate(async (valid) => {
 					if (valid) {
 						this.isSaveing = true;
-						var res = await this.$API.demo.post.post(this.form);
+						var res = null;
+						//console.log("this.form.departmentIds",this.form.departmentId )
+						if (this.mode === 'add') {
+						    res = await this.$API.system.user.add.post(this.form);
+						} else {
+							res = await this.$API.system.user.update.put(this.form);
+						}
 						this.isSaveing = false;
-						if(res.code == 200){
+						if(res.succeeded){
 							this.$emit('success', this.form, this.mode)
 							this.visible = false;
 							this.$message.success("操作成功")
 						}else{
-							this.$alert(res.message, "提示", {type: 'error'})
+							this.$alert(res.error, "提示", {type: 'error'})
 						}
 					}else{
 						return false;
 					}
 				})
 			},
+			convertToElTreeDeptData(data, parentId = null) {
+                const treeData = [];
+                for (const item of data) {
+                    if ((item.superiorId === parentId) || (parentId === null && !item.superiorId)) {
+                        const children = this.convertToElTreeDeptData(data, item.id);
+                        const treeNode = {
+                            id: item.id,
+							parentId: item.superiorId,
+							sort:item.sort,
+                            departmentName: item.departmentName,
+							label: item.departmentName,
+							isActive: item.isActive,
+							created: item.created,
+							description: item.description,
+							departmentId:item.departmentId,
+							concurrencyStamp:item.concurrencyStamp,
+                            children: children.length > 0 ? children : null,
+                        };
+                        treeData.push(treeNode);
+                    }
+                }
+                return treeData;
+            },
 			//表单注入数据
 			setData(data){
+				console.log("表单注入数据",data )
 				this.form.id = data.id
+				this.form.userId = data.userId
 				this.form.userName = data.userName
-				this.form.avatar = data.avatar
-				this.form.name = data.name
-				this.form.group = data.group
-				this.form.dept = data.dept
-
-				//可以和上面一样单个注入，也可以像下面一样直接合并进去
-				//Object.assign(this.form, data)
+				this.form.realname= data.realname
+				this.form.roleIds= data.roleIds
+				this.form.superiorId= data.superiorId
+				this.form.departmentId= data.departmentId
+				//this.form.departmentId = data.departmentId
+				this.form.concurrencyStamp=data.concurrencyStamp
+				this.form.profilePictureDataUrl= data.profilePictureDataUrl
 			}
 		}
 	}

@@ -29,4 +29,9 @@ public class UserAdvancedFilter : PaginationFilter
     /// 已锁定
     /// </summary>
     public bool? LockoutEnabled { get; set; }
+
+    /// <summary>
+    /// 部门唯一标识
+    /// </summary>
+    public long? DepartmentId { get; set; }
 }

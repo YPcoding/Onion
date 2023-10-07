@@ -14,7 +14,7 @@ public class UsersWithPaginationQuery : UserAdvancedFilter, ICacheableRequest<Re
     public override string ToString()
     {
         return
-            $"Search:{Keyword},UserName:{UserName},Email:{Email},EmailConfirmed:{EmailConfirmed},PhoneNumber:{PhoneNumber},LockoutEnabled:{LockoutEnabled},SortDirection:{SortDirection},OrderBy:{OrderBy},{PageNumber},{PageSize}";
+            $"Search:{Keyword},UserName:{UserName},Email:{Email},EmailConfirmed:{EmailConfirmed},PhoneNumber:{PhoneNumber},LockoutEnabled:{LockoutEnabled},DepartmentId:{DepartmentId},SortDirection:{SortDirection},OrderBy:{OrderBy},{PageNumber},{PageSize}";
     }
     [JsonIgnore]
     public UserAdvancedPaginationSpec Specification => new UserAdvancedPaginationSpec(this);

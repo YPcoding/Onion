@@ -49,16 +49,16 @@ public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
 
         var userName = _currentUserService.UserName;
         var elapsedMilliseconds = _timer.ElapsedMilliseconds;
+        var requestName = typeof(TRequest).Name;
         if (elapsedMilliseconds > 500)
         {
-            var requestName = typeof(TRequest).Name;
-
             _logger.LogWarning("{Name} 长时间运行的请求 ({ElapsedMilliseconds} 毫秒) with {@Request} {@UserName} ",
                 requestName, elapsedMilliseconds, request, userName);
         }
 
         string requestPath = _httpContextAccessor.HttpContext?.Request.Path!;
-        _logger.LogInformation($"【用户：{userName} 请求接口：{requestPath}。请求参数：{request.ToJson()}，响应：{response!.ToJsonWithSensitiveFilter(new string[] {"Data" })}】请求花费了：({elapsedMilliseconds} 毫秒)");
+        _logger.LogInformation("{Name}", requestName);
+
         return response;
     }
 }

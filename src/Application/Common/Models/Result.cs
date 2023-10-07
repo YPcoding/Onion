@@ -11,7 +11,6 @@ public class Result : IResult
     }
     internal Result(bool succeeded, IEnumerable<string> errors)
     {
-        Code = succeeded == true ? 0 : 1;
         Succeeded = succeeded;
         Errors = errors.ToArray();
     }
@@ -32,9 +31,16 @@ public class Result : IResult
     public string Error => string.Join(", ", Errors ?? new string[] { });
 
     /// <summary>
-    /// 状态码 0成功 1失败
+    /// 状态码 200成功 0失败
     /// </summary>
-    public int Code { get; init; }
+    public int Code { get { return Succeeded == true ? 200 : 0; } }
+
+    /// <summary>
+    /// 消息
+    /// </summary>
+    public string Message { get { return Succeeded == true ? "请求成功" : Error; } }
+
+
 
     public static Result Success()
     {

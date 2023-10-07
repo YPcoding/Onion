@@ -162,5 +162,11 @@ namespace Application.Features.Users.DTOs
         /// </summary>
         [Description("个性签名")]
         public string? Signature { get; set; }
+
+        /// <summary>
+        /// 部门唯一标识
+        /// </summary>
+        [Description("部门唯一标识")]
+        public long? DepartmentId { get; set; }
     }
 }

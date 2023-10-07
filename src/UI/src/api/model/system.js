@@ -63,6 +63,13 @@ export default {
 				return await http.post(this.url, params)
 			}
 		},
+		all: {
+			url: `${config.API_URL}/Role/Query/All`,
+			name: "获取所有角色",
+			get: async function () {
+				return await http.get(this.url)
+			}
+		},
 		add: {
 			url: `${config.API_URL}/Role/Add`,
 			name: "新增角色",
@@ -124,10 +131,10 @@ export default {
 	},
 	user: {
 		list: {
-			url: `${config.API_URL}/system/user/list`,
+			url: `${config.API_URL}/User/PaginationQuery`,
 			name: "获取用户列表",
-			get: async function (params) {
-				return await http.get(this.url, params)
+			post: async function (params) {
+				return await http.post(this.url, params)
 			}
 		},
 		info: {
@@ -163,6 +170,27 @@ export default {
 			name: "个人设置",
 			get: async function () {
 				return await http.get(this.url)
+			}
+		},
+		add: {
+			url: `${config.API_URL}/User/Add`,
+			name: "新增用户",
+			post: async function (params) {
+				return await http.post(this.url, params)
+			}
+		},
+		update: {
+			url: `${config.API_URL}/User/Update`,
+			name: "修改用户",
+			put: async function (params) {
+				return await http.put(this.url, params)
+			}
+		},
+		delete: {
+			url: `${config.API_URL}/User/Delete`,
+			name: "删除用户",
+			delete: async function (params) {
+				return await http.delete(this.url, params)
 			}
 		}
 	},

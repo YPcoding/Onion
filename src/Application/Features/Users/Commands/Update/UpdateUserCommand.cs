@@ -16,6 +16,12 @@ public class UpdateUserCommand : ICacheInvalidatorRequest<Result<long>>
     public long UserId { get; set; }
 
     /// <summary>
+    /// 真实姓名
+    /// </summary>
+    [Description("真实姓名")]
+    public virtual string? Realname { get; set; }
+
+    /// <summary>
     /// 邮箱
     /// </summary>
     public string? Email { get; set; }
@@ -40,6 +46,16 @@ public class UpdateUserCommand : ICacheInvalidatorRequest<Result<long>>
     /// 上级节点
     /// </summary>
     public long? SuperiorId { get; set; }
+
+    /// <summary>
+    /// 部门唯一标识
+    /// </summary>
+    public long? DepartmentId { get; set; }
+
+    /// <summary>
+    /// 头像图片
+    /// </summary>
+    public string? ProfilePictureDataUrl { get; set; }
 
     /// <summary>
     /// 并发标记

@@ -109,17 +109,28 @@
 			async batch_del(){
 				this.$confirm(`确定删除选中的 ${this.selection.length} 项吗？如果删除项中含有子集将会被一并删除`, '提示', {
 					type: 'warning'
-				}).then(() => {
+				}).then(async () => {
 					const loading = this.$loading();
-					this.$refs.table.refresh()
+					const departmentIds = this.selection.map(item => item.departmentId);
+					var reqData = {"departmentIds": departmentIds}
+					var res = await this.$API.system.dept.delete.delete(reqData);
+					if(res.succeeded){
+						const loading = this.$loading();
+					    this.$refs.table.refresh()
+					    loading.close();
+					    this.$message.success("操作成功")
+						this.upsearch();
+					}else{
+					    this.$alert(res.error, "提示", {type: 'error'})
+				    }
 					loading.close();
-					this.$message.success("操作成功")
 				}).catch(() => {
 
 				})
 			},
 			//表格选择后回调事件
 			selectionChange(selection){
+				console.log("qqqqq", selection)
 				this.selection = selection;
 			},
 			//搜索
