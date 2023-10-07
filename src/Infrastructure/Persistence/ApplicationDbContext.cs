@@ -28,21 +28,13 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<Notification> Notifications { get; set; }
     public DbSet<UserProfileSetting> UserProfileSettings { get; set; }
     public DbSet<Department> Departments { get; set; }
+    public DbSet<Menu> Menus { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         builder.ApplyGlobalFilters<ISoftDelete>(s => s.Deleted == null);
-
-        //foreach (var entityType in builder.Model.GetEntityTypes())
-        //{
-        //    foreach (var foreignKey in entityType.GetForeignKeys())
-        //    {
-        //        // 删除外键约束
-        //        foreignKey.DeleteBehavior = DeleteBehavior.NoAction;
-        //    }
-        //}
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

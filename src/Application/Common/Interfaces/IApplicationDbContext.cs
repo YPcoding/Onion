@@ -20,6 +20,7 @@ public  interface IApplicationDbContext
     DbSet<Notification> Notifications { get; }
     DbSet<UserProfileSetting> UserProfileSettings { get; }
     DbSet<Department> Departments { get; }
+    DbSet<Menu> Menus { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     DatabaseFacade Database { get; }

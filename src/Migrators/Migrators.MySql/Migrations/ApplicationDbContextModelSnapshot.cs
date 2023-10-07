@@ -106,6 +106,57 @@ namespace Migrators.MySql.Migrations
                     b.ToTable("Departments");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Identity.Menu", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Active")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("Created")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("Deleted")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("longtext");
+
+                    b.Property<long?>("ParentId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Path")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Redirect")
+                        .HasColumnType("longtext");
+
+                    b.Property<long?>("SuperiorId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SuperiorId");
+
+                    b.ToTable("Menus");
+                });
+
             modelBuilder.Entity("Domain.Entities.Identity.User", b =>
                 {
                     b.Property<long>("Id")
@@ -627,6 +678,60 @@ namespace Migrators.MySql.Migrations
                         .HasForeignKey("SuperiorId");
 
                     b.Navigation("Superior");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Identity.Menu", b =>
+                {
+                    b.HasOne("Domain.Entities.Identity.Menu", "Parent")
+                        .WithMany()
+                        .HasForeignKey("SuperiorId");
+
+                    b.OwnsOne("Domain.ValueObjects.Meta", "Meta", b1 =>
+                        {
+                            b1.Property<long>("MenuId")
+                                .HasColumnType("bigint");
+
+                            b1.Property<string>("Active")
+                                .HasColumnType("longtext");
+
+                            b1.Property<string>("Color")
+                                .HasColumnType("longtext");
+
+                            b1.Property<bool?>("Fullpage")
+                                .HasColumnType("tinyint(1)");
+
+                            b1.Property<bool?>("Hidden")
+                                .HasColumnType("tinyint(1)");
+
+                            b1.Property<bool?>("HiddenBreadcrumb")
+                                .HasColumnType("tinyint(1)");
+
+                            b1.Property<string>("Icon")
+                                .HasColumnType("longtext");
+
+                            b1.Property<long>("Id")
+                                .HasColumnType("bigint");
+
+                            b1.Property<string>("Tag")
+                                .HasColumnType("longtext");
+
+                            b1.Property<string>("Title")
+                                .HasColumnType("longtext");
+
+                            b1.Property<string>("Type")
+                                .HasColumnType("longtext");
+
+                            b1.HasKey("MenuId");
+
+                            b1.ToTable("Menus");
+
+                            b1.WithOwner()
+                                .HasForeignKey("MenuId");
+                        });
+
+                    b.Navigation("Meta");
+
+                    b.Navigation("Parent");
                 });
 
             modelBuilder.Entity("Domain.Entities.Identity.User", b =>

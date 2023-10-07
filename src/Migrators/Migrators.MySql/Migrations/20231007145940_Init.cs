@@ -83,6 +83,60 @@ namespace Migrators.MySql.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "Menus",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false),
+                    ParentId = table.Column<long>(type: "bigint", nullable: true),
+                    SuperiorId = table.Column<long>(type: "bigint", nullable: true),
+                    Name = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Path = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Redirect = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Active = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Meta_Title = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Meta_Icon = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Meta_Active = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Meta_Color = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Meta_Type = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Meta_Fullpage = table.Column<bool>(type: "tinyint(1)", nullable: true),
+                    Meta_Hidden = table.Column<bool>(type: "tinyint(1)", nullable: true),
+                    Meta_HiddenBreadcrumb = table.Column<bool>(type: "tinyint(1)", nullable: true),
+                    Meta_Tag = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Meta_Id = table.Column<long>(type: "bigint", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Created = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    CreatedBy = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    LastModified = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    LastModifiedBy = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Deleted = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    DeletedBy = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Menus", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Menus_Menus_SuperiorId",
+                        column: x => x.SuperiorId,
+                        principalTable: "Menus",
+                        principalColumn: "Id");
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "Permissions",
                 columns: table => new
                 {
@@ -461,6 +515,11 @@ namespace Migrators.MySql.Migrations
                 column: "SuperiorId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Menus_SuperiorId",
+                table: "Menus",
+                column: "SuperiorId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_NotificationRecipient_NotificationId1",
                 table: "NotificationRecipient",
                 column: "NotificationId1");
@@ -524,6 +583,9 @@ namespace Migrators.MySql.Migrations
 
             migrationBuilder.DropTable(
                 name: "Loggers");
+
+            migrationBuilder.DropTable(
+                name: "Menus");
 
             migrationBuilder.DropTable(
                 name: "NotificationRecipient");
