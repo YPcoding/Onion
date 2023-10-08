@@ -668,9 +668,12 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [HttpGet("User/Menu")]
         [AllowAnonymous]
-        public async Task<Result<UserMenuDto>> GetUserMenu()
+        public async Task<Result<UserMenuDto>> GetUserMenus()
         {
-            return await Mediator.Send(new GetMenusQueryByUserId());
+            return await Mediator.Send(new GetMenusQueryByUserId()
+            {
+                UserId = _currentUserService.CurrentUserId
+            });
         }
     }
 }

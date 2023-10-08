@@ -52,7 +52,9 @@ public class MenuDomainService : IScopedDependency
     /// <returns></returns>
     public async Task<List<Menu>> GetPermissionsAsync(Expression<Func<Menu, bool>>? condition = null, CancellationToken cancellationToken = default)
     {
-        return (await _repository.GetAllAsync(condition, cancellationToken)).Where(x => x.Meta?.Type == MetaType.Api).ToList()!;
+        return (await _repository.GetAllAsync(condition, cancellationToken))
+            .Where(x => x.Meta?.Type == MetaType.Api && x.Meta.Hidden == false)
+            .ToList()!;
     }
 
 
