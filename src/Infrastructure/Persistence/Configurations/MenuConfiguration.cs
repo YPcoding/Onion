@@ -10,7 +10,6 @@ public class MenuConfiguration : IEntityTypeConfiguration<Menu>
         builder
            .OwnsOne(o => o.Meta, a =>
            {
-               a.Property<long>("Id");
                a.Property(t => t.Type)
                .HasConversion<string>();
                a.WithOwner();

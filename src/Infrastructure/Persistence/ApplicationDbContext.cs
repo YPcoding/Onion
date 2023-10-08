@@ -29,6 +29,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<UserProfileSetting> UserProfileSettings { get; set; }
     public DbSet<Department> Departments { get; set; }
     public DbSet<Menu> Menus { get; set; }
+    public DbSet<RoleMenu> RoleMenus { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

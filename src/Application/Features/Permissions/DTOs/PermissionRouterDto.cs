@@ -6,11 +6,11 @@
         public string Path { get; set; }
         public string? Name { get; set; }
         public string? Component { get; set; }
-        public Meta Meta { get; set; }
+        public PermissionMeta Meta { get; set; }
         public List<PermissionRouterDto>? Children { get; set; }
     }
 
-    public class Meta 
+    public class PermissionMeta
     {
         public string Title { get; set; }
         public string? Icon { get; set; }
@@ -30,6 +30,7 @@
     public class PermissionMuenDto
     {
         public long Id { get; set; }
+        public long? ParentId { get; set; }
         public string Path { get; set; }
         public string? Name { get; set; }
         public string? Component { get; set; }

@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Migrators.MySql.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231008025742_Init1")]
+    partial class Init1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -164,29 +167,6 @@ namespace Migrators.MySql.Migrations
                     b.HasIndex("ParentId");
 
                     b.ToTable("Menus");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Identity.RoleMenu", b =>
-                {
-                    b.Property<long>("Id")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .HasColumnType("longtext");
-
-                    b.Property<long>("MenuId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("RoleId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MenuId");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("RoleMenus");
                 });
 
             modelBuilder.Entity("Domain.Entities.Identity.User", b =>
@@ -763,25 +743,6 @@ namespace Migrators.MySql.Migrations
                     b.Navigation("Parent");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Identity.RoleMenu", b =>
-                {
-                    b.HasOne("Domain.Entities.Identity.Menu", "Menu")
-                        .WithMany("RoleMenus")
-                        .HasForeignKey("MenuId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.Role", "Role")
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Menu");
-
-                    b.Navigation("Role");
-                });
-
             modelBuilder.Entity("Domain.Entities.Identity.User", b =>
                 {
                     b.HasOne("Domain.Entities.Departments.Department", "Department")
@@ -881,11 +842,6 @@ namespace Migrators.MySql.Migrations
                     b.Navigation("Role");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Identity.Menu", b =>
-                {
-                    b.Navigation("RoleMenus");
                 });
 
             modelBuilder.Entity("Domain.Entities.Identity.User", b =>

@@ -15,10 +15,10 @@
 					</el-form-item>
 					<el-form-item label="类型" prop="meta.type">
 						<el-radio-group v-model="form.meta.type">
-							<el-radio-button label="menu">菜单</el-radio-button>
-							<el-radio-button label="iframe">Iframe</el-radio-button>
-							<el-radio-button label="link">外链</el-radio-button>
-							<el-radio-button label="button">按钮</el-radio-button>
+							<el-radio-button label="Menu">菜单</el-radio-button>
+							<el-radio-button label="Iframe">Iframe</el-radio-button>
+							<el-radio-button label="Link">外链</el-radio-button>
+							<el-radio-button label="Button">按钮</el-radio-button>
 						</el-radio-group>
 					</el-form-item>
 					<el-form-item label="别名" prop="name">
@@ -167,7 +167,7 @@
 			//保存
 			async save(){
 				this.loading = true
-				var res = await this.$API.demo.post.post(this.form)
+				var res = await this.$API.system.menu.add.post(this.form);
 				this.loading = false
 				if(res.code == 200){
 					this.$message.success("保存成功")

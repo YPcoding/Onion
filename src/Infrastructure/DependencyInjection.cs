@@ -94,7 +94,7 @@ public static class DependencyInjection
             options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase; // 使用驼峰命名法
             options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull; // 忽略默认值属性
             options.JsonSerializerOptions.Converters.Add(new LongConverter());//解决long类型数据精度丢失问题
-           // options.JsonSerializerOptions.Converters.Add(new EnumWithDescriptionConverter()); // 枚举使用描述表示
+            options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()); // 枚举使用描述表示
             options.JsonSerializerOptions.Converters.Add(new CustomDateTimeConverter("yyyy-MM-dd HH:mm:ss.fff")); // 自定义日期格式化
         });
 

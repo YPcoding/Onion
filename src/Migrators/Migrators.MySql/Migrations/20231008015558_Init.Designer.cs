@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Migrators.MySql.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20231007145940_Init")]
+    [Migration("20231008015558_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -117,6 +117,9 @@ namespace Migrators.MySql.Migrations
                     b.Property<string>("Active")
                         .HasColumnType("longtext");
 
+                    b.Property<string>("Component")
+                        .HasColumnType("longtext");
+
                     b.Property<string>("ConcurrencyStamp")
                         .HasColumnType("longtext");
 
@@ -150,12 +153,9 @@ namespace Migrators.MySql.Migrations
                     b.Property<string>("Redirect")
                         .HasColumnType("longtext");
 
-                    b.Property<long?>("SuperiorId")
-                        .HasColumnType("bigint");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("SuperiorId");
+                    b.HasIndex("ParentId");
 
                     b.ToTable("Menus");
                 });
@@ -687,7 +687,7 @@ namespace Migrators.MySql.Migrations
                 {
                     b.HasOne("Domain.Entities.Identity.Menu", "Parent")
                         .WithMany()
-                        .HasForeignKey("SuperiorId");
+                        .HasForeignKey("ParentId");
 
                     b.OwnsOne("Domain.ValueObjects.Meta", "Meta", b1 =>
                         {
@@ -711,9 +711,6 @@ namespace Migrators.MySql.Migrations
 
                             b1.Property<string>("Icon")
                                 .HasColumnType("longtext");
-
-                            b1.Property<long>("Id")
-                                .HasColumnType("bigint");
 
                             b1.Property<string>("Tag")
                                 .HasColumnType("longtext");

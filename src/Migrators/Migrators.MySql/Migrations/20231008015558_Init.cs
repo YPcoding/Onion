@@ -88,7 +88,6 @@ namespace Migrators.MySql.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false),
                     ParentId = table.Column<long>(type: "bigint", nullable: true),
-                    SuperiorId = table.Column<long>(type: "bigint", nullable: true),
                     Name = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Path = table.Column<string>(type: "longtext", nullable: true)
@@ -96,6 +95,8 @@ namespace Migrators.MySql.Migrations
                     Redirect = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Active = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Component = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Meta_Title = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -112,7 +113,6 @@ namespace Migrators.MySql.Migrations
                     Meta_HiddenBreadcrumb = table.Column<bool>(type: "tinyint(1)", nullable: true),
                     Meta_Tag = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    Meta_Id = table.Column<long>(type: "bigint", nullable: true),
                     ConcurrencyStamp = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Created = table.Column<DateTime>(type: "datetime(6)", nullable: true),
@@ -129,8 +129,8 @@ namespace Migrators.MySql.Migrations
                 {
                     table.PrimaryKey("PK_Menus", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Menus_Menus_SuperiorId",
-                        column: x => x.SuperiorId,
+                        name: "FK_Menus_Menus_ParentId",
+                        column: x => x.ParentId,
                         principalTable: "Menus",
                         principalColumn: "Id");
                 })
@@ -515,9 +515,9 @@ namespace Migrators.MySql.Migrations
                 column: "SuperiorId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Menus_SuperiorId",
+                name: "IX_Menus_ParentId",
                 table: "Menus",
-                column: "SuperiorId");
+                column: "ParentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_NotificationRecipient_NotificationId1",

@@ -4,17 +4,17 @@ import http from "@/utils/request"
 export default {
 	menu: {
 		myMenus: {
-			url: `${config.API_URL}/Auth/Loginer/Muens`,
+			url: `${config.API_URL}/Auth/User/Menu`,
 			name: "获取我的菜单",
 			get: async function () {
 				return await http.get(this.url)
 			}
 		},
 		list: {
-			url: `${config.API_URL}/Permission/Query/All`,
+			url: `${config.API_URL}/Menu/Tree`,
 			name: "获取菜单",
-			get: async function () {
-				return await http.get(this.url)
+			post: async function () {
+				return await http.post(this.url)
 			}
 		},
 		roleMenus: {
@@ -29,6 +29,13 @@ export default {
 			name: "修改角色菜单权限",
 			put: async function (params) {
 				return await http.put(this.url, params)
+			}
+		},
+		add: {
+			url: `${config.API_URL}/Menu/Save`,
+			name: "保存菜单",
+			post: async function (params) {
+				return await http.post(this.url, params)
 			}
 		}
 	},

@@ -45,7 +45,7 @@ public class GetLoginerPermissionRouterQueryHandler :
             {
                 Id = menu.Id,
                 Path = menu.Path!,
-                Meta = new Meta
+                Meta = new PermissionMeta
                 {
                     Title = menu.Label!,
                     Icon = menu.Icon,
@@ -58,7 +58,7 @@ public class GetLoginerPermissionRouterQueryHandler :
                         Id = permission.Id,
                         Path = permission.Path!,
                         Name = permission.Description,
-                        Meta = new Meta
+                        Meta = new PermissionMeta
                         {
                             Title = permission.Label!,
                             Roles = GetRolesByPermissionIdAsync(permission.Id).Result,//角色

@@ -3,6 +3,8 @@ using Application.Common.Interfaces;
 using Application.Constants.ClaimTypes;
 using Application.Features.Auth.Commands;
 using Application.Features.Auth.DTOs;
+using Application.Features.Menus.DTOs;
+using Application.Features.Menus.Queries.GetByUserId;
 using Application.Features.Permissions.DTOs;
 using Application.Features.Permissions.Queries.GetByUserId;
 using Microsoft.AspNetCore.Authorization;
@@ -10,8 +12,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
-using System.Dynamic;
 using System.Text;
 
 namespace WebAPI.Controllers
@@ -122,6 +122,7 @@ namespace WebAPI.Controllers
                  {
                      new PermissionMuenDto
                      {
+                         Id =1710837769615577088,
                          Name= "home",
                          Path="/home",
                          Meta=new MuenMeta() { Title="首页",Icon="el-icon-eleme-filled", Type="menu" },
@@ -129,6 +130,7 @@ namespace WebAPI.Controllers
                          {
                              new PermissionMuenDto
                              {
+                                 ParentId = 1710837769615577088,
                                  Name= "dashboard",
                                  Path= "/dashboard",
                                  Meta=new MuenMeta() { Title="控制台",Icon="el-icon-menu", Type="menu", Affix=true },
@@ -136,6 +138,7 @@ namespace WebAPI.Controllers
                              },
                              new PermissionMuenDto
                              {
+                                 ParentId = 1710837769615577088,
                                  Name= "userCenter",
                                  Path= "/userCenter",
                                  Meta=new MuenMeta() { Title="帐号信息",Icon="el-icon-user", Type="menu", Tag="NEW" },
@@ -499,6 +502,7 @@ namespace WebAPI.Controllers
                      //},
                      new PermissionMuenDto()
                      {
+                         Id =1710837786413764608,
                          Name="setting",
                          Path="/setting",
                          Meta=new MuenMeta()
@@ -511,6 +515,7 @@ namespace WebAPI.Controllers
                          {
                              new PermissionMuenDto()
                              {
+                                 ParentId =1710837786413764608,
                                  Path="/setting/system",
                                  Name="system",
                                  Meta=new MuenMeta()
@@ -523,6 +528,7 @@ namespace WebAPI.Controllers
                              },
                              new PermissionMuenDto()
                              {
+                                 ParentId =1710837786413764608,
                                  Path="/setting/user",
                                  Name="user",
                                  Meta=new MuenMeta()
@@ -535,6 +541,7 @@ namespace WebAPI.Controllers
                              },
                              new PermissionMuenDto()
                              {
+                                 ParentId =1710837786413764608,
                                  Path="/setting/role",
                                  Name="role",
                                  Meta=new MuenMeta()
@@ -547,6 +554,8 @@ namespace WebAPI.Controllers
                              },
                              new PermissionMuenDto()
                              {
+
+                                 ParentId =1710837786413764608,
                                  Path="/setting/dept",
                                  Name="dept",
                                  Meta=new MuenMeta()
@@ -558,7 +567,7 @@ namespace WebAPI.Controllers
                                  Component="setting/dept",
                              },
                              new PermissionMuenDto()
-                             {
+                             {ParentId = 1710837786413764608,
                                  Path="/setting/dic",
                                  Name="dic",
                                  Meta=new MuenMeta()
@@ -571,6 +580,7 @@ namespace WebAPI.Controllers
                              },
                              new PermissionMuenDto()
                              {
+                                 ParentId =1710837786413764608,
                                  Path="/setting/table",
                                  Name="tableSetting",
                                  Meta=new MuenMeta()
@@ -582,7 +592,7 @@ namespace WebAPI.Controllers
                                  Component="setting/table",
                              },
                              new PermissionMuenDto()
-                             {
+                             {ParentId = 1710837786413764608,
                                  Path="/setting/menu",
                                  Name="settingMenu",
                                  Meta=new MuenMeta()
@@ -595,6 +605,7 @@ namespace WebAPI.Controllers
                              },
                              new PermissionMuenDto()
                              {
+                                 ParentId =1710837786413764608,
                                  Path="/setting/task",
                                  Name="task",
                                  Meta=new MuenMeta()
@@ -606,7 +617,7 @@ namespace WebAPI.Controllers
                                  Component="setting/task",
                              },
                              new PermissionMuenDto()
-                             {
+                             {ParentId = 1710837786413764608,
                                  Path="/setting/client",
                                  Name="client",
                                  Meta=new MuenMeta()
@@ -619,6 +630,7 @@ namespace WebAPI.Controllers
                              },
                              new PermissionMuenDto()
                              {
+                                 ParentId =1710837786413764608,
                                  Path="/setting/log",
                                  Name="log",
                                  Meta=new MuenMeta()
@@ -647,6 +659,18 @@ namespace WebAPI.Controllers
                  },
                 Permissions = new List<string> {""},
             }) ;
+        }
+
+
+        /// <summary>
+        /// 用户菜单
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("User/Menu")]
+        [AllowAnonymous]
+        public async Task<Result<UserMenuDto>> GetUserMenu()
+        {
+            return await Mediator.Send(new GetMenusQueryByUserId());
         }
     }
 }
