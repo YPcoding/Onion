@@ -27,5 +27,10 @@ public enum MetaType
     /// 按钮
     /// </summary>
     [Description("按钮")]
-    Button
+    Button,
+    /// <summary>
+    /// API
+    /// </summary>
+    [Description("Api")]
+    Api
 }

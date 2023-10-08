@@ -15,7 +15,7 @@ namespace Domain.ValueObjects
         {
         }
 
-        public Meta(string? title, string? icon, string? active, string? color, MetaType? type, bool? fullpage, bool? hidden, bool? hiddenBreadcrumb, string? tag)
+        public Meta(MetaType? type, string? title, string? icon, string? active, string? color, bool? fullpage, bool? hidden, bool? hiddenBreadcrumb, string? tag)
         {
             Title = title;
             Icon = icon;

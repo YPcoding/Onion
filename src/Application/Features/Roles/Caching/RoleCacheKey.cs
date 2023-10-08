@@ -18,6 +18,11 @@ public static class RoleCacheKey
         return $"GetRolePermissionById,{id}";
     }
 
+    public static string GetMenuByIdCacheKey(long id)
+    {
+        return $"GetRoleMenuById,{id}";
+    }
+
     public static string GetByUserIdCacheKey(long id)
     {
         return $"GetRoleByUserId,{id}";

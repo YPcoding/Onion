@@ -4,6 +4,7 @@ using Application.Features.Roles.Commands.Update;
 using Application.Features.Roles.DTOs;
 using Application.Features.Roles.Queries.GetAll;
 using Application.Features.Roles.Queries.GetById;
+using Application.Features.Roles.Queries.GetMenusById;
 using Application.Features.Roles.Queries.GetPermissionById;
 using Application.Features.Roles.Queries.Pagination;
 using Microsoft.AspNetCore.Mvc;
@@ -58,7 +59,6 @@ public class RoleController : ApiControllerBase
         return await Mediator.Send(new GetAllRoleQueryByUserId() { UserId = userId });
     }
 
-    //
     /// <summary>
     /// 获取角色权限
     /// </summary>
@@ -67,6 +67,16 @@ public class RoleController : ApiControllerBase
     public async Task<Result<IEnumerable<RolePermissionDto>>> GetRolePermissionQueryById(long roleId)
     {
         return await Mediator.Send(new GetRolePermissionQueryById() { RoleId = roleId });
+    }
+
+    /// <summary>
+    /// 获取角色菜单
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("Query/Menu/By/{roleId}")]
+    public async Task<Result<IEnumerable<RoleMenuDto>>> GetRoleMenuQueryById(long roleId)
+    {
+        return await Mediator.Send(new GetRoleMenuQueryById() { RoleId = roleId });
     }
 
     /// <summary>
@@ -107,8 +117,17 @@ public class RoleController : ApiControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpPut("Permission/Menu")]
-
     public async Task<Result<bool>> UpdateRolePermissionMenu(UpdateRolePermissionMenuCommand command)
+    {
+        return await Mediator.Send(command);
+    }
+
+    /// <summary>
+    /// 修改角色菜单权限
+    /// </summary>
+    /// <returns></returns>
+    [HttpPut("Menu")]
+    public async Task<Result<bool>> UpdateRoleMenu(UpdateRoleMenuCommand command)
     {
         return await Mediator.Send(command);
     }

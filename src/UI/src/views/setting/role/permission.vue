@@ -82,7 +82,7 @@
 						},
 						disabled: (data)=>{
 							return data.isFixed
-						}
+						}	
 					}
 				},
 				data: {
@@ -125,9 +125,9 @@
 
 				let checkedKeys = this.$refs.menu.getCheckedKeys().concat(this.$refs.menu.getHalfCheckedKeys())
 
-				var res = await this.$API.system.menu.permissionMenus.put({
+				var res = await this.$API.system.menu.menus.put({
 					roleId:this.roleId,
-					permissionIds:checkedKeys,
+					menuIds:checkedKeys,
 					concurrencyStamp:this.concurrencyStamp
 				})
 				if(res.succeeded && res.data){
@@ -144,7 +144,7 @@
 				if(res.succeeded && res.data.length > 0){
 					this.menu.list = this.convertToElTreeData(res.data);
 
-				    this.menu.checked =   res.data?.filter(item=>item.has===true)?.map(item => item.permissionId)
+				    this.menu.checked =   res.data?.filter(item=>item.has===true)?.map(item => item.menuId)
 				    this.$nextTick(() => {
 					    let filterKeys = this.menu.checked.filter(key => this.$refs.menu.getNode(key).isLeaf)
 					    this.$refs.menu.setCheckedKeys(filterKeys, true)
@@ -196,11 +196,13 @@
 			convertToElTreeData(data, parentId = null) {
                 const treeData = [];
                 for (const item of data) {
-                    if ((item.superiorId === parentId) || (parentId === null && !item.superiorId)) {
-                        const children = this.convertToElTreeData(data, item.permissionId);
+                    if ((item.parentId === parentId) || (parentId === null && !item.parentId)) {
+                        const children = this.convertToElTreeData(data, item.menuId);
                         const treeNode = {
                             id: item.id,
-                            title: item.label,
+                            title: item.title,
+							has:item.has,
+							concurrencyStamp:item.concurrencyStamp,
                             children: children.length > 0 ? children : null,
                         };
                         treeData.push(treeNode);

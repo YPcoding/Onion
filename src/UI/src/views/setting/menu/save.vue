@@ -98,8 +98,8 @@
 		data(){
 			return {
 				form: {
-					id: "",
-					parentId: "",
+					id: null,
+					parentId: null,
 					name: "",
 					path: "",
 					component: "",
@@ -167,7 +167,7 @@
 			//保存
 			async save(){
 				this.loading = true
-				var res = await this.$API.system.menu.add.post(this.form);
+				var res = await this.$API.system.menu.save.post(this.form);
 				this.loading = false
 				if(res.code == 200){
 					this.$message.success("保存成功")

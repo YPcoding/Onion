@@ -1,11 +1,10 @@
-﻿using Application.Features.Menus.Commands.AddEdit;
-using Domain.ValueObjects;
+﻿using Domain.ValueObjects;
 
 namespace Application.Features.Menus.DTOs;
 
 [Map(typeof(Menu))]
 public class MenuDto
-{    
+{
 
     /// <summary>
     /// 父级节点
@@ -17,7 +16,21 @@ public class MenuDto
     /// 名称
     /// </summary>
     [Description("名称")]
-    public string? Name { get; set; }    
+    public string? Name { get; set; }
+
+    /// <summary>
+    /// 标识
+    /// </summary>
+    [Description("标识")]
+    [JsonIgnore]
+    public string? Code { get; set; }
+
+    /// <summary>
+    /// 接口地址
+    /// </summary>
+    [Description("接口地址")]
+    [JsonIgnore]
+    public string? Url { get; set; }
 
     /// <summary>
     /// 路径
@@ -73,6 +86,29 @@ public class MenuDto
     [Description("视图")]
     public string? Component { get; set; }
 
+    /// <summary>
+    /// 接口权限
+    /// </summary>
+    [Description("接口权限")]
+    public List<Api> ApiList 
+    {
+        get 
+        {
+            if (Children.Any())
+            {
+                return Children.Where(x => x.Meta.Type == MetaType.Api).Select(s => new Api { Code = s.Code, Url = s.Url }).ToList();
+            }
+            return new List<Api>();
+        }
+        set { }
+    }
+
     [Map(typeof(List<Menu>))]
-    public List<MenuDto> Children { get; set; }
+    public List<MenuDto> Children { get; set; } = new List<MenuDto>();
+}
+
+public class Api 
+{
+    public string? Code { get; set; }
+    public string? Url { get; set; }
 }

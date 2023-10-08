@@ -1,20 +1,15 @@
-﻿using Application.Features.Menus.Caching;
-using Domain.Entities.Identity;
-using Domain.Entities;
-
-namespace Application.Features.Menus.Commands.Delete;
+﻿namespace Application.Features.Menus.Commands.Delete;
 
 /// <summary>
 /// 删除菜单管理
 /// </summary>
 public class DeleteMenuCommand : IRequest<Result<bool>>
 {
-  
-        /// <summary>
-        /// 唯一标识
-        /// </summary>
-        [Description("唯一标识")]
-        public List<long> MenuIds { get; set; }
+    /// <summary>
+    /// 唯一标识
+    /// </summary>
+    [Description("唯一标识")]
+    public List<long> MenuIds { get; set; }
 }
 
 /// <summary>
@@ -49,7 +44,7 @@ public class DeleteMenuCommandHandler : IRequestHandler<DeleteMenuCommand, Resul
         {
             _context.Menus.RemoveRange(menusToDelete);
             var isSuccess = await _context.SaveChangesAsync(cancellationToken) > 0;
-            return await Result<bool>.SuccessOrFailureAsync(isSuccess, isSuccess,new string[] {"操作失败"});
+            return await Result<bool>.SuccessOrFailureAsync(isSuccess, isSuccess, new string[] { "操作失败" });
         }
 
         return await Result<bool>.FailureAsync(new string[] { "没有找到需要删除的数据" });

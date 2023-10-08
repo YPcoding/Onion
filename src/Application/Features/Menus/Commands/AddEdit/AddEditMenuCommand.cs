@@ -4,7 +4,7 @@ using Domain.ValueObjects;
 namespace Application.Features.Menus.Commands.AddEdit;
 
 /// <summary>
-/// 添加菜单管理
+/// 保存菜单管理
 /// </summary>
 [Map(typeof(Menu))]
 public class AddEditMenuCommand : IRequest<Result<long>>
@@ -49,13 +49,19 @@ public class AddEditMenuCommand : IRequest<Result<long>>
     /// 元信息
     /// </summary>
     [Description("元信息")]
-    public Meta Meta { get; set; }
+    public Meta? Meta { get; set; }
 
     /// <summary>
     /// 视图
     /// </summary>
     [Description("视图")]
     public string? Component { get; set; }
+
+    /// <summary>
+    /// 接口权限
+    /// </summary>
+    [Description("接口权限")]
+    public List<Api>? ApiList { get; set; }
 
     private class Mapping : Profile
     {
@@ -71,14 +77,17 @@ public class AddEditMenuCommand : IRequest<Result<long>>
 public class AddMenuCommandHandler : IRequestHandler<AddEditMenuCommand, Result<long>>
 {
     private readonly IApplicationDbContext _context;
+    private readonly ISnowFlakeService _snowflakeService;
     private readonly IMapper _mapper;
 
     public AddMenuCommandHandler(
         IApplicationDbContext context,
-        IMapper mapper)
+        IMapper mapper,
+        ISnowFlakeService snowflakeService)
     {
         _context = context;
         _mapper = mapper;
+        _snowflakeService = snowflakeService;
     }
 
     /// <summary>
@@ -89,24 +98,73 @@ public class AddMenuCommandHandler : IRequestHandler<AddEditMenuCommand, Result<
     /// <returns>返回处理结果</returns>
     public async Task<Result<long>> Handle(AddEditMenuCommand request, CancellationToken cancellationToken)
     {
-        var dto = _mapper.Map<MenuDto>(request);
+        const MetaType apiType = MetaType.Api;
+        Menu? menuToUpdate = new();
+        Menu menuToAdd = new();
 
         if (request.Id.HasValue)
         {
-            var menu = await _context.Menus.FindAsync(new object[] { request.Id }, cancellationToken);
-            _ = menu ?? throw new NotFoundException($"菜单唯一标识{request.Id}未找到。");
-            menu = _mapper.Map(dto, menu);
-            menu.AddDomainEvent(new UpdatedEvent<Menu>(menu));
-            await _context.SaveChangesAsync(cancellationToken);
-            return await Result<long>.SuccessAsync(menu.Id);
+            menuToUpdate = await _context.Menus.FindAsync(new object[] { request.Id }, cancellationToken);
+            _ = menuToUpdate ?? throw new NotFoundException($"菜单唯一标识{request.Id}未找到。");
+
+            _mapper.Map(request, menuToUpdate);
+            menuToUpdate.AddDomainEvent(new UpdatedEvent<Menu>(menuToUpdate));
+
+            if (request.ApiList != null)
+            {
+                var apiToDeletes = await _context.Menus
+                    .Where(x => x.ParentId == menuToUpdate.Id && x.Meta!.Type == apiType)
+                    .ToListAsync();
+
+                if (apiToDeletes.Any())
+                {
+                    _context.Menus.RemoveRange(apiToDeletes);
+                }
+
+                foreach (var item in request.ApiList)
+                {
+                    await _context.Menus.AddAsync(new Menu()
+                    {
+                        Id = _snowflakeService.GenerateId(),
+                        ParentId = menuToUpdate.Id,
+                        Code = item.Code,
+                        Url = item.Url,
+                        Meta = new Meta(apiType, null, null, null, null, null, null, null, null)
+                    });
+                }
+            }
         }
         else
         {
-            var menu = _mapper.Map<Menu>(dto);
-            menu.AddDomainEvent(new UpdatedEvent<Menu>(menu));
-            _context.Menus.Add(menu);
-            await _context.SaveChangesAsync(cancellationToken);
-            return await Result<long>.SuccessAsync(menu.Id);
+            menuToAdd = _mapper.Map<Menu>(request);
+            menuToAdd.AddDomainEvent(new UpdatedEvent<Menu>(menuToAdd));
+            _context.Menus.Add(menuToAdd);
+
+            if (request.ApiList != null)
+            {
+                foreach (var item in request.ApiList)
+                {
+                    await _context.Menus.AddAsync(new Menu()
+                    {
+                        Id = _snowflakeService.GenerateId(),
+                        ParentId = menuToAdd.Id,
+                        Code = item.Code,
+                        Url = item.Url,
+                        Meta = new Meta(apiType, null, null, null, null, null, null, null, null)
+                    });
+                }
+            }
+        }
+
+        await _context.SaveChangesAsync(cancellationToken);
+
+        if (request.Id.HasValue)
+        {
+            return await Result<long>.SuccessAsync(menuToUpdate.Id);
+        }
+        else
+        {
+            return await Result<long>.SuccessAsync(menuToAdd.Id);
         }
     }
 }

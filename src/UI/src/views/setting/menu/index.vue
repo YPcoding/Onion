@@ -53,7 +53,8 @@
 						return data.meta.title
 					}
 				},
-				menuFilterText: ""
+				menuFilterText: "",
+				filterType : "Api",
 			}
 		},
 		watch: {
@@ -70,8 +71,21 @@
 				this.menuloading = true
 				var res = await this.$API.system.menu.list.post();
 				this.menuloading = false
-				this.menuList = res.data;
-			},
+				
+				this.menuList = this.removeApiNodes(res.data);
+		    },
+			// 过滤树结构中的节点
+		    removeApiNodes(data) {
+                return data.filter(item => {
+                    if (item.meta && item.meta.type === "Api") {
+                        return false; // 移除 type 为 "Api" 的节点
+                    }
+                    if (item.children && item.children.length > 0) {
+                        item.children = this.removeApiNodes(item.children); // 递归处理子节点
+                    }
+                        return true; // 保留其他节点
+                });
+            },
 			//树点击
 			menuClick(data, node){
 				var pid = node.level==1?undefined:node.parent.data.id;
@@ -93,7 +107,7 @@
 			async add(node, data){
 				var newMenuName = "未命名" + newMenuIndex++;
 				var newMenuData = {
-					parentId: data ? data.id : "",
+					parentId: data ? data.id : null,
 					name: newMenuName,
 					path: "",
 					component: "",
@@ -103,14 +117,19 @@
 					}
 				}
 				this.menuloading = true
-				var res = await this.$API.demo.post.post(newMenuData)
+				var res = await this.$API.system.menu.save.post(newMenuData);
 				this.menuloading = false
-				newMenuData.id = res.data
+				if (res.succeeded) {
+					newMenuData.id = res.data
 
-				this.$refs.menu.append(newMenuData, node)
-				this.$refs.menu.setCurrentKey(newMenuData.id)
-				var pid = node ? node.data.id : ""
-				this.$refs.save.setData(newMenuData, pid)
+				    this.$refs.menu.append(newMenuData, node)
+				    this.$refs.menu.setCurrentKey(newMenuData.id)
+				    var pid = node ? node.data.id : null
+				    this.$refs.save.setData(newMenuData, pid)
+					this.$message.success("添加成功");
+				} else {
+					this.$message.warning(res.message)
+				}
 			},
 			//删除菜单
 			async delMenu(){
@@ -131,9 +150,9 @@
 
 				this.menuloading = true
 				var reqData = {
-					ids: CheckedNodes.map(item => item.id)
+					menuIds: CheckedNodes.map(item => item.id)
 				}
-				var res = await this.$API.demo.post.post(reqData)
+				var res = await this.$API.system.menu.delete.delete(reqData);
 				this.menuloading = false
 
 				if(res.code == 200){
@@ -144,6 +163,7 @@
 						}
 						this.$refs.menu.remove(item)
 					})
+					this.$message.success("删除成功")
 				}else{
 					this.$message.warning(res.message)
 				}

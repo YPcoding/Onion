@@ -18,7 +18,7 @@ export default {
 			}
 		},
 		roleMenus: {
-			url: `${config.API_URL}/Role/Query/Permission/By`,
+			url: `${config.API_URL}/Role/Query/Menu/By`,
 			name: "获取角色菜单",
 			get: async function (roleId) {
 				return await http.get(`${this.url}/${roleId}`)
@@ -31,11 +31,25 @@ export default {
 				return await http.put(this.url, params)
 			}
 		},
-		add: {
+		menus: {
+			url: `${config.API_URL}/Role/Menu`,
+			name: "修改角色菜单",
+			put: async function (params) {
+				return await http.put(this.url, params)
+			}
+		},
+		save: {
 			url: `${config.API_URL}/Menu/Save`,
 			name: "保存菜单",
 			post: async function (params) {
 				return await http.post(this.url, params)
+			}
+		},
+		delete: {
+			url: `${config.API_URL}/Menu/Delete`,
+			name: "保存菜单",
+			delete: async function (params) {
+				return await http.delete(this.url, params)
 			}
 		}
 	},

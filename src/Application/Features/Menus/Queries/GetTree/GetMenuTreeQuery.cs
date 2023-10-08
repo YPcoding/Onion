@@ -1,5 +1,4 @@
 ﻿using Application.Features.Menus.DTOs;
-using AutoMapper.QueryableExtensions;
 using Domain.Services;
 
 namespace Application.Features.Menus.Queries.GetTree;
