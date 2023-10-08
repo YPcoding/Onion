@@ -94,17 +94,17 @@ public class MenuDto
     {
         get 
         {
-            if (Children.Any())
+            if (Children != null && Children.Any())
             {
                 return Children.Where(x => x.Meta.Type == MetaType.Api).Select(s => new Api { Code = s.Code, Url = s.Url }).ToList();
             }
-            return new List<Api>();
+            return null;
         }
         set { }
     }
 
     [Map(typeof(List<Menu>))]
-    public List<MenuDto> Children { get; set; } = new List<MenuDto>();
+    public List<MenuDto> Children { get; set; }
 }
 
 public class Api 

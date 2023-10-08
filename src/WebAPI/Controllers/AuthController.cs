@@ -6,7 +6,6 @@ using Application.Features.Auth.DTOs;
 using Application.Features.Menus.DTOs;
 using Application.Features.Menus.Queries.GetByUserId;
 using Application.Features.Permissions.DTOs;
-using Application.Features.Permissions.Queries.GetByUserId;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -41,7 +40,6 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [HttpPost("LoginByUserNameAndPassword")]
         [AllowAnonymous]
-
         public async Task<Result<LoginResultDto>> LoginWithUserNameAndPassword(LoginByUserNameAndPasswordCommand command)
         {
             return await Mediator.Send(command);
@@ -91,20 +89,6 @@ namespace WebAPI.Controllers
             };
 
             return await Result<RefreshTokenDto>.SuccessAsync(data);
-        }
-
-        /// <summary>
-        /// 获取登录者权限路由
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet("LoginerPermissionRouter")]
-
-        public async Task<Result<IEnumerable<PermissionRouterDto>>> GetLoginerPermissionRouter()
-        {
-            return await Mediator.Send(new GetLoginerPermissionRouterQuery()
-            {
-                UserId = _currentUserService.CurrentUserId
-            });
         }
 
 

@@ -8,12 +8,14 @@ using Application.Features.Roles.Queries.GetMenusById;
 using Application.Features.Roles.Queries.GetPermissionById;
 using Application.Features.Roles.Queries.Pagination;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel;
 
 namespace WebAPI.Controllers;
 
 /// <summary>
 /// 角色管理
 /// </summary>
+[Description("角色管理")]
 public class RoleController : ApiControllerBase
 {
     /// <summary>

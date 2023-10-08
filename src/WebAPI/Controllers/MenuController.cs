@@ -5,13 +5,14 @@ using Application.Features.Menus.Commands.Update;
 using Application.Features.Menus.Queries.Pagination;
 using Microsoft.AspNetCore.Mvc;
 using Application.Features.Menus.Queries.GetTree;
-using Microsoft.AspNetCore.Authorization;
+using System.ComponentModel;
 
 namespace WebAPI.Controllers;
 
 /// <summary>
 /// 菜单管理
 /// </summary>
+[Description("菜单管理")]
 public class MenuController : ApiControllerBase
 {
     /// <summary>
@@ -19,7 +20,6 @@ public class MenuController : ApiControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpPost("PaginationQuery")]
-
     public async Task<Result<PaginatedData<MenuDto>>> PaginationQuery(MenusWithPaginationQuery query)
     {
         return await Mediator.Send(query);
@@ -61,9 +61,6 @@ public class MenuController : ApiControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpPost("Tree")]
-
-    [AllowAnonymous]
-
     public async Task<Result<IEnumerable<MenuDto>>> GetMenuTree()
     {
         return await Mediator.Send(new GetMenuTreeQuery());

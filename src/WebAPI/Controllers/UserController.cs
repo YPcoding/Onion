@@ -8,12 +8,14 @@ using Application.Features.Users.Queries.GetAll;
 using Application.Features.Users.Queries.GetById;
 using Application.Features.Users.Queries.Pagination;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel;
 
 namespace WebAPI.Controllers;
 
 /// <summary>
 /// 用户管理
 /// </summary>
+[Description("用户管理")]
 public class UserController : ApiControllerBase
 {
 

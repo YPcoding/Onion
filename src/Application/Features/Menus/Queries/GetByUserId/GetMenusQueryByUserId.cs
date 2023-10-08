@@ -1,7 +1,5 @@
 ﻿using Application.Features.Menus.DTOs;
-using Domain.Entities;
 using Domain.Services;
-using System.Linq;
 
 namespace Application.Features.Menus.Queries.GetByUserId;
 
@@ -29,13 +27,18 @@ public class GetMenusQueryByUserIdHandler :
         var menus = await _domainService
             .GetMenuTreeAsync(x =>
             x.RoleMenus.Any(rp => rp.Role.UserRoles.Any(ur => ur.UserId == request.UserId)) &&
-            x.Meta.Type != MetaType.Api &&
+            !(x.Meta.Type == MetaType.Api || x.Meta.Type == MetaType.Button) &&
             x.Meta.Hidden != true);
 
         var permissions = (await _domainService.GetPermissionsAsync(x =>
              x.RoleMenus.Any(rp => rp.Role.UserRoles.Any(ur => ur.UserId == request.UserId)) &&
              menus.Select(s => s.Id).ToList().Contains((long)x.ParentId!))).Select(s => s.Code)
             .ToList();
+
+        if (!permissions.Any()) 
+        {
+            permissions = null;
+        }
 
         var dashboardGrid = await _domainService.GetDashboardGridsAsync();
 

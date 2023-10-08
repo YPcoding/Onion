@@ -3,16 +3,16 @@ using Application.Features.Departments.Commands.Add;
 using Application.Features.Departments.Commands.Delete;
 using Application.Features.Departments.Commands.Update;
 using Application.Features.Departments.Queries.Pagination;
-using Domain.Entities.Departments;
 using Microsoft.AspNetCore.Mvc;
 using Application.Features.Departments.Queries.GetAll;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using System.ComponentModel;
 
 namespace WebAPI.Controllers;
 
 /// <summary>
 /// 部门管理
 /// </summary>
+[Description("部门管理")]
 public class DepartmentController : ApiControllerBase
 {
     /// <summary>

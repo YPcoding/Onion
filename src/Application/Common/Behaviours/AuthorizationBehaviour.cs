@@ -17,19 +17,19 @@ public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRe
 {
     private readonly ICurrentUserService _currentUserService;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly PermissionDomainService _permissionService;
+    private readonly MenuDomainService _menuService;
     private readonly IOptions<SystemSettings> _optSystemSettings;
 
     public AuthorizationBehaviour(
         ICurrentUserService currentUserService,
         IHttpContextAccessor httpContextAccessor,
-        PermissionDomainService permissionService,
-        IOptions<SystemSettings> optSystemSettings)
+        IOptions<SystemSettings> optSystemSettings,
+        MenuDomainService menuService)
     {
         _currentUserService = currentUserService;
         _httpContextAccessor = httpContextAccessor;
-        _permissionService = permissionService;
         _optSystemSettings = optSystemSettings;
+        _menuService = menuService;
     }
 
     /// <summary>
@@ -81,21 +81,21 @@ public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRe
     /// <param name="permissions">用户权限</param>
     /// <param name="apiPath">接口路径</param>
     /// <returns>返回授权结果</returns>
-    private bool IsAuthorized(IEnumerable<Permission> permissions, string apiPath)
+    private bool IsAuthorized(IEnumerable<string>? permissions, string apiPath)
     {
-        return permissions.Any(x =>
-            x.Type == PermissionType.Dot &&           // 权限类型为 Dot
-            !string.IsNullOrEmpty(x.Path) &&           // Path 不为空
-            x.Path != "/" &&                           // Path 不为根路径
-            apiPath.StartsWith(x.Path) &&                // apiPath 以 x.Path 开头
-            !string.IsNullOrEmpty(x.HttpMethods)       // HttpMethods 不为空
-        );
+        return permissions?.Any(x => apiPath.StartsWith(x)) ?? false;
     }
 
     private async Task<bool> IsAuthorizedAsync(HttpContext httpContext)
     {
         var apiPath = httpContext?.Request?.Path.Value ?? "";
-        var userPermissions = await _permissionService.GetPermissionsByUserIdAsync(_currentUserService.CurrentUserId);
+        var userPermissions = (await _menuService.GetPermissionsAsync(x =>
+            x.Meta.Type == MetaType.Api &&
+            x.RoleMenus.Any(rp => rp.Role.UserRoles.Any(ur => ur.UserId == _currentUserService.CurrentUserId))))
+            .Where(x => !x.Code.IsNullOrWhiteSpace() && x.Url.IsNullOrWhiteSpace())
+            .Select(s => s.Code)
+            .ToList();
+
         return IsAuthorized(userPermissions, apiPath);
     }
 

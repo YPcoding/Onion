@@ -42,7 +42,7 @@ public class GetRoleMenuQueryByIdHandler : IRequestHandler<GetRoleMenuQueryById,
     public async Task<Result<IEnumerable<RoleMenuDto>>> Handle(GetRoleMenuQueryById request, CancellationToken cancellationToken)
     {
         // 查询所有权限
-        var allmenus = await _menuRepository.GetAllAsync();
+        var allmenus = await _menuRepository.GetAllAsync(x => x.Meta.Type != MetaType.Api);
 
         if (!allmenus.Any())
         {

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Application.Features.UserProfileSettings.Commands.Save;
 using Application.Features.UserProfileSettings.Queries.GetAll;
 using Application.Common.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebAPI.Controllers;
 
@@ -28,7 +29,7 @@ public class UserProfileSettingController : ApiControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpPost("PaginationQuery")]
-
+    [AllowAnonymous]
     public async Task<Result<PaginatedData<UserProfileSettingsDto>>> PaginationQuery(UserProfileSettingsWithPaginationQuery query)
     {
         return await Mediator.Send(query);
@@ -39,7 +40,7 @@ public class UserProfileSettingController : ApiControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpGet("Query")]
-
+    [AllowAnonymous]
     public async Task<Result<IEnumerable<UserProfileSettingsDto>>> GetUserProfileSettingsQueryByUserId()
     {
         return await Mediator.Send(new GetUserProfileSettingsQueryByUserId() { UserId = _currentUserService.CurrentUserId });

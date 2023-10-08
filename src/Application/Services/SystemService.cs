@@ -1,4 +1,7 @@
 ﻿using Application.Common.Helper;
+using Domain.ValueObjects;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Security.AccessControl;
 
 namespace Application.Services;
 
@@ -130,5 +133,45 @@ public class SystemService : IScopedDependency
         }
 
         return allPermissions ?? new List<Permission>();
+    }
+
+    public IEnumerable<Menu> GeneratePermission(IEnumerable<Menu> menus) 
+    {
+        var apis = WebApiDocHelper.GetWebApiControllersWithActions();
+        var newMenus = new List<Menu>();
+        foreach (var menu in menus)
+        {
+            var api = apis.FirstOrDefault(x => x.ControllerDescription == menu.Meta.Title);
+            if (api == null) continue;
+
+            foreach (var button in api.Actions)
+            {
+                if (menus.Any(x=>x.Meta.Type==MetaType.Button && button.Description == x.Meta.Title))
+                    continue;
+
+                // 创建按钮
+                var btn = new Menu
+                {
+                    Id = _snowFlakeService.GenerateId(),
+                    ParentId = menu.Id,
+                    Name = $"{api.ControllerName.ToLower()}{button.Route}",
+                    Meta = new Meta(MetaType.Button, button.Description, null, null, null, null, null, null, null)
+                };
+                newMenus.Add(btn);
+
+                // 创建接口权限
+                var permission = new Menu
+                {
+                    Id = _snowFlakeService.GenerateId(),
+                    ParentId = btn.Id,
+                    Code = $"{api.ControllerName}.{button.Route}".ToLower(),
+                    Url = $"/api/{api.ControllerName}/{button.Route}",
+                    Meta = new Meta(MetaType.Api, null, null, null, null, null, null, null, null)
+                };
+                newMenus.Add(permission);
+            }
+        }
+
+        return newMenus;
     }
 }

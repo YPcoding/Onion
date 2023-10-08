@@ -16,18 +16,23 @@ public class WeatherForecastController : ApiControllerBase
     };
 
     private readonly IHubContext<SignalRHub> _hubContext;
-
+    private readonly ISnowFlakeService _snowFlakeService;
+    private readonly IApplicationDbContext _dbContext;
     private readonly ILogger<WeatherForecastController> _logger;
     private readonly IApplicationDbContext _context;
 
     public WeatherForecastController(
         ILogger<WeatherForecastController> logger,
         IApplicationDbContext context,
-        IHubContext<SignalRHub> hubContext)
+        IHubContext<SignalRHub> hubContext,
+        ISnowFlakeService snowFlakeService,
+        IApplicationDbContext dbContext)
     {
         _logger = logger;
         _context = context;
         _hubContext = hubContext;
+        _snowFlakeService = snowFlakeService;
+        _dbContext = dbContext;
     }
 
     /// <summary>
