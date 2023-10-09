@@ -310,39 +310,31 @@ namespace Migrators.MySql.Migrations
 
             modelBuilder.Entity("Domain.Entities.Logger.Logger", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("ClientAgent")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("ClientIP")
-                        .HasColumnType("longtext");
+                        .HasColumnType("int")
+                        .HasColumnName("id");
 
                     b.Property<string>("Exception")
                         .HasColumnType("longtext");
 
                     b.Property<string>("Level")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("LogEvent")
                         .HasColumnType("longtext");
 
                     b.Property<string>("Message")
                         .HasColumnType("longtext");
 
-                    b.Property<string>("MessageTemplate")
-                        .HasColumnType("longtext");
-
                     b.Property<string>("Properties")
                         .HasColumnType("longtext");
 
-                    b.Property<DateTime>("TimeStamp")
-                        .HasColumnType("datetime(6)");
+                    b.Property<DateTime?>("TS")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("_ts");
 
-                    b.Property<string>("UserName")
+                    b.Property<string>("Template")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Timestamp")
                         .HasColumnType("longtext");
 
                     b.HasKey("Id");

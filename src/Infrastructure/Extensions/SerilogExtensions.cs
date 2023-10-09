@@ -182,7 +182,7 @@ public static class SerilogExtensions
         if (string.IsNullOrEmpty(connectionString)) return;
 
         //MySql不支持自定义数据表列，因此日志不记录到Loggers表中，除非更改表名
-        const string tableName = "Log";
+        const string tableName = "Loggers";
         serilogConfig.WriteTo.Async(wt => wt.MySQL(
             connectionString,
             tableName,

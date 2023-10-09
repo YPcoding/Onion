@@ -22,21 +22,21 @@ public class TransactionBehavior<TRequest, TResponse> : IPipelineBehavior<TReque
 
         if (!hasActiveTransaction)
         {
-            string transactionId = Guid.NewGuid().ToString(); // 生成一个唯一的事务ID
-            _logger.LogInformation($"事务 {transactionId} 开始。"); // 记录事务开始
+            string transactionId = Guid.NewGuid().ToString();
+            _logger.LogInformation("数据库事务ID：{TransactionId},操作类型：{Type}", transactionId,"开始事务");
             using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
             try
             {
                 var response = await next();
                 await _dbContext.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
-                _logger.LogInformation($"事务 {transactionId} 提交。"); // 记录事务提交
+                _logger.LogInformation("数据库事务ID：{TransactionId},操作类型：{Type}", transactionId, "提交事务"); 
                 return response;
             }
             catch (Exception)
             {
                 await transaction.RollbackAsync(cancellationToken);
-                _logger.LogError($"事务 {transactionId} 回滚。"); // 记录事务回滚
+                _logger.LogInformation("数据库事务ID：{TransactionId},操作类型：{Type}", transactionId, "回滚事务");
                 throw;
             }
         }

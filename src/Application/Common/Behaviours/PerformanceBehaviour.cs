@@ -14,6 +14,7 @@ public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
     private readonly ILogger<TRequest> _logger;
     private readonly ICurrentUserService _currentUserService;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly ISnowFlakeService _snowFlakeService;
 
     /// <summary>
     /// 初始化一个 <see cref="PerformanceBehaviour{TRequest, TResponse}"/> 实例。
@@ -24,12 +25,14 @@ public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
     public PerformanceBehaviour(
         ILogger<TRequest> logger,
         ICurrentUserService currentUserService,
-        IHttpContextAccessor httpContextAccessor)
+        IHttpContextAccessor httpContextAccessor,
+        ISnowFlakeService snowFlakeService)
     {
         _timer = new Stopwatch();
         _logger = logger;
         _currentUserService = currentUserService;
         _httpContextAccessor = httpContextAccessor;
+        _snowFlakeService = snowFlakeService;
     }
 
     /// <summary>
@@ -47,17 +50,29 @@ public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
 
         _timer.Stop();
 
-        var userName = _currentUserService.UserName;
-        var elapsedMilliseconds = _timer.ElapsedMilliseconds;
+
+        var httpContext = _httpContextAccessor.HttpContext;
+        var id = _snowFlakeService.GenerateId();
+        var loggerName = typeof(TRequest).Name;
+        var requestPath = httpContext?.Request.Path!;
         var requestName = typeof(TRequest).Name;
+        var requestMethod = httpContext?.Request.Method!;
+        var userName = _currentUserService.UserName ?? "匿名";
+        var clientIP = httpContext?.Connection?.RemoteIpAddress?.ToString()!;
+        var statusCode = httpContext?.Response.StatusCode;
+        var loggerTime = DateTime.Now.ToString("G");
+        var elapsedMilliseconds = _timer.ElapsedMilliseconds;
+
         if (elapsedMilliseconds > 500)
         {
-            _logger.LogWarning("{Name} 长时间运行的请求 ({ElapsedMilliseconds} 毫秒) with {@Request} {@UserName} ",
-                requestName, elapsedMilliseconds, request, userName);
+            _logger.LogWarning("{ID},{LoggerName},{RequestPath},{RequestName},{RequestMethod},{UserName},{ClientIP},{ResponseStatusCode},{LoggerTime},{ElapsedMilliseconds}",
+                                id, loggerName, requestPath, requestName, requestMethod, userName, clientIP, statusCode, loggerTime, elapsedMilliseconds);
         }
-
-        string requestPath = _httpContextAccessor.HttpContext?.Request.Path!;
-        _logger.LogInformation("{Name}", requestName);
+        else 
+        {
+            _logger.LogInformation("{ID},{LoggerName},{RequestPath},{RequestName},{RequestMethod},{UserName},{ClientIP},{ResponseStatusCode},{LoggerTime},{ElapsedMilliseconds}",
+                                id, loggerName, requestPath, requestName, requestMethod, userName, clientIP, statusCode, loggerTime, elapsedMilliseconds);
+        }   
 
         return response;
     }

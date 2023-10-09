@@ -2,6 +2,7 @@ using Application.Common.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebAPI.Controllers;
 
@@ -43,6 +44,7 @@ public class WeatherForecastController : ApiControllerBase
     [AllowAnonymous]
     public async Task<int> Get()
     {
+        var a = await _dbContext.Loggers.ToListAsync();
         await _hubContext.Clients.All.SendAsync("ReceiveNotification", "111");
         _logger.LogInformation("ceshi");
         return 0;

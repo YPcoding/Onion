@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Migrators.MySql.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20231009110452_Init")]
+    [Migration("20231009175920_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -238,6 +238,9 @@ namespace Migrators.MySql.Migrations
                     b.Property<bool>("IsLive")
                         .HasColumnType("tinyint(1)");
 
+                    b.Property<bool?>("IsSystemAccount")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<DateTime?>("LastModified")
                         .HasColumnType("datetime(6)");
 
@@ -310,39 +313,31 @@ namespace Migrators.MySql.Migrations
 
             modelBuilder.Entity("Domain.Entities.Logger.Logger", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("ClientAgent")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("ClientIP")
-                        .HasColumnType("longtext");
+                        .HasColumnType("int")
+                        .HasColumnName("id");
 
                     b.Property<string>("Exception")
                         .HasColumnType("longtext");
 
                     b.Property<string>("Level")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("LogEvent")
                         .HasColumnType("longtext");
 
                     b.Property<string>("Message")
                         .HasColumnType("longtext");
 
-                    b.Property<string>("MessageTemplate")
-                        .HasColumnType("longtext");
-
                     b.Property<string>("Properties")
                         .HasColumnType("longtext");
 
-                    b.Property<DateTime>("TimeStamp")
-                        .HasColumnType("datetime(6)");
+                    b.Property<DateTime?>("TS")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("_ts");
 
-                    b.Property<string>("UserName")
+                    b.Property<string>("Template")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Timestamp")
                         .HasColumnType("longtext");
 
                     b.HasKey("Id");
