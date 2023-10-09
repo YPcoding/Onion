@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Migrators.MySql.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20231009175920_Init")]
+    [Migration("20231009204454_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -311,7 +311,7 @@ namespace Migrators.MySql.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Logger.Logger", b =>
+            modelBuilder.Entity("Domain.Entities.Loggers.Logger", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()

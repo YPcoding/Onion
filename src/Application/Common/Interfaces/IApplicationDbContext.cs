@@ -1,7 +1,7 @@
 ﻿using Domain.Entities.Audit;
 using Domain.Entities.Departments;
 using Domain.Entities.Identity;
-using Domain.Entities.Logger;
+using Domain.Entities.Loggers;
 using Domain.Entities.Notifications;
 using Domain.Entities.Settings;
 using Microsoft.EntityFrameworkCore.Infrastructure;

@@ -308,7 +308,7 @@ namespace Migrators.MySql.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Logger.Logger", b =>
+            modelBuilder.Entity("Domain.Entities.Loggers.Logger", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()

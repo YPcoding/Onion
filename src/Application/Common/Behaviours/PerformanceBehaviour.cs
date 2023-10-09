@@ -22,6 +22,7 @@ public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
     /// <param name="logger">日志记录器。</param>
     /// <param name="currentUserService">当前用户服务。</param>
     /// <param name="httpContextAccessor"></param>
+    /// <param name="snowFlakeService"></param>
     public PerformanceBehaviour(
         ILogger<TRequest> logger,
         ICurrentUserService currentUserService,

@@ -12,6 +12,8 @@ using System.ComponentModel;
 using Application.Features.Users.Commands.Update;
 using Application.Features.Users.DTOs;
 using Application.Features.Users.Queries.GetById;
+using Application.Features.Loggers.DTOs;
+using Application.Features.Loggers.Queries.Pagination;
 
 namespace WebAPI.Controllers;
 
@@ -26,6 +28,19 @@ public class UserProfileSettingController : ApiControllerBase
     public UserProfileSettingController(ICurrentUserService currentUserService)
     {
         _currentUserService = currentUserService;
+    }
+
+    /// <summary>
+    /// 操作日志
+    /// </summary>
+    /// <returns></returns>
+    [HttpPost("Log/PaginationQuery")]
+
+    public async Task<Result<PaginatedData<LoggerDto>>> LogPaginationQuery(LoggersWithPaginationQuery query)
+    {
+        query.Template = "{ID},{LoggerName},{RequestPath},{RequestName},{RequestMethod},{UserName},{ClientIP},{ResponseStatusCode},{LoggerTime},{ElapsedMilliseconds}";
+        query.Message = _currentUserService.UserName;
+        return await Mediator.Send(query);
     }
 
 

@@ -240,10 +240,10 @@ export default {
 	},
 	log: {
 		list: {
-			url: `${config.API_URL}/system/log/list`,
+			url: `${config.API_URL}/UserProfileSetting/Log/PaginationQuery`,
 			name: "日志列表",
-			get: async function (params) {
-				return await http.get(this.url, params)
+			post: async function (params) {
+				return await http.post(this.url, params)
 			}
 		}
 	},

@@ -34,6 +34,7 @@
   <ItemGroup>
     <Folder Include="Common\Security\" />
     <Folder Include="Constants\" />
+    <Folder Include="Features\Loggers\EventHandlers\" />
     <Folder Include="Features\Roles\EventHandlers\" />
     <Folder Include="Resources\" />
   </ItemGroup>
