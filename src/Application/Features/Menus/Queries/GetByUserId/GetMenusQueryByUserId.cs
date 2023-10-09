@@ -24,21 +24,11 @@ public class GetMenusQueryByUserIdHandler :
 
     public async Task<Result<UserMenuDto>> Handle(GetMenusQueryByUserId request, CancellationToken cancellationToken)
     {
-        var menus = await _domainService
-            .GetMenuTreeAsync(x =>
-            x.RoleMenus.Any(rp => rp.Role.UserRoles.Any(ur => ur.UserId == request.UserId)) &&
-            !(x.Meta.Type == MetaType.Api || x.Meta.Type == MetaType.Button) &&
-            x.Meta.Hidden != true);
+        var menus = await _domainService.GetTreeByUserIdAsync(request.UserId);
 
-        var permissions = (await _domainService.GetPermissionsAsync(x =>
-             x.RoleMenus.Any(rp => rp.Role.UserRoles.Any(ur => ur.UserId == request.UserId)) &&
-             menus.Select(s => s.Id).ToList().Contains((long)x.ParentId!))).Select(s => s.Code)
+        var permissions = (await _domainService.GetPermissionsAsync(request.UserId))
+            .Select(s => s.Code)
             .ToList();
-
-        if (!permissions.Any()) 
-        {
-            permissions = null;
-        }
 
         var dashboardGrid = await _domainService.GetDashboardGridsAsync();
 

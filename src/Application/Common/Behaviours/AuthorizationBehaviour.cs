@@ -89,14 +89,10 @@ public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRe
     private async Task<bool> IsAuthorizedAsync(HttpContext httpContext)
     {
         var apiPath = httpContext?.Request?.Path.Value ?? "";
-        var userPermissions = (await _menuService.GetPermissionsAsync(x =>
-            x.Meta.Type == MetaType.Api &&
-            x.RoleMenus.Any(rp => rp.Role.UserRoles.Any(ur => ur.UserId == _currentUserService.CurrentUserId))))
-            .Where(x => !x.Code.IsNullOrWhiteSpace() && x.Url.IsNullOrWhiteSpace())
-            .Select(s => s.Code)
-            .ToList();
+        var userPermissions = (await _menuService.GetPermissionsAsync(_currentUserService.CurrentUserId))
+            .Select(s=>s.Url);
 
-        return IsAuthorized(userPermissions, apiPath);
+        return IsAuthorized(userPermissions!, apiPath);
     }
 
     /// <summary>

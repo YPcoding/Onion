@@ -2,6 +2,7 @@
 using Domain.ValueObjects;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Security.AccessControl;
+using System.Text.RegularExpressions;
 
 namespace Application.Services;
 
@@ -139,6 +140,7 @@ public class SystemService : IScopedDependency
     {
         var apis = WebApiDocHelper.GetWebApiControllersWithActions();
         var newMenus = new List<Menu>();
+        string pattern = @"/\{[^}]+\}";
         foreach (var menu in menus)
         {
             var api = apis.FirstOrDefault(x => x.ControllerDescription == menu.Meta.Title);
@@ -157,6 +159,7 @@ public class SystemService : IScopedDependency
                     Name = $"{api.ControllerName.ToLower()}{button.Route}",
                     Meta = new Meta(MetaType.Button, button.Description, null, null, null, null, null, null, null)
                 };
+                btn.Name = Regex.Replace(btn.Name, pattern, string.Empty).Replace("/","");
                 newMenus.Add(btn);
 
                 // 创建接口权限
@@ -168,6 +171,8 @@ public class SystemService : IScopedDependency
                     Url = $"/api/{api.ControllerName}/{button.Route}",
                     Meta = new Meta(MetaType.Api, null, null, null, null, null, null, null, null)
                 };
+                permission.Code = Regex.Replace(permission.Code, pattern, string.Empty).Replace("/", "");
+                permission.Url = Regex.Replace(permission.Url, pattern, string.Empty);
                 newMenus.Add(permission);
             }
         }

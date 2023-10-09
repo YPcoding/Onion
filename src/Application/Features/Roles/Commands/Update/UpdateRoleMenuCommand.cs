@@ -67,6 +67,16 @@ public class UpdateRoleMenuCommandHandler : IRequestHandler<UpdateRoleMenuComman
             _context.RoleMenus.RemoveRange(roleMenus);
         }
 
+        var apiIds = await _context.Menus
+            .Where(x => request.MenuIds.Contains((long)x.ParentId))
+            .Select(s => s.Id)
+            .ToListAsync(cancellationToken);
+
+        if (apiIds.Any())
+        {
+            request.MenuIds.AddRange(apiIds);
+        }
+
         var newRoleMenus = request.MenuIds.Select(menuId => new RoleMenu
         {
             Id = _snowFlakeService.GenerateId(),

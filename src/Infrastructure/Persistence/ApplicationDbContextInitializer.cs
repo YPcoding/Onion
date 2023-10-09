@@ -74,13 +74,13 @@ public class ApplicationDbContextInitializer
         user.PasswordHash = user.CreatePassword("user");
         if (!await _context.Users.AnyAsync(x => x.UserName == "admin"))
         {
-            _context.Users.Add(administrator);
+            await _context.Users.AddAsync(administrator);
             await _context.SaveChangesAsync();
             _logger.LogInformation($"成功添加管理员数据");
         }
         if (!await _context.Users.AnyAsync(x => x.UserName == "user"))
         {
-            _context.Users.Add(user);
+             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
             _logger.LogInformation($"成功添加普通用户数据");
         }
@@ -90,13 +90,13 @@ public class ApplicationDbContextInitializer
         var userRole = new Role() { RoleName = "普通用户", RoleCode = "Common", Description = "拥有系统所有查询功能", IsActive = true };
         if (!await _context.Roles.AnyAsync(x => x.RoleCode == "Administrator"))
         {
-            _context.Roles.Add(administratorRole);
+            await _context.Roles.AddAsync(administratorRole);
             await _context.SaveChangesAsync();
             _logger.LogInformation($"成功添加管理员角色数据");
         }
         if (!await _context.Roles.AnyAsync(x => x.RoleCode == "Common"))
         {
-            _context.Roles.Add(userRole);
+            await _context.Roles.AddAsync(userRole);
             await _context.SaveChangesAsync();
             _logger.LogInformation($"成功添加普通用户角色数据");
         }
@@ -109,14 +109,14 @@ public class ApplicationDbContextInitializer
         if (!await _context.UserRoles.AnyAsync(x => x.UserId == administratorId && x.RoleId == administratorRoleId))
         {
             var administratorUserRole = new UserRole { UserId = (long)administratorId!, RoleId = (long)administratorRoleId! };
-            _context.UserRoles.Add(administratorUserRole);
+            await _context.UserRoles.AddAsync(administratorUserRole);
             await _context.SaveChangesAsync();
             _logger.LogInformation($"成功添加管理员角色数据");
         }
         if (!await _context.UserRoles.AnyAsync(x => x.UserId == userId && x.RoleId == userRoleId))
         {
             var userUserRole = new UserRole { UserId = (long)userId!, RoleId = (long)userRoleId! };
-            _context.UserRoles.Add(userUserRole);
+            await _context.UserRoles.AddAsync(userUserRole);
             await _context.SaveChangesAsync();
             _logger.LogInformation($"成功添加普通用户角色数据");
         }
@@ -126,14 +126,16 @@ public class ApplicationDbContextInitializer
         if (!menus.Any()) 
         {
             await GenerateMenuAsync();
+            menus = await _context.Menus.ToListAsync();
         }
         var permissions =  _systemService.GeneratePermission(menus);
         if (permissions.Any()) 
         {
             await _context.Menus.AddRangeAsync(permissions);
-            await _context.SaveChangesAsync();
 
             menus = await _context.Menus.ToListAsync();
+            var roleMenus = await _context.RoleMenus.Where(x => x.RoleId == administratorRoleId).ToListAsync();
+            _context.RoleMenus.RemoveRange(roleMenus);
             foreach (var menu in menus)
             {
                 await _context.RoleMenus.AddAsync(new RoleMenu()
@@ -144,7 +146,6 @@ public class ApplicationDbContextInitializer
                 });
             }
             await _context.SaveChangesAsync();
-
             _logger.LogInformation($"新增权限成功");
         }
     }

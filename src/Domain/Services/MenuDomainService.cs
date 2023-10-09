@@ -50,13 +50,17 @@ public class MenuDomainService : IScopedDependency
     /// 获取权限数据
     /// </summary>
     /// <returns></returns>
-    public async Task<List<Menu>> GetPermissionsAsync(Expression<Func<Menu, bool>>? condition = null, CancellationToken cancellationToken = default)
+    public async Task<List<Menu>> GetPermissionsAsync(long userId)
     {
-        return (await _repository.GetAllAsync(condition, cancellationToken))
-            .Where(x => x.Meta?.Type == MetaType.Api && x.Meta.Hidden == false)
-            .ToList()!;
+        return (await _repository.GetAllByUserIdAsync(userId))
+               .Where(x => x.Meta.Type == MetaType.Api)
+               .ToList();
     }
 
+    public async Task<List<Menu>> GetTreeByUserIdAsync(long userId)
+    {
+        return TreeConverter.ConvertToTree((await _repository.GetAllByUserIdAsync(userId)).Where(x=>!(x.Meta.Type == MetaType.Api || x.Meta.Type == MetaType.Button)).ToList());
+    }
 
     /// <summary>
     /// 树结构转换
