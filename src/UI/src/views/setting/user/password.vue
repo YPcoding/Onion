@@ -1,5 +1,5 @@
 <template>
-	<el-dialog title="分配角色" v-model="visible" :width="500" destroy-on-close @closed="$emit('closed')">
+	<el-dialog title="重置密码" v-model="visible" :width="500" destroy-on-close @closed="$emit('closed')">
 		<el-form :model="form" :rules="rules" :disabled="mode=='show'" ref="dialogForm" label-position="left">
 			<el-form-item label="登录密码" prop="password">
 					<el-input type="password" v-model="form.password" clearable show-password></el-input>
@@ -7,7 +7,7 @@
 		</el-form>
 		<template #footer>
 			<el-button @click="visible=false" >取 消</el-button>
-			<el-button v-if="mode!='show'" type="primary" :loading="isSaveing" @click="submit()">保 存</el-button>
+			<el-button v-if="mode!='show'" type="primary" :loading="isSaveing" @click="submit()" v-auth="'user.resetpassword'">保 存</el-button>
 		</template>
 	</el-dialog>
 </template>

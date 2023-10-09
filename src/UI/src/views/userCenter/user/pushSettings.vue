@@ -1,5 +1,5 @@
 <template>
-	<el-card shadow="never" header="事务待办">
+	<el-card shadow="never" header="事务待办" v-auth="'userprofilesetting.save'" >
 		<el-form ref="form" label-width="180px" label-position="left" style="margin-top:20px;">
 			<el-form-item label="有新的待办">
 				<el-checkbox v-model="form.new" @change="() => handleCheckboxChange('pushSettings_new', form.new)">短信推送</el-checkbox>

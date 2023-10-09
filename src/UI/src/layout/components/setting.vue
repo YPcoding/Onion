@@ -1,5 +1,5 @@
 <template>
-	<el-form ref="form" label-width="120px" label-position="left" style="padding:0 20px;">
+	<el-form ref="form" label-width="120px" label-position="left" style="padding:0 20px;" v-auth="'userprofilesetting.save'">
 		<el-divider></el-divider>
 		<el-form-item :label="$t('user.nightmode')">
 			<el-switch v-model="dark"></el-switch>

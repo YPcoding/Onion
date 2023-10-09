@@ -1,5 +1,5 @@
 <template>
-	<el-card shadow="never" header="语言主题">
+	<el-card shadow="never" header="语言主题" v-auth="'userprofilesetting.save'">
 		<el-form ref="form" label-width="120px" style="margin-top:20px;">
 			<el-form-item :label="$t('user.nightmode')">
 				<el-switch v-model="config.dark" inline-prompt active-icon="el-icon-moon" inactive-icon="el-icon-sunny"></el-switch>
@@ -17,7 +17,7 @@
 			</el-form-item>
 		</el-form>
 	</el-card>
-	<el-card shadow="never" header="个人设置" style="margin-top:20px;">
+	<el-card shadow="never" header="个人设置" style="margin-top:20px;" v-auth="'userprofilesetting.save'">
 		<el-form ref="form" label-width="120px" style="margin-top:20px;">
 			<el-form-item label="自动登出">
 				<el-select v-model="config.autoExit">

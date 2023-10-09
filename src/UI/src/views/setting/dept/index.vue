@@ -1,14 +1,14 @@
 <template>
-	<el-container>
+	<el-container v-auth="'department.queryall'">
 		<el-header>
 			<div class="left-panel">
-				<el-button type="primary" icon="el-icon-plus" @click="add"></el-button>
-				<el-button type="danger" plain icon="el-icon-delete" :disabled="selection.length==0" @click="batch_del"></el-button>
+				<el-button type="primary" icon="el-icon-plus" @click="add" v-auth="'department.add'"></el-button>
+				<el-button type="danger" plain icon="el-icon-delete" :disabled="selection.length==0" @click="batch_del" v-auth="'department.delete'"></el-button>
 			</div>
 			<div class="right-panel">
 				<div class="right-panel-search">
 					<el-input v-model="search.keyword" placeholder="部门名称" clearable></el-input>
-					<el-button type="primary" icon="el-icon-search" @click="upsearch"></el-button>
+					<el-button type="primary" icon="el-icon-search" @click="upsearch" ></el-button>
 				</div>
 			</div>
 		</el-header>
@@ -25,14 +25,14 @@
 				</el-table-column>
 				<el-table-column label="创建时间" prop="created" width="180"></el-table-column>
 				<el-table-column label="备注" prop="description" min-width="300"></el-table-column>
-				<el-table-column label="操作" fixed="right" align="right" width="170">
+				<el-table-column label="操作" fixed="right" align="right" width="170" v-auths="['department.update','department.delete']">
 					<template #default="scope">
 						<el-button-group>
 							<el-button text type="primary" size="small" @click="table_show(scope.row, scope.$index)">查看</el-button>
-							<el-button text type="primary" size="small" @click="table_edit(scope.row, scope.$index)">编辑</el-button>
+							<el-button text type="primary" size="small" @click="table_edit(scope.row, scope.$index)" v-auth="'department.update'">编辑</el-button>
 							<el-popconfirm title="确定删除吗？" @confirm="table_del(scope.row, scope.$index)">
 								<template #reference>
-									<el-button text type="primary" size="small">删除</el-button>
+									<el-button text type="primary" size="small" v-auth="'department.delete'">删除</el-button>
 								</template>
 							</el-popconfirm>
 						</el-button-group>

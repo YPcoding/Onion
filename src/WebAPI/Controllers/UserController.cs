@@ -64,7 +64,7 @@ public class UserController : ApiControllerBase
     /// 修改个人信息
     /// </summary>
     /// <returns></returns>
-    [HttpPut("Info")]
+    [HttpPut("Update/Info")]
     public async Task<Result<long>> UpdateUserInfo(UpdateUserInfoCommand command)
     {
         return await Mediator.Send(command);

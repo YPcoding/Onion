@@ -49,7 +49,7 @@
 		</el-tabs>
 		<template #footer>
 			<el-button @click="visible=false" >取 消</el-button>
-			<el-button type="primary" :loading="isSaveing" @click="submit()">保 存</el-button>
+			<el-button type="primary" :loading="isSaveing" @click="submit()" v-auth="'role.menu'">保 存</el-button>
 		</template>
 	</el-dialog>
 </template>

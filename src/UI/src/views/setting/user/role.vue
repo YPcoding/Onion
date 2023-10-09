@@ -9,7 +9,7 @@
 		</el-form>
 		<template #footer>
 			<el-button @click="visible=false" >取 消</el-button>
-			<el-button v-if="mode!='show'" type="primary" :loading="isSaveing" @click="submit()">保 存</el-button>
+			<el-button v-if="mode!='show'" type="primary" :loading="isSaveing" @click="submit()" v-auth="'user.assigningrole'">保 存</el-button>
 		</template>
 	</el-dialog>
 </template>

@@ -1,5 +1,5 @@
 <template>
-	<el-container>
+	<el-container v-auth="'menu.tree'">
 		<el-aside width="300px" v-loading="menuloading">
 			<el-container>
 				<el-header>
@@ -9,7 +9,7 @@
 					<el-tree ref="menu" class="menu" node-key="id" :data="menuList" :props="menuProps" draggable highlight-current :expand-on-click-node="false" check-strictly show-checkbox :filter-node-method="menuFilterNode" @node-click="menuClick" @node-drop="nodeDrop">
 
 						<template #default="{node, data}">
-							<span class="custom-tree-node">
+							<span class="custom-tree-node"  v-auth="'menu.save'">
 								<span class="label">
 									{{ node.label }}
 								</span>
@@ -21,9 +21,9 @@
 
 					</el-tree>
 				</el-main>
-				<el-footer style="height:51px;">
-					<el-button type="primary" size="small" icon="el-icon-plus" @click="add()"></el-button>
-					<el-button type="danger" size="small" plain icon="el-icon-delete" @click="delMenu"></el-button>
+				<el-footer style="height:51px;" v-auths="['menu.save','menu.delete']">
+					<el-button type="primary" size="small" icon="el-icon-plus" @click="add()"  v-auth="'menu.save'"></el-button>
+					<el-button type="danger" size="small" plain icon="el-icon-delete" @click="delMenu"  v-auth="'menu.delete'"></el-button>
 				</el-footer>
 			</el-container>
 		</el-aside>

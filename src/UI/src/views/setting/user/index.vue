@@ -1,5 +1,5 @@
 <template>
-	<el-container>
+	<el-container v-auth="'user.paginationquery'">
 		<el-aside width="200px" v-loading="showGrouploading">
 			<el-container>
 				<el-header>
@@ -13,10 +13,10 @@
 		<el-container>
 				<el-header>
 					<div class="left-panel">
-						<el-button type="primary" icon="el-icon-plus" @click="add"></el-button>
-						<el-button type="danger" plain icon="el-icon-delete" :disabled="selection.length==0" @click="batch_del"></el-button>
-						<el-button type="primary" plain :disabled="selection.length==0" @click="assigningRole">分配角色</el-button>
-						<el-button type="primary" plain :disabled="selection.length==0" @click="resetPassword">密码重置</el-button>
+						<el-button type="primary" icon="el-icon-plus" @click="add" v-auth="'user.add'"></el-button>
+						<el-button type="danger" plain icon="el-icon-delete" :disabled="selection.length==0" @click="batch_del" v-auth="'user.delete'"></el-button>
+						<el-button type="primary" plain :disabled="selection.length==0" @click="assigningRole" v-auth="'user.assigningrole'">分配角色</el-button>
+						<el-button type="primary" plain :disabled="selection.length==0" @click="resetPassword" v-auth="'user.resetpassword'">密码重置</el-button>
 					</div>
 					<div class="right-panel">
 						<div class="right-panel-search">
@@ -52,10 +52,10 @@
 							<template #default="scope">
 								<el-button-group>
 									<el-button text type="primary" size="small" @click="table_show(scope.row, scope.$index)">查看</el-button>
-									<el-button text type="primary" size="small" @click="table_edit(scope.row, scope.$index)">编辑</el-button>
+									<el-button text type="primary" size="small" @click="table_edit(scope.row, scope.$index)" v-auth="'user.update'">编辑</el-button>
 									<el-popconfirm title="确定删除吗？" @confirm="table_del(scope.row, scope.$index)">
 										<template #reference>
-											<el-button text type="primary" size="small">删除</el-button>
+											<el-button text type="primary" size="small" v-auth="'user.delete'">删除</el-button>
 										</template>
 									</el-popconfirm>
 								</el-button-group>

@@ -1,5 +1,5 @@
 <template>
-	<el-row :gutter="40">
+	<el-row :gutter="40" v-auth="'menu.tree'">
 		<el-col v-if="!form.id">
 			<el-empty description="请选择左侧菜单后操作" :image-size="100"></el-empty>
 		</el-col>
@@ -60,7 +60,7 @@
 						<el-input v-model="form.meta.tag" clearable placeholder=""></el-input>
 					</el-form-item>
 					<el-form-item>
-						<el-button type="primary" @click="save" :loading="loading">保 存</el-button>
+						<el-button type="primary" @click="save" :loading="loading" v-auth="'menu.save'">保 存</el-button>
 					</el-form-item>
 				</el-form>
 

@@ -2,9 +2,9 @@
 	<el-container>
 		<el-header>
 			<div class="left-panel">
-				<el-button type="primary" icon="el-icon-plus" @click="add"></el-button>
-				<el-button type="danger" plain icon="el-icon-delete" :disabled="selection.length==0" @click="batch_del"></el-button>
-				<el-button type="primary" plain :disabled="selection.length!=1" @click="permission">权限设置</el-button>
+				<el-button type="primary" icon="el-icon-plus" @click="add" v-auth="'role.add'"></el-button>
+				<el-button type="danger" plain icon="el-icon-delete" :disabled="selection.length==0" @click="batch_del" v-auth="'role.delete'"></el-button>
+				<el-button type="primary" plain :disabled="selection.length!=1" @click="permission" v-auth="'role.menu'">权限设置</el-button>
 			</div>
 			<div class="right-panel">
 				<div class="right-panel-search">
@@ -20,21 +20,21 @@
 				<el-table-column label="角色名称" prop="roleName" width="150"></el-table-column>
 				<el-table-column label="别名" prop="roleCode" width="200"></el-table-column>
 				<el-table-column label="排序" prop="sort" width="80"></el-table-column>
-				<el-table-column label="状态" prop="isActive" width="80">
+				<el-table-column label="状态" prop="isActive" width="80" v-auth="'role.isactive'">
 					<template #default="scope">
 						<el-switch v-model="scope.row.isActive" @change="changeSwitch($event, scope.row)" :loading="scope.row.$switch_status" :active-value="true" :inactive-value="false"></el-switch>
 					</template>
 				</el-table-column>
 				<el-table-column label="创建时间" prop="created" width="180"></el-table-column>
 				<el-table-column label="备注" prop="description" min-width="150"></el-table-column>
-				<el-table-column label="操作" fixed="right" align="right" width="170">
+				<el-table-column label="操作" fixed="right" align="right" width="170" v-auths="['role.update','role.delete']">
 					<template #default="scope">
 						<el-button-group>
 							<el-button text type="primary" size="small" @click="table_show(scope.row, scope.$index)">查看</el-button>
-							<el-button text type="primary" size="small" @click="table_edit(scope.row, scope.$index)">编辑</el-button>
+							<el-button text type="primary" size="small" @click="table_edit(scope.row, scope.$index)" v-auth="'role.update'">编辑</el-button>
 							<el-popconfirm title="确定删除吗？" @confirm="table_del(scope.row, scope.$index)">
 								<template #reference>
-									<el-button text type="primary" size="small">删除</el-button>
+									<el-button text type="primary" size="small" v-auth="'role.delete'">删除</el-button>
 								</template>
 							</el-popconfirm>
 						</el-button-group>

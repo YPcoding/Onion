@@ -8,12 +8,14 @@ using Application.Features.UserProfileSettings.Commands.Save;
 using Application.Features.UserProfileSettings.Queries.GetAll;
 using Application.Common.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using System.ComponentModel;
 
 namespace WebAPI.Controllers;
 
 /// <summary>
-/// 个人设置
+/// 帐号信息
 /// </summary>
+[Description("帐号信息")]
 public class UserProfileSettingController : ApiControllerBase
 {
     private readonly ICurrentUserService _currentUserService;
