@@ -1,5 +1,5 @@
 <template>
-	<el-card shadow="never" header="修改密码" v-auth="'user.changepassword'">
+	<el-card shadow="never" header="修改密码" v-auth="'userprofilesetting.changepassword'">
 		<el-alert title="密码更新成功后，您将被重定向到登录页面，您可以使用新密码重新登录。" type="info" show-icon style="margin-bottom: 15px;"/>
 		<el-form ref="form" :model="form" :rules="rules" label-width="120px" style="margin-top:20px;">
 			<el-form-item label="当前密码" prop="currentPassword">
@@ -15,7 +15,7 @@
 				<el-input v-model="form.confirmNewPassword" type="password" show-password placeholder="请再次输入新密码"></el-input>
 			</el-form-item>
 			<el-form-item>
-				<el-button type="primary" @click="save" v-auth="'user.changepassword'">保存密码</el-button>
+				<el-button type="primary" @click="save" v-auth="'userprofilesetting.changepassword'">保存密码</el-button>
 			</el-form-item>
 		</el-form>
 	</el-card>

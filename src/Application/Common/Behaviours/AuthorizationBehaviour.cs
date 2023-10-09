@@ -83,7 +83,7 @@ public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRe
     /// <returns>返回授权结果</returns>
     private bool IsAuthorized(IEnumerable<string>? permissions, string apiPath)
     {
-        return permissions?.Any(x => apiPath.StartsWith(x)) ?? false;
+        return permissions?.Any(x => apiPath.ToLower().StartsWith(x.ToLower())) ?? false;
     }
 
     private async Task<bool> IsAuthorizedAsync(HttpContext httpContext)

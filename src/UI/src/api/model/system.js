@@ -143,7 +143,7 @@ export default {
 			}
 		},
 		delete: {
-			url: `${config.API_URL}/Department/delete`,
+			url: `${config.API_URL}/Department/Delete`,
 			name: "删除部门",
 			delete: async function (params) {
 				return await http.delete(this.url, params)
@@ -159,21 +159,21 @@ export default {
 			}
 		},
 		info: {
-			url: `${config.API_URL}/User/Info/Query`,
+			url: `${config.API_URL}/UserProfileSetting/Info/Query`,
 			name: "获取用户个人信息",
 			get: async function () {
 				return await http.get(this.url)
 			}
 		},
 		updateInfo: {
-			url: `${config.API_URL}/User/Update/Info`,
+			url: `${config.API_URL}/UserProfileSetting/Update/Info`,
 			name: "修改个人信息",
 			put: async function (params) {
 				return await http.put(this.url, params)
 			}
 		},
 		changePassword: {
-			url: `${config.API_URL}/User/Change/Password`,
+			url: `${config.API_URL}/UserProfileSetting/Change/Password`,
 			name: "更改个人密码",
 			put: async function (params) {
 				return await http.put(this.url, params)

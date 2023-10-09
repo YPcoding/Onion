@@ -143,6 +143,11 @@ namespace Domain.Entities.Identity
         public bool IsLive { get; set; } = false;
 
         /// <summary>
+        /// 是否为系统账号
+        /// </summary>
+        public bool? IsSystemAccount { get; set; }
+
+        /// <summary>
         /// 上级唯一标识
         /// </summary>
         public long? SuperiorId { get; set; } = null;

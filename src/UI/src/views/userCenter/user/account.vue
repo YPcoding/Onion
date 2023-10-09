@@ -1,5 +1,5 @@
 <template>
-	<el-card shadow="never" header="个人信息" v-auth="'user.infoquery'">
+	<el-card shadow="never" header="个人信息" v-auth="'userprofilesetting.infoquery'">
 		<el-form ref="form" :model="form" label-width="120px" style="margin-top:20px;">
 			<el-form-item label="账号">
 				<el-input v-model="form.userName" disabled></el-input>
@@ -25,7 +25,7 @@
 				<el-input v-model="form.signature" type="textarea"></el-input>
 			</el-form-item>
 			<el-form-item>
-				<el-button type="primary" @click="save" :loading="isSaving" v-auth="'user.updateinfo'">保存</el-button>
+				<el-button type="primary" @click="save" :loading="isSaving" v-auth="'userprofilesetting.updateinfo'">保存</el-button>
 			</el-form-item>
 		</el-form>
 	</el-card>

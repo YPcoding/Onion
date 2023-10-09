@@ -38,27 +38,6 @@ public class UserController : ApiControllerBase
         return await Mediator.Send(query);
     }
 
-
-    /// <summary>
-    /// 获取个人信息
-    /// </summary>
-    /// <returns></returns>
-    [HttpGet("Info/Query")]
-    public async Task<Result<UserDto>> GetUserInfoQuery()
-    {
-        return await Mediator.Send(new GetUserByIdQuery { UserId = _currentUserService.CurrentUserId });
-    }
-
-    /// <summary>
-    /// 修改个人信息
-    /// </summary>
-    /// <returns></returns>
-    [HttpPut("Update/Info")]
-    public async Task<Result<long>> UpdateUserInfo(UpdateUserInfoCommand command)
-    {
-        return await Mediator.Send(command);
-    }
-
     /// <summary>
     /// 分配角色
     /// </summary>
@@ -126,16 +105,6 @@ public class UserController : ApiControllerBase
     /// <returns></returns>
     [HttpPut("Reset/Password")]
     public async Task<Result<bool>> ResetPassword(ResetPasswordCommand command)
-    {
-        return await Mediator.Send(command);
-    }
-
-    /// <summary>
-    /// 更改密码
-    /// </summary>
-    /// <returns></returns>
-    [HttpPut("Change/Password")]
-    public async Task<Result<bool>> ChangePassword(ChangePasswordCommand command)
     {
         return await Mediator.Send(command);
     }

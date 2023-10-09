@@ -4,8 +4,9 @@
 			<el-input v-model="form.user" prefix-icon="el-icon-user" clearable :placeholder="$t('login.userPlaceholder')">
 				<template #append>
 					<el-select v-model="userType" style="width: 130px;">
-						<el-option :label="$t('login.admin')" value="admin"></el-option>
-						<el-option :label="$t('login.user')" value="user"></el-option>
+						<el-option label="超级管理员" value="administrator"></el-option>
+						<el-option label="普通用户" value="user"></el-option>
+						<el-option label="系统开发者" value="dev"></el-option>
 					</el-select>
 				</template>
 			</el-input>
@@ -37,10 +38,10 @@
 	export default {
 		data() {
 			return {
-				userType: 'admin',
+				userType: 'administrator',
 				form: {
-					user: "admin",
-					password: "admin",
+					user: "administrator",
+					password: "123456",
 					autologin: false
 				},
 				rules: {
@@ -56,12 +57,15 @@
 		},
 		watch:{
 			userType(val){
-				if(val == 'admin'){
-					this.form.user = 'admin'
-					this.form.password = 'admin'
+				if(val == 'administrator'){
+					this.form.user = 'administrator'
+					this.form.password = '123456'
 				}else if(val == 'user'){
 					this.form.user = 'user'
-					this.form.password = 'user'
+					this.form.password = '123456'
+				}else if(val == 'dev'){
+					this.form.user = 'dev'
+					this.form.password = '123456'
 				}
 			}
 		},

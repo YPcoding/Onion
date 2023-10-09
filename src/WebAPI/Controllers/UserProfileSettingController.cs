@@ -9,6 +9,9 @@ using Application.Features.UserProfileSettings.Queries.GetAll;
 using Application.Common.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using System.ComponentModel;
+using Application.Features.Users.Commands.Update;
+using Application.Features.Users.DTOs;
+using Application.Features.Users.Queries.GetById;
 
 namespace WebAPI.Controllers;
 
@@ -35,6 +38,37 @@ public class UserProfileSettingController : ApiControllerBase
     public async Task<Result<PaginatedData<UserProfileSettingsDto>>> PaginationQuery(UserProfileSettingsWithPaginationQuery query)
     {
         return await Mediator.Send(query);
+    }
+
+    /// <summary>
+    /// 获取个人信息
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("Info/Query")]
+    public async Task<Result<UserDto>> GetUserInfoQuery()
+    {
+        return await Mediator.Send(new GetUserByIdQuery { UserId = _currentUserService.CurrentUserId });
+    }
+
+    /// <summary>
+    /// 修改个人信息
+    /// </summary>
+    /// <returns></returns>
+    [HttpPut("Update/Info")]
+    public async Task<Result<long>> UpdateUserInfo(UpdateUserInfoCommand command)
+    {
+        return await Mediator.Send(command);
+    }
+
+
+    /// <summary>
+    /// 更改密码
+    /// </summary>
+    /// <returns></returns>
+    [HttpPut("Change/Password")]
+    public async Task<Result<bool>> ChangePassword(ChangePasswordCommand command)
+    {
+        return await Mediator.Send(command);
     }
 
     /// <summary>
