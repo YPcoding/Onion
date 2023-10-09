@@ -68,6 +68,11 @@ axios.interceptors.response.use(
 						router.replace({ path: '/login' })
 					}).catch(() => { })
 				}
+			} else if (error.response.status == 403) {
+				ElNotification.error({
+					title: '请求错误',
+					message: error.response.data.error
+				})
 			} else {
 				ElNotification.error({
 					title: '请求错误',

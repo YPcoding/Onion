@@ -93,12 +93,7 @@
 					return false
 				}
 				//获取菜单
-				var menu = null
-				if(this.form.user == 'admin'){
-					menu = await this.$API.system.menu.myMenus.get()
-				}else{
-					menu = await this.$API.demo.menu.get()
-				}
+				var menu = await this.$API.system.menu.myMenus.get()
 				if(menu.succeeded){
 					if(menu.data.menu.length == 0){
 						this.islogin = false
