@@ -22,9 +22,6 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<Logger> Loggers { get; set; }
     public DbSet<Role> Roles { get; set; }
     public DbSet<UserRole> UserRoles { get; set; }
-    public DbSet<Permission> Permissions { get; set; }
-    public DbSet<RolePermission> RolePermissions { get; set; }
-    public DbSet<TestTable> TestTables { get; set; }
     public DbSet<Notification> Notifications { get; set; }
     public DbSet<UserProfileSetting> UserProfileSettings { get; set; }
     public DbSet<Department> Departments { get; set; }

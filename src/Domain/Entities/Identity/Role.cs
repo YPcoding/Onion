@@ -1,11 +1,13 @@
-﻿namespace Domain.Entities
+﻿using Domain.Entities.Identity;
+
+namespace Domain.Entities
 {
     public class Role : BaseAuditableEntity, IAuditTrial
     {
         public Role()
         {
             UserRoles = new HashSet<UserRole>();
-            RolePermissions = new HashSet<RolePermission>();
+            RoleMenus = new HashSet<RoleMenu>();
         }
         public Role(string roleName,string description)
         {
@@ -39,6 +41,6 @@
         public string Description { get; set; } 
 
         public ICollection<UserRole> UserRoles { get; set; }
-        public ICollection<RolePermission> RolePermissions { get; set; }
+        public ICollection<RoleMenu> RoleMenus { get;}
     }
 }

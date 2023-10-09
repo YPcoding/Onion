@@ -13,9 +13,9 @@
 			</el-form-item>
 			<el-form-item label="性别">
 				<el-select v-model="form.genderType" placeholder="请选择">
-					<el-option label="保密" :value="0"></el-option>
-					<el-option label="男" :value="1"></el-option>
-					<el-option label="女" :value="2"></el-option>
+					<el-option label="保密" value="Secrecy"></el-option>
+					<el-option label="男" value="Male"></el-option>
+					<el-option label="女" value="Female"></el-option>
 				</el-select>
 			</el-form-item>
 			<el-form-item label="生日" prop="birthday">

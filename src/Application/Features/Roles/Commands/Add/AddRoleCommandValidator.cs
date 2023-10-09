@@ -57,24 +57,4 @@ public class AddRoleCommandValidator : AbstractValidator<AddRoleCommand>
 
         return false;
     }
-
-
-
-    /// <summary>
-    /// 校验权限是否存在
-    /// </summary>
-    /// <param name="permissionIds">权限唯一标识</param>
-    /// <param name="cancellationToken">取消标记</param>
-    /// <returns></returns>
-    private async Task<bool> BeExistPermissions(List<long>? permissionIds, CancellationToken cancellationToken)
-    {
-        if (permissionIds != null && permissionIds.Count > 0)
-        {
-            permissionIds = permissionIds.Distinct().ToList();
-            var permissions =await _context.Permissions.Where(x=> permissionIds.Contains(x.Id)).ToListAsync(cancellationToken);
-            return permissions?.Count == permissionIds.Count;
-        }
-
-        return true;
-    }
 }

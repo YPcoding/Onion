@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Migrators.MySql.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20231008015558_Init")]
+    [Migration("20231009110452_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -117,6 +117,9 @@ namespace Migrators.MySql.Migrations
                     b.Property<string>("Active")
                         .HasColumnType("longtext");
 
+                    b.Property<string>("Code")
+                        .HasColumnType("longtext");
+
                     b.Property<string>("Component")
                         .HasColumnType("longtext");
 
@@ -133,6 +136,9 @@ namespace Migrators.MySql.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("DeletedBy")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("HttpMethods")
                         .HasColumnType("longtext");
 
                     b.Property<DateTime?>("LastModified")
@@ -153,11 +159,37 @@ namespace Migrators.MySql.Migrations
                     b.Property<string>("Redirect")
                         .HasColumnType("longtext");
 
+                    b.Property<string>("Url")
+                        .HasColumnType("longtext");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ParentId");
 
                     b.ToTable("Menus");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Identity.RoleMenu", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .HasColumnType("longtext");
+
+                    b.Property<long>("MenuId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("RoleId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MenuId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("RoleMenus");
                 });
 
             modelBuilder.Entity("Domain.Entities.Identity.User", b =>
@@ -400,87 +432,6 @@ namespace Migrators.MySql.Migrations
                     b.ToTable("NotificationRecipient");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Permission", b =>
-                {
-                    b.Property<long>("Id")
-                        .HasColumnType("bigint");
-
-                    b.Property<bool?>("Closable")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<string>("Code")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime?>("Created")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("longtext");
-
-                    b.Property<bool?>("Enabled")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<bool?>("External")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<string>("Group")
-                        .HasColumnType("longtext");
-
-                    b.Property<bool?>("Hidden")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<string>("HttpMethods")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Icon")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Label")
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime?>("LastModified")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("longtext");
-
-                    b.Property<bool?>("NewWindow")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<bool?>("Opened")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<string>("Path")
-                        .HasColumnType("longtext");
-
-                    b.Property<int?>("Sort")
-                        .HasColumnType("int");
-
-                    b.Property<long?>("SuperiorId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Title")
-                        .HasColumnType("longtext");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SuperiorId");
-
-                    b.ToTable("Permissions");
-                });
-
             modelBuilder.Entity("Domain.Entities.Role", b =>
                 {
                     b.Property<long>("Id")
@@ -522,29 +473,6 @@ namespace Migrators.MySql.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
-                });
-
-            modelBuilder.Entity("Domain.Entities.RolePermission", b =>
-                {
-                    b.Property<long>("Id")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .HasColumnType("longtext");
-
-                    b.Property<long>("PermissionId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("RoleId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PermissionId");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("RolePermissions");
                 });
 
             modelBuilder.Entity("Domain.Entities.Settings.UserProfileSetting", b =>
@@ -591,54 +519,6 @@ namespace Migrators.MySql.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("UserProfileSettings");
-                });
-
-            modelBuilder.Entity("Domain.Entities.TestTable", b =>
-                {
-                    b.Property<long>("Id")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime?>("Created")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime>("DateTime")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<DateTime?>("Deleted")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("DeletedBy")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime?>("LastModified")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<bool>("Stuts")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("TestTables");
                 });
 
             modelBuilder.Entity("Domain.Entities.UserRole", b =>
@@ -734,6 +614,25 @@ namespace Migrators.MySql.Migrations
                     b.Navigation("Parent");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Identity.RoleMenu", b =>
+                {
+                    b.HasOne("Domain.Entities.Identity.Menu", "Menu")
+                        .WithMany("RoleMenus")
+                        .HasForeignKey("MenuId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Role", "Role")
+                        .WithMany("RoleMenus")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Menu");
+
+                    b.Navigation("Role");
+                });
+
             modelBuilder.Entity("Domain.Entities.Identity.User", b =>
                 {
                     b.HasOne("Domain.Entities.Departments.Department", "Department")
@@ -777,34 +676,6 @@ namespace Migrators.MySql.Migrations
                     b.Navigation("Recipient");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Permission", b =>
-                {
-                    b.HasOne("Domain.Entities.Permission", "Superior")
-                        .WithMany()
-                        .HasForeignKey("SuperiorId");
-
-                    b.Navigation("Superior");
-                });
-
-            modelBuilder.Entity("Domain.Entities.RolePermission", b =>
-                {
-                    b.HasOne("Domain.Entities.Permission", "Permission")
-                        .WithMany("RolePermissions")
-                        .HasForeignKey("PermissionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.Role", "Role")
-                        .WithMany("RolePermissions")
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Permission");
-
-                    b.Navigation("Role");
-                });
-
             modelBuilder.Entity("Domain.Entities.Settings.UserProfileSetting", b =>
                 {
                     b.HasOne("Domain.Entities.Identity.User", "User")
@@ -835,6 +706,11 @@ namespace Migrators.MySql.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Identity.Menu", b =>
+                {
+                    b.Navigation("RoleMenus");
+                });
+
             modelBuilder.Entity("Domain.Entities.Identity.User", b =>
                 {
                     b.Navigation("UserRoles");
@@ -845,14 +721,9 @@ namespace Migrators.MySql.Migrations
                     b.Navigation("Recipients");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Permission", b =>
-                {
-                    b.Navigation("RolePermissions");
-                });
-
             modelBuilder.Entity("Domain.Entities.Role", b =>
                 {
-                    b.Navigation("RolePermissions");
+                    b.Navigation("RoleMenus");
 
                     b.Navigation("UserRoles");
                 });

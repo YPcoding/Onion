@@ -40,8 +40,8 @@ namespace Infrastructure.Repositories
             return await _dbContext.Roles
                 .Include(ur => ur.UserRoles)
                 .ThenInclude(u => u.User)
-                .Include(rp => rp.RolePermissions)
-                .ThenInclude(r => r.Permission)
+                .Include(rp => rp.RoleMenus)
+                .ThenInclude(r => r.Menu)
                 .Where(condition).ToListAsync();
         }
     }

@@ -54,13 +54,13 @@ public class DeleteRoleCommandHandler : IRequestHandler<DeleteRoleCommand, Resul
             var roleIdsToDelete = rolesToDelete.Select(r => r.Id).ToList();
 
             // 移除角色权限
-            var rolePermissionsToDelete = await _context.RolePermissions
+            var roleMenusToDelete = await _context.RoleMenus
                 .Where(x => roleIdsToDelete.Contains(x.RoleId))
                 .ToListAsync(cancellationToken);
 
-            if (rolePermissionsToDelete.Any())
+            if (roleMenusToDelete.Any())
             {
-                _context.RolePermissions.RemoveRange(rolePermissionsToDelete);
+                _context.RoleMenus.RemoveRange(roleMenusToDelete);
             }
 
             // 移除用户角色

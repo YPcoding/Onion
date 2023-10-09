@@ -15,9 +15,6 @@ public  interface IApplicationDbContext
     DbSet<Logger> Loggers { get; set; }
     DbSet<Role> Roles { get; }
     DbSet<UserRole> UserRoles { get; }
-    DbSet<Permission> Permissions { get; }
-    DbSet<RolePermission> RolePermissions { get; }
-    DbSet<TestTable> TestTables { get; }
     DbSet<Notification> Notifications { get; }
     DbSet<UserProfileSetting> UserProfileSettings { get; }
     DbSet<Department> Departments { get; }
