@@ -7,6 +7,7 @@ namespace Application.Features.Notifications.Commands.Add;
 /// 添加通知
 /// </summary>
 [Map(typeof(Notification))]
+[Description("新增通知")]
 public class AddNotificationCommand : IRequest<Result<long>>
 {
     /// <summary>

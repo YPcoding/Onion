@@ -8,6 +8,7 @@ namespace Application.Features.Departments.Queries.Pagination;
 /// <summary>
 /// 分页查询
 /// </summary>
+[Description("分页查询部门数据")]
 public class DepartmentsWithPaginationQuery : DepartmentAdvancedFilter, IRequest<Result<PaginatedData<DepartmentDto>>>
 {
     [JsonIgnore]

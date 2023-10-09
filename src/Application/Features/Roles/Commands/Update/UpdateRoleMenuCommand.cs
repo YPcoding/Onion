@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Application.Features.Roles.Commands.Update;
 
+[Description("修改角色菜单数据")]
 public class UpdateRoleMenuCommand : ICacheInvalidatorRequest<Result<bool>>
 {
     /// <summary>

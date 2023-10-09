@@ -9,6 +9,7 @@ namespace Application.Features.Menus.Queries.Pagination;
 /// <summary>
 /// 菜单管理分页查询
 /// </summary>
+[Description("分页查询菜单数据")]
 public class MenusWithPaginationQuery : MenuAdvancedFilter, IRequest<Result<PaginatedData<MenuDto>>>
 {
     [JsonIgnore]

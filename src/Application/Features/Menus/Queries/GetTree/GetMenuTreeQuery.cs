@@ -3,7 +3,7 @@ using Domain.Services;
 
 namespace Application.Features.Menus.Queries.GetTree;
 
-
+[Description("查询菜单树数据")]
 public class GetMenuTreeQuery : IRequest<Result<IEnumerable<MenuDto>>>
 {
 }

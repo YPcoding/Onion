@@ -4,6 +4,7 @@ using AutoMapper.QueryableExtensions;
 
 namespace Application.Features.Roles.Queries.GetAll;
 
+[Description("获取所有角色数据")]
 public class GetAllRolesQuery : ICacheableRequest<Result<IEnumerable<RoleDto>>>
 {
     [JsonIgnore]

@@ -6,6 +6,7 @@ namespace Application.Features.UserProfileSettings.Commands.Add;
 /// 添加个人设置
 /// </summary>
 [Map(typeof(UserProfileSetting))]
+[Description("新增个人设置")]
 public class AddUserProfileSettingsCommand : IRequest<Result<long>>
 {        
         /// <summary>

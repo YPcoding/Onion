@@ -7,6 +7,7 @@ namespace Application.Features.Users.Commands.Update;
 /// 修改个人信息
 /// </summary>
 [Map(typeof(User))]
+[Description("修改个人信息")]
 public class UpdateUserInfoCommand : ICacheInvalidatorRequest<Result<long>>
 {
     /// <summary>

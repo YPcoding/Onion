@@ -10,6 +10,7 @@ namespace Application.Features.Loggers.Commands.Add;
 /// 添加日志
 /// </summary>
 [Map(typeof(Logger))]
+[Description("添加日志")]
 public class AddLoggerCommand : IRequest<Result<long>>
 {
         

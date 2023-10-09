@@ -7,6 +7,7 @@ namespace Application.Features.Users.Commands.Update;
 /// 解锁或锁定用户
 /// </summary>
 [Map(typeof(User))]
+[Description("解锁或锁定用户")]
 public class IsUnLockUserCommand : ICacheInvalidatorRequest<Result<bool>>
 {
     /// <summary>

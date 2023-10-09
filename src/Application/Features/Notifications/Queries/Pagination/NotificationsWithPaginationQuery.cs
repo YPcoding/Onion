@@ -9,6 +9,7 @@ namespace Application.Features.Notifications.Queries.Pagination;
 /// <summary>
 /// 通知分页查询
 /// </summary>
+[Description("分页查询通知数据")]
 public class NotificationsWithPaginationQuery : NotificationAdvancedFilter, IRequest<Result<PaginatedData<NotificationDto>>>
 {
     [JsonIgnore]

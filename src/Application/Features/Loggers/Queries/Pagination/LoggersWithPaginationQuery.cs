@@ -9,6 +9,7 @@ namespace Application.Features.Loggers.Queries.Pagination;
 /// <summary>
 /// 日志分页查询
 /// </summary>
+[Description("分页查询日志数据")]
 public class LoggersWithPaginationQuery : LoggerAdvancedFilter, IRequest<Result<PaginatedData<LoggerDto>>>
 {
     [JsonIgnore]

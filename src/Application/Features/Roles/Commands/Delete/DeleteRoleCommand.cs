@@ -8,6 +8,7 @@ namespace Application.Features.Roles.Commands.Delete;
 /// <summary>
 /// 删除角色
 /// </summary>
+[Description("删除角色")]
 public class DeleteRoleCommand : ICacheInvalidatorRequest<Result<bool>>
 {
     /// <summary>

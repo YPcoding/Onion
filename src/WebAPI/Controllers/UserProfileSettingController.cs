@@ -31,14 +31,14 @@ public class UserProfileSettingController : ApiControllerBase
     }
 
     /// <summary>
-    /// 操作日志
+    /// 个人操作日志
     /// </summary>
     /// <returns></returns>
     [HttpPost("Log/PaginationQuery")]
 
     public async Task<Result<PaginatedData<LoggerDto>>> LogPaginationQuery(LoggersWithPaginationQuery query)
     {
-        query.Template = "{ID},{LoggerName},{RequestPath},{RequestName},{RequestMethod},{UserName},{ClientIP},{ResponseStatusCode},{LoggerTime},{ElapsedMilliseconds}";
+        query.Template = "{ID},{LoggerName},{RequestPath},{RequestName},{RequestMethod},{UserName},{ClientIP},{ResponseStatusCode},{Message},{LoggerTime},{ElapsedMilliseconds}";
         query.Message = _currentUserService.UserName;
         return await Mediator.Send(query);
     }

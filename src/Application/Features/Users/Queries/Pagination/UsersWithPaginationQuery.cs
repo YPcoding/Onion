@@ -9,6 +9,7 @@ namespace Application.Features.Users.Queries.Pagination;
 /// <summary>
 /// 用户分页查询
 /// </summary>
+[Description("分页查询用户数据")]
 public class UsersWithPaginationQuery : UserAdvancedFilter, ICacheableRequest<Result<PaginatedData<UserDto>>>
 {
     public override string ToString()

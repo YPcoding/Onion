@@ -10,6 +10,7 @@ namespace Application.Features.Notifications.Commands.Update;
 /// 修改通知
 /// </summary>
 [Map(typeof(Notification))]
+[Description("修改通知")]
 public class UpdateNotificationCommand : IRequest<Result<long>>
 {
 

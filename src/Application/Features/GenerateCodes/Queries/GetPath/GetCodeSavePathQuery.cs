@@ -6,6 +6,7 @@ namespace Application.Features.GenerateCodes.Queries.GetPath;
 /// <summary>
 /// 查询代码存放路径
 /// </summary>
+[Description("查询代码存放路径")]
 public class GetCodeSavePathQuery : IRequest<Result<GenerateCodeDto>>
 {
 }

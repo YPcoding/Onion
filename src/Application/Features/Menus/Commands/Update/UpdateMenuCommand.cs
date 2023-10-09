@@ -7,6 +7,7 @@ namespace Application.Features.Menus.Commands.Update;
 /// 修改菜单管理
 /// </summary>
 [Map(typeof(Menu))]
+[Description("修改菜单")]
 public class UpdateMenuCommand : IRequest<Result<long>>
 {
 

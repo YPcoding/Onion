@@ -11,6 +11,7 @@ namespace Application.Features.UserProfileSettings.Queries.GetById;
 /// <summary>
 /// 通过唯一标识获取一条数据
 /// </summary>
+[Description("查询单条个人设置")]
 public class GetUserProfileSettingsQueryById : IRequest<Result<UserProfileSettingsDto>>
 {
     /// <summary>

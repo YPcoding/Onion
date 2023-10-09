@@ -11,6 +11,7 @@ namespace Application.Features.Loggers.Queries.GetById;
 /// <summary>
 /// 通过唯一标识获取一条数据
 /// </summary>
+[Description("查询单条日志数据")]
 public class GetLoggerQueryById : IRequest<Result<LoggerDto>>
 {
     /// <summary>

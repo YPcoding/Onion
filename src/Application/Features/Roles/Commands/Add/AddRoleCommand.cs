@@ -8,6 +8,7 @@ namespace Application.Features.Roles.Commands.Add;
 /// 添加角色
 /// </summary>
 [Map(typeof(Role))]
+[Description("新增角色")]
 public class AddRoleCommand : ICacheInvalidatorRequest<Result<long>>
 {
     /// <summary>

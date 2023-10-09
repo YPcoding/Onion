@@ -3,6 +3,7 @@ using Domain.Services;
 
 namespace Application.Features.Menus.Queries.GetByUserId;
 
+[Description("查询用户菜单数据")]
 public class GetMenusQueryByUserId : IRequest<Result<UserMenuDto>>
 {
     public long UserId { get; set; }

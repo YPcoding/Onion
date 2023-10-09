@@ -4,6 +4,7 @@ using AutoMapper.QueryableExtensions;
 
 namespace Application.Features.UserProfileSettings.Queries.GetAll;
 
+[Description("查询所有个人设置")]
 public class GetAllUserProfileSettingsQuery : ICacheableRequest<Result<IEnumerable<UserProfileSettingsDto>>>
 {
     [JsonIgnore]
@@ -12,6 +13,7 @@ public class GetAllUserProfileSettingsQuery : ICacheableRequest<Result<IEnumerab
     public MemoryCacheEntryOptions? Options => UserProfileSettingCacheKey.MemoryCacheEntryOptions;
 }
 
+[Description("查询个人设置")]
 public class GetUserProfileSettingsQueryByUserId : ICacheableRequest<Result<IEnumerable<UserProfileSettingsDto>>>
 {
     public required long UserId { get; set; }

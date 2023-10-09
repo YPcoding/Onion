@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Application.Features.Auth.Commands;
+using Microsoft.AspNetCore.Http;
 using System.Diagnostics;
 
 namespace Application.Common.Behaviours;
@@ -54,7 +55,8 @@ public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
 
         var httpContext = _httpContextAccessor.HttpContext;
         var id = _snowFlakeService.GenerateId();
-        var loggerName = typeof(TRequest).Name;
+        var loggerName = typeof(TRequest).GetDescription();
+
         var requestPath = httpContext?.Request.Path!;
         var requestName = typeof(TRequest).Name;
         var requestMethod = httpContext?.Request.Method!;
@@ -63,16 +65,34 @@ public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
         var statusCode = httpContext?.Response.StatusCode;
         var loggerTime = DateTime.Now.ToString("G");
         var elapsedMilliseconds = _timer.ElapsedMilliseconds;
+        var message = "";
+        var succeeded = true;
+
+        if (response is Result result)
+        {
+            message = result.Message;
+            succeeded = result.Succeeded;
+        }
+        if (userName == "匿名"&& request is LoginByUserNameAndPasswordCommand command)
+        {
+            userName = command.UserName;
+        }
 
         if (elapsedMilliseconds > 500)
         {
-            _logger.LogWarning("{ID},{LoggerName},{RequestPath},{RequestName},{RequestMethod},{UserName},{ClientIP},{ResponseStatusCode},{LoggerTime},{ElapsedMilliseconds}",
-                                id, loggerName, requestPath, requestName, requestMethod, userName, clientIP, statusCode, loggerTime, elapsedMilliseconds);
+            message = $"{message},请求时间过长";
+            _logger.LogWarning("{ID},{LoggerName},{RequestPath},{RequestName},{RequestMethod},{UserName},{ClientIP},{ResponseStatusCode},{Message},{LoggerTime},{ElapsedMilliseconds}",
+                                id, loggerName, requestPath, requestName, requestMethod, userName, clientIP, statusCode, message, loggerTime, elapsedMilliseconds);
+        }
+        if (succeeded)
+        {
+            _logger.LogInformation("{ID},{LoggerName},{RequestPath},{RequestName},{RequestMethod},{UserName},{ClientIP},{ResponseStatusCode},{Message},{LoggerTime},{ElapsedMilliseconds}",
+                                id, loggerName, requestPath, requestName, requestMethod, userName, clientIP, statusCode, message, loggerTime, elapsedMilliseconds);
         }
         else 
         {
-            _logger.LogInformation("{ID},{LoggerName},{RequestPath},{RequestName},{RequestMethod},{UserName},{ClientIP},{ResponseStatusCode},{LoggerTime},{ElapsedMilliseconds}",
-                                id, loggerName, requestPath, requestName, requestMethod, userName, clientIP, statusCode, loggerTime, elapsedMilliseconds);
+            _logger.LogError("{ID},{LoggerName},{RequestPath},{RequestName},{RequestMethod},{UserName},{ClientIP},{ResponseStatusCode},{Message},{LoggerTime},{ElapsedMilliseconds}",
+                                id, loggerName, requestPath, requestName, requestMethod, userName, clientIP, statusCode,message, loggerTime, elapsedMilliseconds);
         }   
 
         return response;

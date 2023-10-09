@@ -1,10 +1,9 @@
-﻿using Application.Features.Menus.Caching;
-using Application.Features.Menus.DTOs;
-using Domain.Entities.Identity;
+﻿using Application.Features.Menus.DTOs;
 using AutoMapper.QueryableExtensions;
 
 namespace Application.Features.Menus.Queries.GetAll;
 
+[Description("获取所有菜单数据")]
 public class GetAllMenusQuery : IRequest<Result<IEnumerable<MenuDto>>>
 {
 }

@@ -10,6 +10,7 @@ namespace Application.Features.Roles.Queries.GetById;
 /// <summary>
 /// 通过角色唯一标识获取一条数据
 /// </summary>
+[Description("获取单条角色数据")]
 public class GetRoleQueryById : ICacheableRequest<Result<RoleDto>>
 {
     /// <summary>

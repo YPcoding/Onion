@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
+using System.ComponentModel;
 using System.Text;
 
 namespace WebAPI.Controllers
@@ -17,6 +18,7 @@ namespace WebAPI.Controllers
     /// <summary>
     /// 授权管理
     /// </summary>
+    [Description("授权")]
     public class AuthController : ApiControllerBase
     {
         private readonly ITokenService _tokenService;

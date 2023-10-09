@@ -6,6 +6,7 @@ using static Common.CodeGenPro.GenrateCodeHelper;
 namespace Application.Features.GenerateCodes.Commands.Backend;
 
 [Map(typeof(GenerateCodeParam))]
+[Description("生成后端代码")]
 public class GenerateBackendCodeCommand : IRequest<Result<IEnumerable<string>>>
 {
     /// <summary>

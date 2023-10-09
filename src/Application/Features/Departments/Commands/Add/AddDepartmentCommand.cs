@@ -10,6 +10,7 @@ namespace Application.Features.Departments.Commands.Add;
 /// 添加
 /// </summary>
 [Map(typeof(Department))]
+[Description("新增部门")]
 public class AddDepartmentCommand : IRequest<Result<long>>
 {
     /// <summary>

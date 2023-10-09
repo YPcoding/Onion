@@ -9,6 +9,7 @@ namespace Application.Features.UserProfileSettings.Queries.Pagination;
 /// <summary>
 /// 个人设置分页查询
 /// </summary>
+[Description("分页查询个人设置")]
 public class UserProfileSettingsWithPaginationQuery : UserProfileSettingsAdvancedFilter, IRequest<Result<PaginatedData<UserProfileSettingsDto>>>
 {
     [JsonIgnore]

@@ -7,6 +7,7 @@ namespace Application.Features.Loggers.Commands.Delete;
 /// <summary>
 /// 删除日志
 /// </summary>
+[Description("删除日志")]
 public class DeleteLoggerCommand : IRequest<Result<bool>>
 {
   

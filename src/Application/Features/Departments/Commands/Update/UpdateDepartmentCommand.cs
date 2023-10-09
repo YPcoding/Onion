@@ -8,6 +8,7 @@ namespace Application.Features.Departments.Commands.Update;
 /// 修改
 /// </summary>
 [Map(typeof(Department))]
+[Description("修改部门")]
 public class UpdateDepartmentCommand : IRequest<Result<long>>
 {
     /// <summary>

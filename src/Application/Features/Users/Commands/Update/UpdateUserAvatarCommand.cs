@@ -8,6 +8,7 @@ namespace Application.Features.Users.Commands.Update;
 /// 修改用户
 /// </summary>
 [Map(typeof(User))]
+[Description("修改头像")]
 public class UpdateUserAvatarCommand : ICacheInvalidatorRequest<Result<long>>
 {
     /// <summary>

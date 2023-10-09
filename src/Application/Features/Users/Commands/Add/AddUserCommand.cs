@@ -10,6 +10,7 @@ namespace Application.Features.Users.Commands.Add;
 /// 添加用户
 /// </summary>
 [Map(typeof(User))]
+[Description("新增用户")]
 public class AddUserCommand : ICacheInvalidatorRequest<Result<long>>
 {
     /// <summary>

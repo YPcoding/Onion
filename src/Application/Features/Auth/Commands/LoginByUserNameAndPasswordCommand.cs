@@ -12,6 +12,7 @@ namespace Application.Features.Auth.Commands;
 /// <summary>
 /// 通过用户名和密码登录
 /// </summary>
+[Description("登录系统")]
 public class LoginByUserNameAndPasswordCommand : ICacheInvalidatorRequest<Result<LoginResultDto>>
 {
     /// <summary>

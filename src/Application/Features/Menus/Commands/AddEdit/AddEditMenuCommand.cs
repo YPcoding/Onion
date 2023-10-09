@@ -7,6 +7,7 @@ namespace Application.Features.Menus.Commands.AddEdit;
 /// 保存菜单管理
 /// </summary>
 [Map(typeof(Menu))]
+[Description("保存菜单")]
 public class AddEditMenuCommand : IRequest<Result<long>>
 {
     /// <summary>

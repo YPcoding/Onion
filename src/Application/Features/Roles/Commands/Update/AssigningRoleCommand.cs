@@ -7,6 +7,7 @@ namespace Application.Features.Roles.Commands.Update;
 /// <summary>
 /// 分配角色
 /// </summary>
+[Description("分配角色")]
 public class AssigningRoleCommand : ICacheInvalidatorRequest<Result<bool>>
 {
     /// <summary>

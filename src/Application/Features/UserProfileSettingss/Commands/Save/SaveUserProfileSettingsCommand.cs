@@ -6,9 +6,10 @@ using System.ComponentModel.DataAnnotations;
 namespace Application.Features.UserProfileSettings.Commands.Save;
 
 /// <summary>
-/// 添加个人设置
+/// 保存个人设置
 /// </summary>
 [Map(typeof(UserProfileSetting))]
+[Description("保存个人设置")]
 public class SaveUserProfileSettingsCommand : ICacheInvalidatorRequest<Result<bool>>
 {
     /// <summary>

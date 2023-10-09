@@ -3,6 +3,7 @@ using AutoMapper.QueryableExtensions;
 
 namespace Application.Features.Departments.Queries.GetAll;
 
+[Description("获取所有部门")]
 public class GetAllDepartmentsQuery : IRequest<Result<IEnumerable<DepartmentDto>>>
 {
     /// <summary>

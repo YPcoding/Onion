@@ -7,6 +7,7 @@ using Domain.Entities;
 
 namespace Application.Features.Roles.Queries.Pagination;
 
+[Description("分页查询角色数据")]
 public class RolesWithPaginationQuery : RoleAdvancedFilter, ICacheableRequest<Result<PaginatedData<RoleDto>>>
 {
     public override string ToString()

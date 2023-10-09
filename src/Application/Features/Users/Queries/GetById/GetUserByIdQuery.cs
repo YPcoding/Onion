@@ -11,6 +11,7 @@ namespace Application.Features.Users.Queries.GetById;
 /// <summary>
 /// 通过用户唯一标识获取一条数据
 /// </summary>
+[Description("查询单条用户数据")]
 public class GetUserByIdQuery : ICacheableRequest<Result<UserDto>>
 {
     /// <summary>

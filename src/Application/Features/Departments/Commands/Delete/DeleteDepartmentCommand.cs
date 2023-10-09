@@ -3,6 +3,7 @@
 /// <summary>
 /// 删除
 /// </summary>
+[Description("删除部门")]
 public class DeleteDepartmentCommand : IRequest<Result<bool>>
 {
   

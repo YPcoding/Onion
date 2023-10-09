@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Application.Features.Roles.Queries.GetMenusById;
 
+[Description("通过唯一标识角色数据")]
 public class GetRoleMenuQueryById : ICacheableRequest<Result<IEnumerable<RoleMenuDto>>>
 {
     /// <summary>

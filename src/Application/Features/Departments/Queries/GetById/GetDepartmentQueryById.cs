@@ -11,6 +11,7 @@ namespace Application.Features.Departments.Queries.GetById;
 /// <summary>
 /// 通过唯一标识获取一条数据
 /// </summary>
+[Description("查询单条部门数据")]
 public class GetDepartmentQueryById : IRequest<Result<DepartmentDto>>
 {
     /// <summary>

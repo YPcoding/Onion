@@ -7,6 +7,7 @@ namespace Application.Features.Users.Commands.Update;
 /// 重置密码
 /// </summary>
 [Map(typeof(User))]
+[Description("重置密码")]
 public class ResetPasswordCommand : ICacheInvalidatorRequest<Result<bool>>
 {
     /// <summary>

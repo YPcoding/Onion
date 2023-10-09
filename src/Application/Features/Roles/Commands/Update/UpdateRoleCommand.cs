@@ -9,6 +9,7 @@ namespace Application.Features.Roles.Commands.Update;
 /// 修改角色
 /// </summary>
 [Map(typeof(Role))]
+[Description("修改角色")]
 public class UpdateRoleCommand : ICacheInvalidatorRequest<Result<long>>
 {
     /// <summary>

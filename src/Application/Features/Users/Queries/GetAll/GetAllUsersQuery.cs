@@ -4,6 +4,7 @@ using AutoMapper.QueryableExtensions;
 
 namespace Application.Features.Users.Queries.GetAll;
 
+[Description("查询所有用户数据")]
 public class GetAllUsersQuery : ICacheableRequest<Result<IEnumerable<UserDto>>>
 {
     [JsonIgnore]

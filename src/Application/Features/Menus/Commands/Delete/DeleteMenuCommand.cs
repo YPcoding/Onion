@@ -3,6 +3,7 @@
 /// <summary>
 /// 删除菜单管理
 /// </summary>
+[Description("删除菜单")]
 public class DeleteMenuCommand : IRequest<Result<bool>>
 {
     /// <summary>

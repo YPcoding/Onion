@@ -5,6 +5,8 @@ using AutoMapper.QueryableExtensions;
 
 namespace Application.Features.Notifications.Queries.GetAll;
 
+
+[Description("查询所有通知")]
 public class GetAllNotificationsQuery : IRequest<Result<IEnumerable<NotificationDto>>>
 {
 }

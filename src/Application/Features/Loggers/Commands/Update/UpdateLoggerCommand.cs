@@ -10,6 +10,7 @@ namespace Application.Features.Loggers.Commands.Update;
 /// 修改日志
 /// </summary>
 [Map(typeof(Logger))]
+[Description("修改日志")]
 public class UpdateLoggerCommand : IRequest<Result<long>>
 {
 

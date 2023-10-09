@@ -7,6 +7,7 @@ namespace Application.Features.Notifications.Commands.Delete;
 /// <summary>
 /// 删除通知
 /// </summary>
+[Description("删除通知")]
 public class DeleteNotificationCommand : IRequest<Result<bool>>
 {
   

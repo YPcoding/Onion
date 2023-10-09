@@ -7,6 +7,7 @@ namespace Application.Features.UserProfileSettings.Commands.Delete;
 /// <summary>
 /// 删除个人设置
 /// </summary>
+[Description("删除个人设置")]
 public class DeleteUserProfileSettingsCommand : IRequest<Result<bool>>
 {
   

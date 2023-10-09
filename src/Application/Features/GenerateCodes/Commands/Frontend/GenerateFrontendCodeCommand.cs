@@ -6,6 +6,7 @@ using static Common.CodeGenPro.GenrateCodeHelper;
 namespace Application.Features.GenerateCodes.Commands.Frontend;
 
 [Map(typeof(GenerateCodeParam))]
+[Description("生成前端代码")]
 public class GenerateFrontendCodeCommand : IRequest<Result<IEnumerable<string>>>
 {
     /// <summary>

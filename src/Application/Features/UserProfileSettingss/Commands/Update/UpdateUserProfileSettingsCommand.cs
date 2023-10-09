@@ -10,6 +10,7 @@ namespace Application.Features.UserProfileSettings.Commands.Update;
 /// 修改个人设置
 /// </summary>
 [Map(typeof(UserProfileSetting))]
+[Description("修改个人设置")]
 public class UpdateUserProfileSettingsCommand : IRequest<Result<long>>
 {
 

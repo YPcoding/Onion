@@ -11,6 +11,7 @@ namespace Application.Features.Menus.Queries.GetById;
 /// <summary>
 /// 通过唯一标识获取一条数据
 /// </summary>
+[Description("通过唯一标识查询单条菜单数据")]
 public class GetMenuQueryById : IRequest<Result<MenuDto>>
 {
     /// <summary>

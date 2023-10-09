@@ -7,6 +7,7 @@ namespace Application.Features.Users.Commands.Update;
 /// 更改密码
 /// </summary>
 [Map(typeof(User))]
+[Description("更改密码")]
 public class ChangePasswordCommand : ICacheInvalidatorRequest<Result<bool>>
 {
     /// <summary>

@@ -8,6 +8,7 @@ namespace Application.Features.Roles.Commands.Update;
 /// 更改是否激活
 /// </summary>
 [Map(typeof(Role))]
+[Description("激活或禁用角色")]
 public class UpdatedRoleIsActiveCommand : ICacheInvalidatorRequest<Result<bool>>
 {
     /// <summary>

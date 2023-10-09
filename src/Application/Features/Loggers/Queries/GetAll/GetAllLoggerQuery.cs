@@ -5,6 +5,7 @@ using AutoMapper.QueryableExtensions;
 
 namespace Application.Features.Loggers.Queries.GetAll;
 
+[Description("获取所有日志")]
 public class GetAllLoggersQuery : IRequest<Result<IEnumerable<LoggerDto>>>
 {
 }
