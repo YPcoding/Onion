@@ -3,7 +3,6 @@ using Application.Features.Users.Caching;
 using Application.Features.Users.DTOs;
 using Application.Features.Users.Specifications;
 using AutoMapper.QueryableExtensions;
-using Domain.Entities.Identity;
 using Domain.Repositories;
 using System.ComponentModel.DataAnnotations;
 

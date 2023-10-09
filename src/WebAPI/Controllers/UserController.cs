@@ -38,17 +38,6 @@ public class UserController : ApiControllerBase
         return await Mediator.Send(query);
     }
 
-    /// <summary>
-    /// 单个查询
-    /// </summary>
-    /// <param name="userId">用户唯一标识</param>
-    /// <returns></returns>
-    [HttpGet("Query/{userId}")]
-
-    public async Task<Result<UserDto>> GetByIdQuery(long userId)
-    {
-        return await Mediator.Send(new GetUserByIdQuery { UserId = userId });
-    }
 
     /// <summary>
     /// 获取个人信息

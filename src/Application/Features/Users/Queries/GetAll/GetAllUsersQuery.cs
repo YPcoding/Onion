@@ -12,17 +12,8 @@ public class GetAllUsersQuery : ICacheableRequest<Result<IEnumerable<UserDto>>>
     public MemoryCacheEntryOptions? Options => UserCacheKey.MemoryCacheEntryOptions;
 }
 
-public class GetUserQuery : ICacheableRequest<Result<UserDto>>
-{
-    public required long UserId { get; set; }
 
-    [JsonIgnore]
-    public string CacheKey => UserCacheKey.GetByIdCacheKey(UserId);
-    [JsonIgnore]
-    public MemoryCacheEntryOptions? Options => UserCacheKey.MemoryCacheEntryOptions;
-}
-
-public class GetAllUsersQueryHandler :IRequestHandler<GetAllUsersQuery, Result<IEnumerable<UserDto>>>, IRequestHandler<GetUserQuery, Result<UserDto>>
+public class GetAllUsersQueryHandler :IRequestHandler<GetAllUsersQuery, Result<IEnumerable<UserDto>>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
@@ -42,13 +33,5 @@ public class GetAllUsersQueryHandler :IRequestHandler<GetAllUsersQuery, Result<I
             .ProjectTo<UserDto>(_mapper.ConfigurationProvider)
             .ToListAsync(cancellationToken);
         return await Result<IEnumerable<UserDto>>.SuccessAsync(data);
-    }
-
-    public async Task<Result<UserDto>> Handle(GetUserQuery request, CancellationToken cancellationToken)
-    {
-        var data = await _context.Users.Where(x => x.Id == request.UserId)
-            .ProjectTo<UserDto>(_mapper.ConfigurationProvider)
-            .FirstOrDefaultAsync(cancellationToken) ?? throw new NotFoundException($"角色唯一标识: {request.UserId} 未找到。");
-        return await Result<UserDto>.SuccessAsync(data);
     }
 }

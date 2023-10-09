@@ -166,7 +166,7 @@ export default {
 			}
 		},
 		updateInfo: {
-			url: `${config.API_URL}/User/Info`,
+			url: `${config.API_URL}/User/Update/Info`,
 			name: "修改个人信息",
 			put: async function (params) {
 				return await http.put(this.url, params)
