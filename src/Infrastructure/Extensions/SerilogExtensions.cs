@@ -134,24 +134,24 @@ public static class SerilogExtensions
     {
         if (string.IsNullOrEmpty(connectionString)) return;
 
-        const string tableName = "Loggers";
-        //已用列（键是列名）
-        //列类型是写入程序的构造函数参数
+        const string tableName = "PgLoggers";
+        //Used columns (Key is a column name) 
+        //Column type is writer's constructor parameter
         IDictionary<string, ColumnWriterBase> columnOptions = new Dictionary<string, ColumnWriterBase>
         {
             { "Message", new RenderedMessageColumnWriter(NpgsqlDbType.Text) },
-            { "MessageTemplate", new MessageTemplateColumnWriter(NpgsqlDbType.Text) },
+            { "Template", new MessageTemplateColumnWriter(NpgsqlDbType.Text) },
             { "Level", new LevelColumnWriter(true, NpgsqlDbType.Varchar) },
             { "TimeStamp", new TimestampColumnWriter(NpgsqlDbType.Timestamp) },
             { "Exception", new ExceptionColumnWriter(NpgsqlDbType.Text) },
-            { "Properties", new PropertiesColumnWriter(NpgsqlDbType.Varchar) },
-            { "LogEvent", new LogEventSerializedColumnWriter(NpgsqlDbType.Varchar) },
-            { "UserName", new SinglePropertyColumnWriter("UserName", PropertyWriteMethod.Raw, NpgsqlDbType.Varchar) },
-            { "ClientIP", new SinglePropertyColumnWriter("ClientIp", PropertyWriteMethod.Raw, NpgsqlDbType.Varchar) },
-            {
-                "ClientAgent",
-                new SinglePropertyColumnWriter("ClientAgent", PropertyWriteMethod.ToString, NpgsqlDbType.Varchar)
-            }
+            { "Properties", new PropertiesColumnWriter(NpgsqlDbType.Varchar) }
+            //{ "LogEvent", new LogEventSerializedColumnWriter(NpgsqlDbType.Varchar) },
+            //{ "UserName", new SinglePropertyColumnWriter("UserName", PropertyWriteMethod.Raw, NpgsqlDbType.Varchar) },
+            //{ "ClientIP", new SinglePropertyColumnWriter("ClientIp", PropertyWriteMethod.Raw, NpgsqlDbType.Varchar) },
+            //{
+            //    "ClientAgent",
+            //    new SinglePropertyColumnWriter("ClientAgent", PropertyWriteMethod.ToString, NpgsqlDbType.Varchar)
+            //}
         };
         serilogConfig.WriteTo.Async(wt => wt.PostgreSQL(
             connectionString,

@@ -13,6 +13,7 @@ public  interface IApplicationDbContext
     DbSet<User> Users { get; set; }
     DbSet<AuditTrail> AuditTrails { get; set; }
     DbSet<Logger> Loggers { get; set; }
+    DbSet<PgLogger> PgLoggers { get; set; }
     DbSet<Role> Roles { get; }
     DbSet<UserRole> UserRoles { get; }
     DbSet<Notification> Notifications { get; }
@@ -20,6 +21,7 @@ public  interface IApplicationDbContext
     DbSet<Department> Departments { get; }
     DbSet<Menu> Menus { get; }
     DbSet<RoleMenu> RoleMenus { get; }
+
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     DatabaseFacade Database { get; }

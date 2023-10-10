@@ -63,13 +63,10 @@ namespace Migrators.PostgreSQL.Migrations
                     b.ToTable("AuditTrails");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Identity.User", b =>
+            modelBuilder.Entity("Domain.Entities.Departments.Department", b =>
                 {
                     b.Property<long>("Id")
                         .HasColumnType("bigint");
-
-                    b.Property<int>("AccessFailedCount")
-                        .HasColumnType("integer");
 
                     b.Property<string>("ConcurrencyStamp")
                         .HasColumnType("text");
@@ -86,6 +83,146 @@ namespace Migrators.PostgreSQL.Migrations
                     b.Property<string>("DeletedBy")
                         .HasColumnType("text");
 
+                    b.Property<string>("DepartmentName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<bool?>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Sort")
+                        .HasColumnType("integer");
+
+                    b.Property<long?>("SuperiorId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SuperiorId");
+
+                    b.ToTable("Departments");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Identity.Menu", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Active")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Code")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Component")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("Created")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("Deleted")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("HttpMethods")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.Property<long?>("ParentId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Path")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Redirect")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Url")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParentId");
+
+                    b.ToTable("Menus");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Identity.RoleMenu", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .HasColumnType("text");
+
+                    b.Property<long>("MenuId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("RoleId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MenuId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("RoleMenus");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Identity.User", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("Birthday")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("Created")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("Deleted")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("text");
+
+                    b.Property<long?>("DepartmentId")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Email")
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
@@ -94,10 +231,16 @@ namespace Migrators.PostgreSQL.Migrations
                         .HasMaxLength(1)
                         .HasColumnType("boolean");
 
+                    b.Property<int>("GenderType")
+                        .HasColumnType("integer");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsLive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool?>("IsSystemAccount")
                         .HasColumnType("boolean");
 
                     b.Property<DateTime?>("LastModified")
@@ -112,6 +255,9 @@ namespace Migrators.PostgreSQL.Migrations
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Nickname")
+                        .HasColumnType("text");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(50)
@@ -136,9 +282,15 @@ namespace Migrators.PostgreSQL.Migrations
                     b.Property<string>("ProfilePictureDataUrl")
                         .HasColumnType("text");
 
+                    b.Property<string>("Realname")
+                        .HasColumnType("text");
+
                     b.Property<string>("SecurityStamp")
                         .HasMaxLength(36)
                         .HasColumnType("character varying(36)");
+
+                    b.Property<string>("Signature")
+                        .HasColumnType("text");
 
                     b.Property<long?>("SuperiorId")
                         .HasColumnType("bigint");
@@ -154,24 +306,56 @@ namespace Migrators.PostgreSQL.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DepartmentId");
+
                     b.HasIndex("SuperiorId");
 
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Logger.Logger", b =>
+            modelBuilder.Entity("Domain.Entities.Loggers.Logger", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("ClientAgent")
+                    b.Property<string>("Exception")
                         .HasColumnType("text");
 
-                    b.Property<string>("ClientIP")
+                    b.Property<string>("Level")
                         .HasColumnType("text");
+
+                    b.Property<string>("Message")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Properties")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("TS")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("_ts");
+
+                    b.Property<string>("Template")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Timestamp")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Loggers");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Loggers.PgLogger", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Exception")
                         .HasColumnType("text");
@@ -180,41 +364,33 @@ namespace Migrators.PostgreSQL.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("LogEvent")
-                        .HasColumnType("text");
-
                     b.Property<string>("Message")
-                        .HasColumnType("text");
-
-                    b.Property<string>("MessageTemplate")
                         .HasColumnType("text");
 
                     b.Property<string>("Properties")
                         .HasColumnType("text");
 
+                    b.Property<string>("Template")
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("TimeStamp")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<string>("UserName")
-                        .HasColumnType("text");
-
                     b.HasKey("Id");
 
-                    b.ToTable("Loggers");
+                    b.ToTable("PgLoggers");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Permission", b =>
+            modelBuilder.Entity("Domain.Entities.Notifications.Notification", b =>
                 {
                     b.Property<long>("Id")
                         .HasColumnType("bigint");
 
-                    b.Property<bool?>("Closable")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Code")
+                    b.Property<string>("ConcurrencyStamp")
                         .HasColumnType("text");
 
-                    b.Property<string>("ConcurrencyStamp")
+                    b.Property<string>("Content")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("Created")
@@ -223,28 +399,10 @@ namespace Migrators.PostgreSQL.Migrations
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
+                    b.Property<DateTime?>("Deleted")
+                        .HasColumnType("timestamp without time zone");
 
-                    b.Property<bool?>("Enabled")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool?>("External")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Group")
-                        .HasColumnType("text");
-
-                    b.Property<bool?>("Hidden")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("HttpMethods")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Icon")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Label")
+                    b.Property<string>("DeletedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("LastModified")
@@ -253,29 +411,56 @@ namespace Migrators.PostgreSQL.Migrations
                     b.Property<string>("LastModifiedBy")
                         .HasColumnType("text");
 
-                    b.Property<bool?>("NewWindow")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool?>("Opened")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Path")
+                    b.Property<string>("Link")
                         .HasColumnType("text");
 
-                    b.Property<int?>("Sort")
+                    b.Property<int>("NotificationType")
                         .HasColumnType("integer");
 
-                    b.Property<long?>("SuperiorId")
+                    b.Property<long?>("SenderId")
                         .HasColumnType("bigint");
 
-                    b.Property<int>("Type")
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SenderId");
+
+                    b.ToTable("Notifications");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Notifications.NotificationRecipient", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .HasColumnType("text");
+
+                    b.Property<int>("NotificationId")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("NotificationId1")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("RecipientId")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("RecipientId1")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("Status")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SuperiorId");
+                    b.HasIndex("NotificationId1");
 
-                    b.ToTable("Permissions");
+                    b.HasIndex("RecipientId1");
+
+                    b.ToTable("NotificationRecipient");
                 });
 
             modelBuilder.Entity("Domain.Entities.Role", b =>
@@ -313,35 +498,15 @@ namespace Migrators.PostgreSQL.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("Sort")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
                 });
 
-            modelBuilder.Entity("Domain.Entities.RolePermission", b =>
-                {
-                    b.Property<long>("Id")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .HasColumnType("text");
-
-                    b.Property<long>("PermissionId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("RoleId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PermissionId");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("RolePermissions");
-                });
-
-            modelBuilder.Entity("Domain.Entities.TestTable", b =>
+            modelBuilder.Entity("Domain.Entities.Settings.UserProfileSetting", b =>
                 {
                     b.Property<long>("Id")
                         .HasColumnType("bigint");
@@ -355,16 +520,7 @@ namespace Migrators.PostgreSQL.Migrations
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("DateTime")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<DateTime?>("Deleted")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("DeletedBy")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Description")
+                    b.Property<string>("DefaultValue")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -374,19 +530,26 @@ namespace Migrators.PostgreSQL.Migrations
                     b.Property<string>("LastModifiedBy")
                         .HasColumnType("text");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("SettingName")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<bool>("Stuts")
-                        .HasColumnType("boolean");
+                    b.Property<string>("SettingValue")
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<int>("Type")
-                        .HasColumnType("integer");
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ValueType")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.ToTable("TestTables");
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserProfileSettings");
                 });
 
             modelBuilder.Entity("Domain.Entities.UserRole", b =>
@@ -422,41 +585,137 @@ namespace Migrators.PostgreSQL.Migrations
                     b.Navigation("Owner");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Identity.User", b =>
+            modelBuilder.Entity("Domain.Entities.Departments.Department", b =>
                 {
-                    b.HasOne("Domain.Entities.Identity.User", "Superior")
+                    b.HasOne("Domain.Entities.Departments.Department", "Superior")
                         .WithMany()
                         .HasForeignKey("SuperiorId");
 
                     b.Navigation("Superior");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Permission", b =>
+            modelBuilder.Entity("Domain.Entities.Identity.Menu", b =>
                 {
-                    b.HasOne("Domain.Entities.Permission", "Superior")
+                    b.HasOne("Domain.Entities.Identity.Menu", "Parent")
                         .WithMany()
-                        .HasForeignKey("SuperiorId");
+                        .HasForeignKey("ParentId");
 
-                    b.Navigation("Superior");
+                    b.OwnsOne("Domain.ValueObjects.Meta", "Meta", b1 =>
+                        {
+                            b1.Property<long>("MenuId")
+                                .HasColumnType("bigint");
+
+                            b1.Property<string>("Active")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Color")
+                                .HasColumnType("text");
+
+                            b1.Property<bool?>("Fullpage")
+                                .HasColumnType("boolean");
+
+                            b1.Property<bool?>("Hidden")
+                                .HasColumnType("boolean");
+
+                            b1.Property<bool?>("HiddenBreadcrumb")
+                                .HasColumnType("boolean");
+
+                            b1.Property<string>("Icon")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Tag")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Title")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Type")
+                                .HasColumnType("text");
+
+                            b1.HasKey("MenuId");
+
+                            b1.ToTable("Menus");
+
+                            b1.WithOwner()
+                                .HasForeignKey("MenuId");
+                        });
+
+                    b.Navigation("Meta");
+
+                    b.Navigation("Parent");
                 });
 
-            modelBuilder.Entity("Domain.Entities.RolePermission", b =>
+            modelBuilder.Entity("Domain.Entities.Identity.RoleMenu", b =>
                 {
-                    b.HasOne("Domain.Entities.Permission", "Permission")
-                        .WithMany("RolePermissions")
-                        .HasForeignKey("PermissionId")
+                    b.HasOne("Domain.Entities.Identity.Menu", "Menu")
+                        .WithMany("RoleMenus")
+                        .HasForeignKey("MenuId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.Role", "Role")
-                        .WithMany("RolePermissions")
+                        .WithMany("RoleMenus")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Permission");
+                    b.Navigation("Menu");
 
                     b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Identity.User", b =>
+                {
+                    b.HasOne("Domain.Entities.Departments.Department", "Department")
+                        .WithMany()
+                        .HasForeignKey("DepartmentId");
+
+                    b.HasOne("Domain.Entities.Identity.User", "Superior")
+                        .WithMany()
+                        .HasForeignKey("SuperiorId");
+
+                    b.Navigation("Department");
+
+                    b.Navigation("Superior");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Notifications.Notification", b =>
+                {
+                    b.HasOne("Domain.Entities.Identity.User", "Sender")
+                        .WithMany()
+                        .HasForeignKey("SenderId");
+
+                    b.Navigation("Sender");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Notifications.NotificationRecipient", b =>
+                {
+                    b.HasOne("Domain.Entities.Notifications.Notification", "Notification")
+                        .WithMany("Recipients")
+                        .HasForeignKey("NotificationId1")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Identity.User", "Recipient")
+                        .WithMany()
+                        .HasForeignKey("RecipientId1")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Notification");
+
+                    b.Navigation("Recipient");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Settings.UserProfileSetting", b =>
+                {
+                    b.HasOne("Domain.Entities.Identity.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Domain.Entities.UserRole", b =>
@@ -478,19 +737,24 @@ namespace Migrators.PostgreSQL.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Identity.Menu", b =>
+                {
+                    b.Navigation("RoleMenus");
+                });
+
             modelBuilder.Entity("Domain.Entities.Identity.User", b =>
                 {
                     b.Navigation("UserRoles");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Permission", b =>
+            modelBuilder.Entity("Domain.Entities.Notifications.Notification", b =>
                 {
-                    b.Navigation("RolePermissions");
+                    b.Navigation("Recipients");
                 });
 
             modelBuilder.Entity("Domain.Entities.Role", b =>
                 {
-                    b.Navigation("RolePermissions");
+                    b.Navigation("RoleMenus");
 
                     b.Navigation("UserRoles");
                 });

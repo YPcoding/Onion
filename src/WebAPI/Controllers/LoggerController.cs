@@ -3,7 +3,6 @@ using Application.Features.Loggers.Commands.Add;
 using Application.Features.Loggers.Commands.Delete;
 using Application.Features.Loggers.Commands.Update;
 using Application.Features.Loggers.Queries.Pagination;
-using Domain.Entities.Loggers;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers;

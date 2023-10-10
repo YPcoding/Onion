@@ -1,7 +1,4 @@
-﻿using Domain.Entities;
-using Domain.Enums;
-using Domain.Entities.Loggers;
-using System.ComponentModel.DataAnnotations;
+﻿using Domain.Entities.Loggers;
 
 namespace Application.Features.Loggers.DTOs
 {
