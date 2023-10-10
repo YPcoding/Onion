@@ -20,7 +20,6 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<User> Users { get ; set ; }
     public DbSet<AuditTrail> AuditTrails { get; set; }
     public DbSet<Logger> Loggers { get; set; }
-    public DbSet<PgLogger> PgLoggers { get; set; }
     public DbSet<Role> Roles { get; set; }
     public DbSet<UserRole> UserRoles { get; set; }
     public DbSet<Notification> Notifications { get; set; }

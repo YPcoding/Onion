@@ -1,4 +1,5 @@
 ﻿using Domain.Entities.Departments;
+using Domain.Entities.Loggers;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -13,6 +14,7 @@ namespace Domain.Entities.Identity
         public User()
         {
             UserRoles = new HashSet<UserRole>();
+            Loggers = new HashSet<Logger>();
         }
 
 
@@ -165,6 +167,11 @@ namespace Domain.Entities.Identity
         /// 用户角色
         /// </summary>
         public ICollection<UserRole> UserRoles { get; set; }
+
+        /// <summary>
+        /// 用户日志
+        /// </summary>
+        public ICollection<Logger> Loggers { get; set; }
 
         /// <summary>
         /// 创建密码

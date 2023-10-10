@@ -310,10 +310,9 @@ namespace Migrators.MySql.Migrations
 
             modelBuilder.Entity("Domain.Entities.Loggers.Logger", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id");
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Exception")
                         .HasColumnType("longtext");
@@ -327,17 +326,21 @@ namespace Migrators.MySql.Migrations
                     b.Property<string>("Properties")
                         .HasColumnType("longtext");
 
-                    b.Property<DateTime?>("TS")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("_ts");
-
                     b.Property<string>("Template")
                         .HasColumnType("longtext");
 
-                    b.Property<string>("Timestamp")
-                        .HasColumnType("longtext");
+                    b.Property<DateTimeOffset?>("Timestamp")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<long?>("TimestampLong")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("UserId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Loggers");
                 });
@@ -640,6 +643,15 @@ namespace Migrators.MySql.Migrations
                     b.Navigation("Superior");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Loggers.Logger", b =>
+                {
+                    b.HasOne("Domain.Entities.Identity.User", "User")
+                        .WithMany("Loggers")
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Domain.Entities.Notifications.Notification", b =>
                 {
                     b.HasOne("Domain.Entities.Identity.User", "Sender")
@@ -705,6 +717,8 @@ namespace Migrators.MySql.Migrations
 
             modelBuilder.Entity("Domain.Entities.Identity.User", b =>
                 {
+                    b.Navigation("Loggers");
+
                     b.Navigation("UserRoles");
                 });
 

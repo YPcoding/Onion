@@ -154,4 +154,24 @@ public static class DateTimeExtensions
     {
         return timestamp > DateTime.UtcNow.ToUnixTimestampSeconds();
     }
+
+    /// <summary>
+    /// 将 DateTimeOffset 转换为 UNIX 时间戳（秒）。
+    /// </summary>
+    /// <param name="dateTimeOffset">要转换的 DateTimeOffset 对象。</param>
+    /// <returns>对应的 UNIX 时间戳（秒）。</returns>
+    public static long ToUnixTimestampSeconds(this DateTimeOffset dateTimeOffset)
+    {
+        return dateTimeOffset.ToUnixTimeSeconds();
+    }
+
+    /// <summary>
+    /// 将 DateTimeOffset 转换为 UNIX 时间戳（毫秒）。
+    /// </summary>
+    /// <param name="dateTimeOffset">要转换的 DateTimeOffset 对象。</param>
+    /// <returns>对应的 UNIX 时间戳（毫秒）。</returns>
+    public static long ToUnixTimestampMilliseconds(this DateTimeOffset dateTimeOffset)
+    {
+        return dateTimeOffset.ToUnixTimeMilliseconds();
+    }
 }

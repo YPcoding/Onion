@@ -308,10 +308,9 @@ namespace Migrators.SqLite.Migrations
 
             modelBuilder.Entity("Domain.Entities.Loggers.Logger", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("id");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Exception")
                         .HasColumnType("TEXT");
@@ -322,20 +321,24 @@ namespace Migrators.SqLite.Migrations
                     b.Property<string>("Message")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("MessageTemplate")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Properties")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime?>("TS")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("_ts");
-
-                    b.Property<string>("Template")
+                    b.Property<DateTimeOffset?>("Timestamp")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Timestamp")
-                        .HasColumnType("TEXT");
+                    b.Property<long?>("TimestampLong")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long?>("UserId")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Loggers");
                 });
@@ -638,6 +641,15 @@ namespace Migrators.SqLite.Migrations
                     b.Navigation("Superior");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Loggers.Logger", b =>
+                {
+                    b.HasOne("Domain.Entities.Identity.User", "User")
+                        .WithMany("Loggers")
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Domain.Entities.Notifications.Notification", b =>
                 {
                     b.HasOne("Domain.Entities.Identity.User", "Sender")
@@ -703,6 +715,8 @@ namespace Migrators.SqLite.Migrations
 
             modelBuilder.Entity("Domain.Entities.Identity.User", b =>
                 {
+                    b.Navigation("Loggers");
+
                     b.Navigation("UserRoles");
                 });
 

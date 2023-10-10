@@ -40,25 +40,6 @@ namespace Migrators.SqLite.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Loggers",
-                columns: table => new
-                {
-                    id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Timestamp = table.Column<string>(type: "TEXT", nullable: true),
-                    Level = table.Column<string>(type: "TEXT", nullable: true),
-                    Template = table.Column<string>(type: "TEXT", nullable: true),
-                    Message = table.Column<string>(type: "TEXT", nullable: true),
-                    Exception = table.Column<string>(type: "TEXT", nullable: true),
-                    Properties = table.Column<string>(type: "TEXT", nullable: true),
-                    _ts = table.Column<DateTime>(type: "TEXT", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Loggers", x => x.id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Menus",
                 columns: table => new
                 {
@@ -225,6 +206,31 @@ namespace Migrators.SqLite.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Loggers",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    UserId = table.Column<long>(type: "INTEGER", nullable: true),
+                    Timestamp = table.Column<DateTimeOffset>(type: "TEXT", nullable: true),
+                    TimestampLong = table.Column<long>(type: "INTEGER", nullable: true),
+                    Level = table.Column<string>(type: "TEXT", nullable: true),
+                    MessageTemplate = table.Column<string>(type: "TEXT", nullable: true),
+                    Message = table.Column<string>(type: "TEXT", nullable: true),
+                    Exception = table.Column<string>(type: "TEXT", nullable: true),
+                    Properties = table.Column<string>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Loggers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Loggers_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Notifications",
                 columns: table => new
                 {
@@ -343,6 +349,11 @@ namespace Migrators.SqLite.Migrations
                 name: "IX_Departments_SuperiorId",
                 table: "Departments",
                 column: "SuperiorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Loggers_UserId",
+                table: "Loggers",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Menus_ParentId",

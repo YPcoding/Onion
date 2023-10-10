@@ -3,13 +3,13 @@
 		<scTable ref="table" :page-size="pageSize" @pagination-change="handlePaginationChange" @pagesize="pageSizeChange" height="auto" paginationLayout="total, prev, pager, next" hideDo>
 			<sc-table-column label="序号" type="index"></sc-table-column>
 			<sc-table-column label="业务名称" prop="LoggerName" min-width="200"></sc-table-column>
-			<sc-table-column label="IP" prop="ClientIp" width="150"></sc-table-column>
+			<sc-table-column label="日志等级" prop="level" width="150"></sc-table-column>
+			<sc-table-column label="IP" prop="ClientIP" width="150"></sc-table-column>
 			<sc-table-column label="响应码" prop="ResponseStatusCode" width="150">
 				<el-tag type="success">成功</el-tag>
 			</sc-table-column>
 			<sc-table-column label="操作结果" prop="Message" width="150"></sc-table-column>
 			<sc-table-column label="操作时间" prop="LoggerTime" width="150"></sc-table-column>
-
 		</scTable>
 	</el-card>
 </template>
@@ -39,10 +39,9 @@
 				for (const item of response.data.items) 
 				{
 					let data = JSON.parse(item.properties);
+					data.level = item.level
 					list.push(data);
 				}
-
-				console.log(list);
 			    
 				this.$refs.table.total = response.data.totalItems;
 				this.$refs.table.tableData = list;

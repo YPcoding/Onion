@@ -130,7 +130,6 @@
 			},
 			//表格选择后回调事件
 			selectionChange(selection){
-				console.log("qqqqq", selection)
 				this.selection = selection;
 			},
 			//搜索

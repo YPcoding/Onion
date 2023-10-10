@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Xml;
 
@@ -38,7 +39,11 @@ public static class ObjectExtensions
     /// </summary>
     public static string ToJson(this object obj)
     {
-        return JsonSerializer.Serialize(obj);
+        var options = new JsonSerializerOptions
+        {
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+        };
+        return JsonSerializer.Serialize(obj, options);
     }
 
     /// <summary>

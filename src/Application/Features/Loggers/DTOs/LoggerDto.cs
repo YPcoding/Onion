@@ -9,7 +9,7 @@ namespace Application.Features.Loggers.DTOs
         /// <summary>
         /// 
         /// </summary>
-        public int LoggerId 
+        public long LoggerId 
         {
             get 
             {
@@ -21,7 +21,7 @@ namespace Application.Features.Loggers.DTOs
         /// 
         /// </summary>
         [Description("")]
-        public int Id { get; set; }    
+        public long Id { get; set; }    
 
         /// <summary>
         /// 
