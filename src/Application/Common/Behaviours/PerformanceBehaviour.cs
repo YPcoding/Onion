@@ -48,23 +48,29 @@ public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
     {
         _timer.Start();
 
-        var response = await next().ConfigureAwait(false); ;
+        var response = await next().ConfigureAwait(false);
 
         _timer.Stop();
 
-
         var httpContext = _httpContextAccessor.HttpContext;
+
+        if (httpContext == null)
+        {
+            // 没有 HttpContext，无法继续处理，直接返回响应
+            return response;
+        }
+
         var id = _snowFlakeService.GenerateId();
         var loggerName = typeof(TRequest).GetDescription();
-
-        var requestPath = httpContext?.Request.Path!;
+        var requestPath = httpContext.Request.Path;
         var requestName = typeof(TRequest).Name;
-        var requestMethod = httpContext?.Request.Method!;
-        var userName = _currentUserService.UserName ?? "匿名";
-        var clientIP = httpContext?.Connection?.RemoteIpAddress?.ToString()!;
-        var statusCode = httpContext?.Response.StatusCode;
+        var requestMethod = httpContext.Request.Method;
+        var userName = _currentUserService.UserName ?? "匿名访问";
+        var clientIP = httpContext.Connection.RemoteIpAddress?.ToString();
+        var statusCode = httpContext.Response.StatusCode;
         var loggerTime = DateTime.Now.ToString("G");
         var elapsedMilliseconds = _timer.ElapsedMilliseconds;
+
         var message = "";
         var succeeded = true;
 
@@ -73,28 +79,22 @@ public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
             message = result.Message;
             succeeded = result.Succeeded;
         }
-        if (userName == "匿名"&& request is LoginByUserNameAndPasswordCommand command)
-        {
-            userName = command.UserName;
-        }
 
-        if (elapsedMilliseconds > 500)
-        {
-            message = $"{message},请求时间过长";
-            _logger.LogWarning("{ID},{LoggerName},{RequestPath},{RequestName},{RequestMethod},{UserName},{ClientIP},{ResponseStatusCode},{Message},{LoggerTime},{ElapsedMilliseconds}",
-                                id, loggerName, requestPath, requestName, requestMethod, userName, clientIP, statusCode, message, loggerTime, elapsedMilliseconds);
-        }
-        if (succeeded)
-        {
-            _logger.LogInformation("{ID},{LoggerName},{RequestPath},{RequestName},{RequestMethod},{UserName},{ClientIP},{ResponseStatusCode},{Message},{LoggerTime},{ElapsedMilliseconds}",
-                                id, loggerName, requestPath, requestName, requestMethod, userName, clientIP, statusCode, message, loggerTime, elapsedMilliseconds);
-        }
-        else 
+        if (!succeeded)
         {
             _logger.LogError("{ID},{LoggerName},{RequestPath},{RequestName},{RequestMethod},{UserName},{ClientIP},{ResponseStatusCode},{Message},{LoggerTime},{ElapsedMilliseconds}",
-                                id, loggerName, requestPath, requestName, requestMethod, userName, clientIP, statusCode,message, loggerTime, elapsedMilliseconds);
-        }   
+                                id, loggerName, requestPath, requestName, requestMethod, userName, clientIP, statusCode, message, loggerTime, elapsedMilliseconds);
+            return response;
+        }
+        if (elapsedMilliseconds > 500)
+        {
+            _logger.LogWarning("{ID},{LoggerName},{RequestPath},{RequestName},{RequestMethod},{UserName},{ClientIP},{ResponseStatusCode},{Message},{LoggerTime},{ElapsedMilliseconds}",
+                                id, loggerName, requestPath, requestName, requestMethod, userName, clientIP, statusCode, message, loggerTime, elapsedMilliseconds);
+            return response;
+        }
 
+        _logger.LogInformation("{ID},{LoggerName},{RequestPath},{RequestName},{RequestMethod},{UserName},{ClientIP},{ResponseStatusCode},{Message},{LoggerTime},{ElapsedMilliseconds}",
+                               id, loggerName, requestPath, requestName, requestMethod, userName, clientIP, statusCode, message, loggerTime, elapsedMilliseconds);
         return response;
     }
 }
