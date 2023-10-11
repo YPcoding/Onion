@@ -13,6 +13,7 @@
 		<el-collapse v-model="activeNames" style="margin-top: 20px;">
 			<el-collapse-item title="常规" name="1">
 				<el-alert :title="data.Message" :type="typeMap[data.level]" :closable="false"></el-alert>
+				<el-alert :title="data.exception" :type="typeMap[data.level]" :closable="false"></el-alert>
 			</el-collapse-item>
 			<el-collapse-item title="详细" name="2">
 				<div class="code">

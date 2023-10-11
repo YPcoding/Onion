@@ -21,4 +21,15 @@ public class LoggerController : ApiControllerBase
     {
         return await Mediator.Send(query);
     }
+
+    /// <summary>
+    /// 统计查询
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("Count/Daily")]
+
+    public async Task<Result<CountDailyDto>> CountDailyQuery()
+    {
+        return await Mediator.Send(new SystemLoggersCountDailyQuery());
+    }
 }

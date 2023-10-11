@@ -20,8 +20,10 @@
 					</el-header>
 					<el-main class="nopadding">
 						<scTable ref="table" :data="dataList" :page-size="pageSize" @pagination-change="handlePaginationChange" @pagesize="pageSizeChange" stripe highlightCurrentRow @row-click="rowClick">
-							<el-table-column label="级别" prop="level" width="45">
+							<el-table-column label="级别" prop="level" width="50">
 								<template #default="scope">
+									<el-icon v-if="scope.row.level=='Fatal'" style="color: #F56C6C;"><el-icon-circle-close-filled /></el-icon>
+									<el-icon v-if="scope.row.level=='Critical'" style="color: #F56C6C;"><el-icon-circle-close-filled /></el-icon>
 									<el-icon v-if="scope.row.level=='Error'" style="color: #F56C6C;"><el-icon-circle-close-filled /></el-icon>
 									<el-icon v-if="scope.row.level=='Warning'" style="color: #E6A23C;"><el-icon-warning-filled /></el-icon>
 									<el-icon v-if="scope.row.level=='Information'" style="color: #409EFF;"><el-icon-info-filled /></el-icon>
@@ -104,20 +106,20 @@
 					{
 						label: '系统日志',
 						children: [
-							{label: 'Debug'},
-							{label: 'Information'},
+							{label: 'Information'},						
+							{label: 'Critical'},
 							{label: 'Warning'},
 							{label: 'Error'},
-							{label: 'Trace'}
+							{label: 'Fatal'}
 						]
 					},
-					{
-						label: '应用日志',
-						children: [
-							{label: 'selfHelp'},
-							{label: 'WechatApp'}
-						]
-					}
+					// {
+					// 	label: '应用日志',
+					// 	children: [
+					// 		{label: 'selfHelp'},
+					// 		{label: 'WechatApp'}
+					// 	]
+					// }
 				],
 				date: [],
 				dataList:[],
@@ -147,12 +149,33 @@
 				const list = [];
 				for (const item of response.data.items) 
 				{
+
+
 					let data = JSON.parse(item.properties);
 					data.level = item.level
+					data.exception = item.exception
 					list.push(data);
 				}
 				this.$refs.table.total = response.data.totalItems;
 				this.dataList=list
+	
+				response =  await this.$API.system.log.countDailys.get()
+				if (response.succeeded) {
+					this.logsChartOption.xAxis.data=response.data.xAxis;
+
+					// 获取今天的日期
+                   var today = new Date().toISOString().slice(0, 10);
+				   // 遍历日期数组
+                   for (var i = 0; i < this.logsChartOption.xAxis.data.length; i++) {
+                        if (this.logsChartOption.xAxis.data[i] === today) {
+                            this.logsChartOption.xAxis.data[i] = "今天";
+                        }
+                    }
+
+					this.logsChartOption.series[0].data=response.data.informationConut;
+					this.logsChartOption.series[1].data=response.data.warningConut;
+					this.logsChartOption.series[2].data=response.data.errorConut;
+				}
 		},
 		rowClick(row){
 			this.infoDrawer = true

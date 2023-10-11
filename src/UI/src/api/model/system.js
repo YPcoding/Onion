@@ -252,6 +252,13 @@ export default {
 			post: async function (params) {
 				return await http.post(this.url, params)
 			}
+		},
+		countDailys: {
+			url: `${config.API_URL}/Logger/Count/Daily`,
+			name: "系统日志柱形统计图",
+			get: async function () {
+				return await http.get(this.url)
+			}
 		}
 	},
 	table: {
