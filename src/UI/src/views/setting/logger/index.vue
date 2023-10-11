@@ -1,7 +1,7 @@
 <template>
 	<el-container>
 		<el-aside width="220px">
-			<el-tree ref="category" class="menu" node-key="label" :data="category" :default-expanded-keys="['系统日志']" current-node-key="系统日志" :highlight-current="true" :expand-on-click-node="false">
+			<el-tree ref="category" @node-click="categoryClick" class="menu" node-key="label" :data="category" :default-expanded-keys="['系统日志']" current-node-key="系统日志" :highlight-current="true" :expand-on-click-node="false">
 			</el-tree>
 		</el-aside>
 		<el-container>
@@ -9,7 +9,7 @@
 				<el-container>
 					<el-header>
 						<div class="left-panel">
-							<el-date-picker v-model="date" type="datetimerange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期"></el-date-picker>
+							<el-date-picker v-model="date"  @change="handlePick" type="datetimerange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" value-format="YYYY-MM-DD HH:mm:ss"></el-date-picker>
 						</div>
 						<div class="right-panel">
 
@@ -19,21 +19,21 @@
 						<scEcharts height="100%" :option="logsChartOption"></scEcharts>
 					</el-header>
 					<el-main class="nopadding">
-						<scTable ref="table" :data="dataList" stripe highlightCurrentRow @row-click="rowClick">
-							<el-table-column label="级别" prop="level" width="60">
+						<scTable ref="table" :data="dataList" :page-size="pageSize" @pagination-change="handlePaginationChange" @pagesize="pageSizeChange" stripe highlightCurrentRow @row-click="rowClick">
+							<el-table-column label="级别" prop="level" width="45">
 								<template #default="scope">
-									<el-icon v-if="scope.row.level=='error'" style="color: #F56C6C;"><el-icon-circle-close-filled /></el-icon>
-									<el-icon v-if="scope.row.level=='warn'" style="color: #E6A23C;"><el-icon-warning-filled /></el-icon>
-									<el-icon v-if="scope.row.level=='info'" style="color: #409EFF;"><el-icon-info-filled /></el-icon>
+									<el-icon v-if="scope.row.level=='Error'" style="color: #F56C6C;"><el-icon-circle-close-filled /></el-icon>
+									<el-icon v-if="scope.row.level=='Warning'" style="color: #E6A23C;"><el-icon-warning-filled /></el-icon>
+									<el-icon v-if="scope.row.level=='Information'" style="color: #409EFF;"><el-icon-info-filled /></el-icon>
 								</template>
 							</el-table-column>
-							<el-table-column label="ID" prop="id" width="180"></el-table-column>
-							<el-table-column label="日志名" prop="name" width="150"></el-table-column>
-							<el-table-column label="请求接口" prop="url" width="150"></el-table-column>
-							<el-table-column label="请求方法" prop="type" width="150"></el-table-column>
-							<el-table-column label="用户" prop="user" width="150"></el-table-column>
-							<el-table-column label="客户端IP" prop="cip" width="150"></el-table-column>
-							<el-table-column label="日志时间" prop="time" width="170"></el-table-column>
+							<el-table-column label="ID" prop="ID" width="180"></el-table-column>
+							<el-table-column label="日志名" prop="LoggerName" width="150"></el-table-column>
+							<el-table-column label="请求接口" prop="RequestPath" width="260"></el-table-column>
+							<el-table-column label="请求方法" prop="RequestMethod" width="80"></el-table-column>
+							<el-table-column label="用户" prop="UserName" width="50"></el-table-column>
+							<el-table-column label="客户端IP" prop="ClientIP" width="100"></el-table-column>
+							<el-table-column label="日志时间" prop="TimeStamp" width="200"></el-table-column>
 						</scTable>
 					</el-main>
 				</el-container>
@@ -58,6 +58,8 @@
 		},
 		data() {
 			return {
+				currentPage: 1, // 当前页数
+                pageSize: 10, // 每页显示的条数
 				infoDrawer: false,
 				logsChartOption: {
 					color: ['#409eff','#e6a23c','#f56c6c'],
@@ -102,11 +104,11 @@
 					{
 						label: '系统日志',
 						children: [
-							{label: 'debug'},
-							{label: 'info'},
-							{label: 'warn'},
-							{label: 'error'},
-							{label: 'fatal'}
+							{label: 'Debug'},
+							{label: 'Information'},
+							{label: 'Warning'},
+							{label: 'Error'},
+							{label: 'Trace'}
 						]
 					},
 					{
@@ -120,23 +122,62 @@
 				date: [],
 				dataList:[],
 				search: {
-					keyword: ""
+					keyword: "",
+					level:"",
+					startDateTime: null,
+                    endDateTime: null
 				}
 			}
 		},
 		async mounted() {
-			this.dataList= await this.$API.system.log.list.post();
+			this.upsearch()
 		},
 		methods: {
-			upsearch(){
-
-			},
-			rowClick(row){
-				this.infoDrawer = true
-				this.$nextTick(() => {
-					this.$refs.info.setData(row)
+		async	upsearch(){
+				let response =  await this.$API.system.log.systemList.post({
+					pageNumber:this.currentPage,
+					pageSize:this.pageSize,
+					orderBy: "Id",
+					sortDirection: "Descending",
+					level:this.search.level,
+					startDateTime :this.search.startDateTime,
+					endDateTime :this.search.endDateTime
+					//keyword:this.search.keyword
 				})
-			}
+				const list = [];
+				for (const item of response.data.items) 
+				{
+					let data = JSON.parse(item.properties);
+					data.level = item.level
+					list.push(data);
+				}
+				this.$refs.table.total = response.data.totalItems;
+				this.dataList=list
+		},
+		rowClick(row){
+			this.infoDrawer = true
+			this.$nextTick(() => {
+				this.$refs.info.setData(row)
+			})
+		},
+		//点击分页
+		handlePaginationChange(val){		
+				this.currentPage = val;
+				this.upsearch();
+		},
+		    pageSizeChange(size){
+				this.pageSize = size;
+				this.upsearch();
+		    },//树点击事件
+			categoryClick(data){		
+				this.search.level = data.label
+				this.upsearch()
+			},
+			handlePick(val) {
+                this.search.startDateTime =val[0]+".000"
+				this.search.endDateTime =val[1]+".000"
+				this.upsearch()
+            }
 		}
 	}
 </script>

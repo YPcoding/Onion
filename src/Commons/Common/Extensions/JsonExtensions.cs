@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Text.Encodings.Web;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Common.Extensions
@@ -24,7 +25,8 @@ namespace Common.Extensions
             {
                 WriteIndented = true,  // 使生成的 JSON 更易阅读
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, // 忽略 null 字段
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
             };
 
             if (sensitiveFields!.Any())

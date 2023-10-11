@@ -1,6 +1,7 @@
 ﻿using IGeekFan.AspNetCore.Knife4jUI;
 using Infrastructure.Services;
 using Microsoft.Extensions.FileProviders;
+using Serilog;
 
 namespace Infrastructure.Extensions;
 public static class ApplicationBuilderExtensions

@@ -98,8 +98,6 @@
 			//监听从props里拿到值了
 			data(){
 				this.tableData = this.data;
-				console.log("zongyema",this.total)
-				//this.total = this.tableData.length;
 			},
 			apiObj(){
 				this.tableParams = this.params;

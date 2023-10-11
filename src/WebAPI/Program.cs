@@ -15,7 +15,7 @@ app.UseInfrastructure(builder.Configuration);
 
 if (app.Environment.IsDevelopment())
 {
-    // Initialise and seed database
+    //初始化种子数据
     using (var scope = app.Services.CreateScope())
     {
         var initializer = scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitializer>();

@@ -245,6 +245,13 @@ export default {
 			post: async function (params) {
 				return await http.post(this.url, params)
 			}
+		},
+		systemList: {
+			url: `${config.API_URL}/Logger/PaginationQuery`,
+			name: "系统日志列表",
+			post: async function (params) {
+				return await http.post(this.url, params)
+			}
 		}
 	},
 	table: {

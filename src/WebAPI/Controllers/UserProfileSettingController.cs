@@ -38,7 +38,7 @@ public class UserProfileSettingController : ApiControllerBase
 
     public async Task<Result<PaginatedData<LoggerDto>>> LogPaginationQuery(LoggersWithPaginationQuery query)
     {
-        query.Template = "{ID},{LoggerName},{RequestPath},{RequestName},{RequestMethod},{UserName},{ClientIP},{ResponseStatusCode},{Message},{LoggerTime},{ElapsedMilliseconds}";
+        query.Template = "{ID},{LoggerName},{UserAgent},{ResponseData},{RequestParams},{RequestPath},{RequestName},{RequestMethod},{UserName},{ClientIP},{ResponseStatusCode},{Message},{LoggerTime},{ElapsedMilliseconds}";
         query.Message = _currentUserService.UserName;
         return await Mediator.Send(query);
     }

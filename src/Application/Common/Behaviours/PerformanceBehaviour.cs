@@ -56,13 +56,15 @@ public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
 
         if (httpContext == null)
         {
-            // 没有 HttpContext，无法继续处理，直接返回响应
             return response;
         }
 
         var id = _snowFlakeService.GenerateId();
         var loggerName = typeof(TRequest).GetDescription();
+        var userAgent = httpContext.Request.Headers["User-Agent"][0];
+        var responseData = response?.ToJsonWithSensitiveFilter(new string[] { "Data" });
         var requestPath = httpContext.Request.Path;
+        var requestParams = request.ToJsonWithSensitiveFilter(new string[] { "Password" });
         var requestName = typeof(TRequest).Name;
         var requestMethod = httpContext.Request.Method;
         var userName = _currentUserService.UserName ?? "匿名访问";
@@ -74,6 +76,11 @@ public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
         var message = "";
         var succeeded = true;
 
+        if (userName == "匿名访问" && request is LoginByUserNameAndPasswordCommand command)
+        {
+            userName = command.UserName;
+        }
+
         if (response is Result result)
         {
             message = result.Message;
@@ -82,19 +89,19 @@ public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
 
         if (!succeeded)
         {
-            _logger.LogError("{ID},{LoggerName},{RequestPath},{RequestName},{RequestMethod},{UserName},{ClientIP},{ResponseStatusCode},{Message},{LoggerTime},{ElapsedMilliseconds}",
-                                id, loggerName, requestPath, requestName, requestMethod, userName, clientIP, statusCode, message, loggerTime, elapsedMilliseconds);
+            _logger.LogError("{ID},{LoggerName},{UserAgent},{ResponseData},{RequestParams},{RequestPath},{RequestName},{RequestMethod},{UserName},{ClientIP},{ResponseStatusCode},{Message},{LoggerTime},{ElapsedMilliseconds}",
+                                id, loggerName, userAgent, responseData, requestParams, requestPath, requestName, requestMethod, userName, clientIP, statusCode, message, loggerTime, elapsedMilliseconds);
             return response;
         }
         if (elapsedMilliseconds > 500)
         {
-            _logger.LogWarning("{ID},{LoggerName},{RequestPath},{RequestName},{RequestMethod},{UserName},{ClientIP},{ResponseStatusCode},{Message},{LoggerTime},{ElapsedMilliseconds}",
-                                id, loggerName, requestPath, requestName, requestMethod, userName, clientIP, statusCode, message, loggerTime, elapsedMilliseconds);
+            _logger.LogWarning("{ID},{LoggerName},{UserAgent},{ResponseData},{RequestParams},{RequestPath},{RequestName},{RequestMethod},{UserName},{ClientIP},{ResponseStatusCode},{Message},{LoggerTime},{ElapsedMilliseconds}",
+                                id, loggerName, userAgent, responseData,requestParams, requestPath, requestName, requestMethod, userName, clientIP, statusCode, message, loggerTime, elapsedMilliseconds);
             return response;
         }
 
-        _logger.LogInformation("{ID},{LoggerName},{RequestPath},{RequestName},{RequestMethod},{UserName},{ClientIP},{ResponseStatusCode},{Message},{LoggerTime},{ElapsedMilliseconds}",
-                               id, loggerName, requestPath, requestName, requestMethod, userName, clientIP, statusCode, message, loggerTime, elapsedMilliseconds);
+        _logger.LogInformation("{ID},{LoggerName},{UserAgent},{ResponseData},{RequestParams},{RequestPath},{RequestName},{RequestMethod},{UserName},{ClientIP},{ResponseStatusCode},{Message},{LoggerTime},{ElapsedMilliseconds}",
+                               id, loggerName, userAgent, responseData,requestParams, requestPath, requestName, requestMethod, userName, clientIP, statusCode, message, loggerTime, elapsedMilliseconds);
         return response;
     }
 }
