@@ -102,6 +102,35 @@ namespace Migrators.SqLite.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ScheduledJobs",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "INTEGER", nullable: false),
+                    JobName = table.Column<string>(type: "TEXT", nullable: true),
+                    JobGroup = table.Column<string>(type: "TEXT", nullable: true),
+                    TriggerName = table.Column<string>(type: "TEXT", nullable: true),
+                    TriggerGroup = table.Column<string>(type: "TEXT", nullable: true),
+                    CronExpression = table.Column<string>(type: "TEXT", nullable: true),
+                    Status = table.Column<string>(type: "TEXT", nullable: true),
+                    Data = table.Column<string>(type: "TEXT", nullable: true),
+                    LastExecutionTime = table.Column<DateTimeOffset>(type: "TEXT", nullable: true),
+                    NextExecutionTime = table.Column<DateTimeOffset>(type: "TEXT", nullable: true),
+                    LastExecutionStatus = table.Column<string>(type: "TEXT", nullable: true),
+                    LastExecutionMessage = table.Column<string>(type: "TEXT", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "TEXT", nullable: true),
+                    Created = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    CreatedBy = table.Column<string>(type: "TEXT", nullable: true),
+                    LastModified = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    LastModifiedBy = table.Column<string>(type: "TEXT", nullable: true),
+                    Deleted = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    DeletedBy = table.Column<string>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ScheduledJobs", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
@@ -425,6 +454,9 @@ namespace Migrators.SqLite.Migrations
 
             migrationBuilder.DropTable(
                 name: "RoleMenus");
+
+            migrationBuilder.DropTable(
+                name: "ScheduledJobs");
 
             migrationBuilder.DropTable(
                 name: "UserProfileSettings");

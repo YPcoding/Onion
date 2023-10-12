@@ -1,6 +1,7 @@
 ﻿using Domain.Entities.Audit;
 using Domain.Entities.Departments;
 using Domain.Entities.Identity;
+using Domain.Entities.Job;
 using Domain.Entities.Loggers;
 using Domain.Entities.Notifications;
 using Domain.Entities.Settings;
@@ -20,6 +21,7 @@ public  interface IApplicationDbContext
     DbSet<Department> Departments { get; }
     DbSet<Menu> Menus { get; }
     DbSet<RoleMenu> RoleMenus { get; }
+    DbSet<ScheduledJob> ScheduledJobs { get; }
 
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);

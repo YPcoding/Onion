@@ -279,10 +279,45 @@ export default {
 	},
 	tasks: {
 		list: {
-			url: `${config.API_URL}/system/tasks/list`,
+			url: `${config.API_URL}/ScheduledJob/PaginationQuery`,
 			name: "系统任务管理",
-			get: async function (params) {
-				return await http.get(this.url, params)
+			post: async function (params) {
+				return await http.post(this.url, params)
+			}
+		},
+		jobGroups: {
+			url: `${config.API_URL}/ScheduledJob/JobGroup/Query`,
+			name: "查询任务分组",
+			get: async function () {
+				return await http.get(this.url)
+			}
+		},
+		add: {
+			url: `${config.API_URL}/ScheduledJob/Add`,
+			name: "新增定时任务",
+			post: async function (params) {
+				return await http.post(this.url, params)
+			}
+		},
+		update: {
+			url: `${config.API_URL}/ScheduledJob/Update`,
+			name: "修改定时任务",
+			put: async function (params) {
+				return await http.put(this.url, params)
+			}
+		},
+		updateJobStatus: {
+			url: `${config.API_URL}/ScheduledJob/Update/JobStatus`,
+			name: "修改定时任务状态",
+			put: async function (params) {
+				return await http.put(this.url, params)
+			}
+		},
+		delete: {
+			url: `${config.API_URL}/ScheduledJob/Delete`,
+			name: "删除定时任务",
+			delete: async function (params) {
+				return await http.delete(this.url, params)
 			}
 		}
 	}

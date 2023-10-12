@@ -1,7 +1,10 @@
 ﻿using Application.Common.Behaviours;
-using Application.Common.ExceptionHandlers;
+using Application.Common.Jobs;
 using Application.Common.PublishStrategies;
 using MediatR.Pipeline;
+using Quartz;
+using Quartz.Impl;
+using Quartz.Spi;
 using System.Reflection;
 
 namespace Application;
@@ -24,6 +27,9 @@ public static class DependencyInjection
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(TransactionBehavior<,>));
         });
         services.AddLazyCache();
+        services.AddQuartz();
+        services.AddSingleton<IJobFactory, SingletonJobFactory>();
+        services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
 
         return services;
     }

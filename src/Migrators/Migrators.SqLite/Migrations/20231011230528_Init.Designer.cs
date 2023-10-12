@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Migrators.SqLite.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20231010184020_Init")]
+    [Migration("20231011230528_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -307,6 +307,70 @@ namespace Migrators.SqLite.Migrations
                     b.HasIndex("SuperiorId");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Job.ScheduledJob", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("Created")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CronExpression")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Data")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("Deleted")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("JobGroup")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("JobName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LastExecutionMessage")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LastExecutionStatus")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset?>("LastExecutionTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset?>("NextExecutionTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("TriggerGroup")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("TriggerName")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ScheduledJobs");
                 });
 
             modelBuilder.Entity("Domain.Entities.Loggers.Logger", b =>

@@ -1,4 +1,5 @@
 using Application.Common.Interfaces;
+using Common.Quartzs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -21,19 +22,22 @@ public class WeatherForecastController : ApiControllerBase
     private readonly IApplicationDbContext _dbContext;
     private readonly ILogger<WeatherForecastController> _logger;
     private readonly IApplicationDbContext _context;
+    private readonly IQuartzService _quartzService;
 
     public WeatherForecastController(
         ILogger<WeatherForecastController> logger,
         IApplicationDbContext context,
         IHubContext<SignalRHub> hubContext,
         ISnowFlakeService snowFlakeService,
-        IApplicationDbContext dbContext)
+        IApplicationDbContext dbContext,
+        IQuartzService quartzService)
     {
         _logger = logger;
         _context = context;
         _hubContext = hubContext;
         _snowFlakeService = snowFlakeService;
         _dbContext = dbContext;
+        _quartzService = quartzService;
     }
 
     /// <summary>
@@ -44,9 +48,7 @@ public class WeatherForecastController : ApiControllerBase
     [AllowAnonymous]
     public async Task<int> Get()
     {
-        var a = await _dbContext.Loggers.ToListAsync();
-        await _hubContext.Clients.All.SendAsync("ReceiveNotification", "111");
-        _logger.LogInformation("ceshi");
+        await _quartzService.StopAsync();
         return 0;
     }
 }

@@ -1,32 +1,28 @@
-<!--
- * @Descripttion: 系统计划任务配置
- * @version: 1.2
- * @Author: sakuya
- * @Date: 2021年7月7日09:28:32
- * @LastEditors: sakuya
- * @LastEditTime: 2021年7月10日20:56:47
--->
-
 <template>
 	<el-main>
 		<el-row :gutter="15">
 			<el-col :xl="6" :lg="6" :md="8" :sm="12" :xs="24" v-for="item in list" :key="item.id">
 				<el-card class="task task-item" shadow="hover">
-					<h2>{{item.title}}</h2>
+					<h2>{{item.jobName}}</h2>
 					<ul>
 						<li>
 							<h4>执行类</h4>
-							<p>{{item.handler}}</p>
+							<p>{{item.jobGroup}}</p>
 						</li>
 						<li>
 							<h4>定时规则</h4>
-							<p>{{item.cron}}</p>
+							<p>{{item.cronExpression}}</p>
 						</li>
 					</ul>
 					<div class="bottom">
 						<div class="state">
-							<el-tag v-if="item.state=='1'" size="small">准备就绪</el-tag>
-							<el-tag v-if="item.state=='-1'" size="small" type="info">停用</el-tag>
+							<el-tag v-if="item.status=='Pending'" size="small" type="warning">等待执行</el-tag>
+							<el-tag v-if="item.status=='Inactive'" size="small" type="info">停用</el-tag>
+							<el-tag v-if="item.status=='Active'" size="small">正在执行</el-tag>
+							<el-tag v-if="item.status=='Completed'" size="small" type="success">完成</el-tag>
+							<el-tag v-if="item.status=='Failed'" size="small" type="danger">失败</el-tag>
+							<el-tag v-if="item.status=='Normal'" size="small">正在执行</el-tag>
+							<el-tag v-if="item.status=='None'" size="small" type="info">停用</el-tag>
 						</div>
 						<div class="handler">
 							<el-popconfirm title="确定立即执行吗？" @confirm="run(item)">
@@ -85,35 +81,19 @@
 					save: false,
 					logsVisible: false
 				},
-				list: [
-					{
-						id: "1",
-						title: "清理服务器缓存",
-						handler: "cleanUpCacheHandler",
-						cron: "59 59 23 * * ? *",
-						state: "1"
-					},
-					{
-						id: "2",
-						title: "自动审核",
-						handler: "automaticAuditHandler",
-						cron: "0 0 * * * ? *",
-						state: "1"
-					},
-					{
-						id: "3",
-						title: "清理未实名用户",
-						handler: "deleteUserHandler",
-						cron: "0 0 0 * * ? *",
-						state: "-1"
-					}
-				]
+				list: []
 			}
 		},
 		mounted() {
-
+			this.query();
 		},
 		methods: {
+			async query(){
+				var response = await this.$API.system.tasks.list.post({});
+			    if (response?.succeeded) {
+					this.list=response.data.items
+			    } 
+			},
 			add(){
 				this.dialog.save = true
 				this.$nextTick(() => {
@@ -131,7 +111,11 @@
 					type: 'warning',
 					confirmButtonText: '删除',
 					confirmButtonClass: 'el-button--danger'
-				}).then(() => {
+				}).then(async () => {
+			  		var response = await this.$API.system.tasks.delete.delete({scheduledJobIds:[task.scheduledJobId]});
+			        if (response?.succeeded) {
+				        this.JobGroupOptions=response.data
+			        } 
 					this.list.splice(this.list.findIndex(item => item.id === task.id), 1)
 				}).catch(() => {
 					//取消
@@ -140,8 +124,21 @@
 			logs(){
 				this.dialog.logsVisible = true
 			},
-			run(task){
-				this.$message.success(`已成功执行计划任务：${task.title}`)
+			async run(task){
+				
+				var response = await this.$API.system.tasks.updateJobStatus.put(
+				{
+					scheduledJobId:task.scheduledJobId,
+					concurrencyStamp:task.concurrencyStamp,
+					status:task.status,
+				});
+			    if (response?.succeeded) {
+					this.query();
+				    this.$message.success(`已成功执行计划任务：${task.title}`)
+			    } else{
+					this.$message.error(`执行失败：${response.message}`)
+				}
+
 			},
 			//本地更新数据
 			handleSuccess(data, mode){
@@ -152,6 +149,16 @@
 					this.list.filter(item => item.id===data.id ).forEach(item => {
 						Object.assign(item, data)
 					})
+				}
+			}
+		},
+		watch: {
+			groupFilterText(val) {
+				this.$refs.group.filter(val);
+			},
+			'dialog.save'(val){
+				if (!val) {
+					this.query();
 				}
 			}
 		}

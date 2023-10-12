@@ -1,6 +1,7 @@
 ﻿using Domain.Entities;
 using Domain.Entities.Departments;
 using Domain.Entities.Identity;
+using Domain.Entities.Job;
 using Domain.Entities.Loggers;
 using Domain.Entities.Notifications;
 using Domain.Entities.Settings;
@@ -27,6 +28,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<Department> Departments { get; set; }
     public DbSet<Menu> Menus { get; set; }
     public DbSet<RoleMenu> RoleMenus { get; set; }
+    public DbSet<ScheduledJob> ScheduledJobs { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

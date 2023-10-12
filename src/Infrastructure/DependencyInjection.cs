@@ -5,6 +5,7 @@ using Infrastructure.Auth;
 using Infrastructure.Extensions;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Interceptors;
+using Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
@@ -32,6 +33,7 @@ public static class DependencyInjection
         services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.Key));
         services.Configure<SystemSettings>(configuration.GetSection(SystemSettings.Key));
         services.AddSingleton(s => s.GetRequiredService<IOptions<DatabaseSettings>>().Value);
+        services.AddHostedService<QuartzStatusBackgroundService>();
         services.AddDbContext<ApplicationDbContext>((p, m) =>
         {
             var databaseSettings = p.GetRequiredService<IOptions<DatabaseSettings>>().Value;
