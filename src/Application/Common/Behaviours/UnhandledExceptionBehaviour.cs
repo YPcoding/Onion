@@ -1,4 +1,5 @@
-﻿using Application.Features.Auth.Commands;
+﻿using Application.Constants.Loggers;
+using Application.Features.Auth.Commands;
 using Microsoft.AspNetCore.Http;
 using System.Diagnostics;
 
@@ -78,22 +79,22 @@ public class UnhandledExceptionBehaviour<TRequest, TResponse> : IPipelineBehavio
 
                 if (isException)
                 {
-                    _logger.LogCritical("{ID},{LoggerName},{UserAgent},{ResponseData},{RequestParams},{RequestPath},{RequestName},{RequestMethod},{UserName},{ClientIP},{ResponseStatusCode},{Message},{LoggerTime},{ElapsedMilliseconds}",
+                    _logger.LogCritical(MessageTemplate.ActivityHistoryLog,
                                         id, loggerName, userAgent, responseData, requestParams, requestPath, requestName, requestMethod, userName, clientIP, statusCode, message, loggerTime, elapsedMilliseconds);
                 }
                 if (!succeeded && !isException)
                 {
-                    _logger.LogError("{ID},{LoggerName},{UserAgent},{ResponseData},{RequestParams},{RequestPath},{RequestName},{RequestMethod},{UserName},{ClientIP},{ResponseStatusCode},{Message},{LoggerTime},{ElapsedMilliseconds}",
+                    _logger.LogError(MessageTemplate.ActivityHistoryLog,
                                         id, loggerName, userAgent, responseData, requestParams, requestPath, requestName, requestMethod, userName, clientIP, statusCode, message, loggerTime, elapsedMilliseconds);
                 }
                 if (succeeded && elapsedMilliseconds < 500)
                 {
-                    _logger.LogInformation("{ID},{LoggerName},{UserAgent},{ResponseData},{RequestParams},{RequestPath},{RequestName},{RequestMethod},{UserName},{ClientIP},{ResponseStatusCode},{Message},{LoggerTime},{ElapsedMilliseconds}",
+                    _logger.LogInformation(MessageTemplate.ActivityHistoryLog,
                                        id, loggerName, userAgent, responseData, requestParams, requestPath, requestName, requestMethod, userName, clientIP, statusCode, message, loggerTime, elapsedMilliseconds);
                 }
                 if (succeeded && elapsedMilliseconds > 500)
                 {
-                    _logger.LogWarning("{ID},{LoggerName},{UserAgent},{ResponseData},{RequestParams},{RequestPath},{RequestName},{RequestMethod},{UserName},{ClientIP},{ResponseStatusCode},{Message},{LoggerTime},{ElapsedMilliseconds}",
+                    _logger.LogWarning(MessageTemplate.ActivityHistoryLog,
                                         id, loggerName, userAgent, responseData, requestParams, requestPath, requestName, requestMethod, userName, clientIP, statusCode, message, loggerTime, elapsedMilliseconds);
                 }
             }

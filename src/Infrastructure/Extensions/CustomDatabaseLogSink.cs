@@ -18,7 +18,7 @@ public class CustomDatabaseLogSink : ILogEventSink
     public void Emit(LogEvent logEvent)
     {
         if (logEvent == null) { return; }
-        if (logEvent.MessageTemplate.ToString()!= "{ID},{LoggerName},{UserAgent},{ResponseData},{RequestParams},{RequestPath},{RequestName},{RequestMethod},{UserName},{ClientIP},{ResponseStatusCode},{Message},{LoggerTime},{ElapsedMilliseconds}")
+        if (logEvent.MessageTemplate.ToString()!= (Application.Constants.Loggers.MessageTemplate.ActivityHistoryLog))
         {
             return;
         }

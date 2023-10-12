@@ -28,8 +28,9 @@ public static class DependencyInjection
         });
         services.AddLazyCache();
         services.AddQuartz();
-        services.AddSingleton<IJobFactory, SingletonJobFactory>();
-        services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
+        //services.AddSingleton<IJobFactory, SingletonJobFactory>();
+        //services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
+        services.AddSingleton<IJobFactory>(provider => new SingletonJobFactory(provider));
 
         return services;
     }
