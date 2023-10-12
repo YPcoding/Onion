@@ -62,6 +62,8 @@
 <script>
 	import saveDialog from './save'
 	import logs from './logs'
+	import hubConnection, { startSignalRConnection } from "@/api/signalRConnection";
+
 
 	export default {
 		name: 'task',
@@ -86,6 +88,10 @@
 		},
 		mounted() {
 			this.query();
+			hubConnection.on("ReceivePublicMessage", (user, message) => {
+                console.log(`Received message from ${user}: ${message}`);
+				this.query();
+            });
 		},
 		methods: {
 			async query(){
@@ -171,8 +177,19 @@
 					this.query();
 				}
 			}
-		}
-	}
+		},
+        async created() {
+	        if (hubConnection.state === "Disconnected") {
+                startSignalRConnection().then(isConnected => {
+                    if (isConnected) {
+                        // 连接成功，可以监听事件或发送消息
+                    }
+                });
+            } else {
+                // 已连接，可以监听事件或发送消息
+            }
+        }
+    }
 </script>
 
 <style scoped>

@@ -3,6 +3,8 @@ using Domain.Enums;
 using System.Reflection;
 using Common.Quartzs;
 using Domain.Entities.Job;
+using Microsoft.AspNetCore.SignalR;
+using Common.Extensions;
 
 namespace Infrastructure.Services;
 
@@ -11,12 +13,14 @@ public class QuartzStatusUpdaterAndStarterService : ITransientDependency
     private readonly ISchedulerFactory _scheduler;
     private readonly IServiceProvider _serviceProvider;
     private readonly IQuartzService _quartzService;
+    private readonly IHubContext<SignalRHub> _hubContext;
 
-    public QuartzStatusUpdaterAndStarterService(ISchedulerFactory scheduler, IServiceProvider serviceProvider, IQuartzService quartzService)
+    public QuartzStatusUpdaterAndStarterService(ISchedulerFactory scheduler, IServiceProvider serviceProvider, IQuartzService quartzService, IHubContext<SignalRHub> hubContext)
     {
         _scheduler = scheduler;
         _serviceProvider = serviceProvider;
         _quartzService = quartzService;
+        _hubContext = hubContext;
     }
 
     public async Task UpdateTaskStatusInDatabase()
@@ -49,6 +53,8 @@ public class QuartzStatusUpdaterAndStarterService : ITransientDependency
                 }
                 _dbContext.ScheduledJobs.UpdateRange(scheduledJobToUpdateStatus);
                 await _dbContext.SaveChangesAsync();
+
+               await _hubContext.Clients.All.SendAsync("ReceivePublicMessage","定时任务数据", scheduledjobs.ToReadableJson());
             }
         }
     }
