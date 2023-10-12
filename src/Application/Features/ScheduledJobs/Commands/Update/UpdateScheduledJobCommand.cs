@@ -123,11 +123,13 @@ public class UpdateScheduledJobCommandHandler :
            .SingleOrDefaultAsync(x => x.Id == request.ScheduledJobId, cancellationToken)
            ?? throw new NotFoundException($"数据【{request.ScheduledJobId}】未找到");
 
-        var jobKey = new JobKey(scheduledjob.JobName!, scheduledjob.JobGroup);
+        var oldJobKey = new JobKey(scheduledjob.JobName!, scheduledjob.JobGroup);
+        var oldTriggerKey = new TriggerKey(scheduledjob.TriggerName!, scheduledjob.TriggerGroup!);
 
         scheduledjob = _mapper.Map(request, scheduledjob);
-        scheduledjob.TriggerName = request.JobName; 
-        scheduledjob.TriggerGroup = request.JobGroup;
+        scheduledjob.TriggerName = scheduledjob.JobName; 
+        scheduledjob.TriggerGroup = scheduledjob.JobGroup;
+
         Assembly assembly = Assembly.Load(request.JobGroup.Split('.')[0].ToString());
 
         if (assembly == null)
@@ -139,19 +141,26 @@ public class UpdateScheduledJobCommandHandler :
         var isSuccess = await _context.SaveChangesAsync(cancellationToken) > 0;
         if (isSuccess) 
         {
+            var triggerKey = new TriggerKey(scheduledjob.TriggerName!, scheduledjob.TriggerGroup!);
+            var jobKey = new JobKey(scheduledjob.JobName!, scheduledjob.JobGroup);
 
-            if (await _quartzService.CheckExistsAsync(jobKey))
+            if (await _quartzService.CheckExistsAsync(oldJobKey))
             {
-               await _quartzService.PauseJobAsync(jobKey, cancellationToken);
-               await _quartzService.DeleteJobAsync(jobKey, cancellationToken);
-            }
+                var jobStatus = await _quartzService.GetJobStateAsync(oldTriggerKey);
+                if (jobStatus == TriggerState.Normal)
+                {
+                    await _quartzService.PauseJobAsync(oldJobKey, cancellationToken);
+                    await _quartzService.UnscheduleJobAsync(oldTriggerKey);
+                }
 
-            if (scheduledjob.Status.HasValue && scheduledjob.Status.Value == JobStatus.Pending)
+                await _quartzService.DeleteJobAsync(oldJobKey, cancellationToken);
+            }
+            if (scheduledjob.Status.HasValue && scheduledjob.Status.Value == JobStatus.Normal)
             {
                 var trigger = TriggerBuilder.Create()
-               .WithIdentity(scheduledjob.TriggerName!, scheduledjob.TriggerGroup!)
-               .WithCronSchedule(scheduledjob.CronExpression!)
-               .Build();
+                   .WithIdentity(triggerKey)
+                   .WithCronSchedule(scheduledjob.CronExpression!)
+                   .Build();
 
                 var type = assembly.GetType(scheduledjob.JobGroup!)!;
                 var job = JobBuilder.Create(type)
@@ -159,13 +168,14 @@ public class UpdateScheduledJobCommandHandler :
                     .Build();
 
                 await _quartzService.AddJobAsync(job, trigger);
-            }      
+            }
+            return await Result<long>.SuccessAsync(scheduledjob.Id);
         }
-        return await Result<long>.SuccessOrFailureAsync(scheduledjob.Id, isSuccess, new string[] { "操作失败" });
+        return await Result<long>.FailureAsync(new string[] { "操作失败" });
     }
 
     /// <summary>
-    /// 
+    /// 业务逻辑
     /// </summary>
     /// <param name="request"></param>
     /// <param name="cancellationToken"></param>
@@ -177,6 +187,7 @@ public class UpdateScheduledJobCommandHandler :
            ?? throw new NotFoundException($"数据【{request.ScheduledJobId}】未找到");
 
         var jobKey = new JobKey(scheduledjob.JobName!, scheduledjob.JobGroup);
+        var triggerKey = new TriggerKey(scheduledjob.TriggerName!, scheduledjob.TriggerGroup!);
 
         scheduledjob = _mapper.Map(request, scheduledjob);
         Assembly assembly = Assembly.Load(scheduledjob.JobGroup!.Split('.')[0].ToString());
@@ -192,16 +203,48 @@ public class UpdateScheduledJobCommandHandler :
         {
             if (await _quartzService.CheckExistsAsync(jobKey))
             {
-                if (scheduledjob.Status ==JobStatus.Paused)
+                var jobStatus = await _quartzService.GetJobStateAsync(triggerKey);
+                if (jobStatus == TriggerState.Normal) await _quartzService.PauseJobAsync(jobKey, cancellationToken);
+                else if (jobStatus == TriggerState.Paused) await _quartzService.ResumeJobAsync(jobKey, cancellationToken);
+                else
                 {
-                    await _quartzService.PauseJobAsync(jobKey, cancellationToken);
-                }
-                if (scheduledjob.Status == JobStatus.Pending)
-                {
-                    await _quartzService.ResumeJobAsync(jobKey, cancellationToken);
+                    await _quartzService.DeleteJobAsync(jobKey, cancellationToken);
+
+                    if (scheduledjob.Status == JobStatus.Normal)
+                    {
+                        var trigger = TriggerBuilder.Create()
+                            .WithIdentity(triggerKey)
+                            .WithCronSchedule(scheduledjob.CronExpression!)
+                            .Build();
+
+                        var type = assembly.GetType(scheduledjob.JobGroup)!;
+                        var job = JobBuilder.Create(type)
+                            .WithIdentity(jobKey)
+                            .Build();
+
+                        await _quartzService.AddJobAsync(job, trigger);
+                    }
                 }
             }
+            else 
+            {
+                if (scheduledjob.Status == JobStatus.Normal)
+                {
+                    var trigger = TriggerBuilder.Create()
+                       .WithIdentity(triggerKey)
+                       .WithCronSchedule(scheduledjob.CronExpression!)
+                       .Build();
+
+                    var type = assembly.GetType(scheduledjob.JobGroup)!;
+                    var job = JobBuilder.Create(type)
+                        .WithIdentity(jobKey)
+                        .Build();
+
+                    await _quartzService.AddJobAsync(job, trigger);
+                }
+            }
+            return await Result<long>.SuccessAsync(scheduledjob.Id);
         }
-        return await Result<long>.SuccessOrFailureAsync(scheduledjob.Id, isSuccess, new string[] { "操作失败" });
+        return await Result<long>.FailureAsync(new string[] { "操作失败" });
     }
 }

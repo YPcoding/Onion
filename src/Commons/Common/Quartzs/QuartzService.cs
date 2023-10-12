@@ -1,4 +1,5 @@
 ﻿using Quartz;
+using System.Threading;
 
 namespace Common.Quartzs;
 
@@ -87,5 +88,28 @@ public class QuartzService : IQuartzService
     {
         var scheduler = await _scheduler.GetScheduler(cancellationToken);
         return await scheduler.CheckExists(jobKey, cancellationToken);
+    }
+
+    /// <summary>
+    /// 获取任务状态
+    /// </summary>
+    /// <param name="jobKey"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public async Task<TriggerState> GetJobStateAsync(TriggerKey triggerKey, CancellationToken cancellationToken = default)
+    {
+        var scheduler = await _scheduler.GetScheduler(cancellationToken);      
+        return await scheduler.GetTriggerState(triggerKey);
+    }
+
+    /// <summary>
+    /// 停止某个触发器的执行
+    /// </summary>
+    /// <param name="triggerKey"></param>
+    /// <returns></returns>
+    public async Task UnscheduleJobAsync(TriggerKey triggerKey, CancellationToken cancellationToken = default) 
+    {
+        var scheduler = await _scheduler.GetScheduler(cancellationToken);
+        await scheduler.UnscheduleJob(triggerKey);
     }
 }

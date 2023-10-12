@@ -32,7 +32,7 @@ public class QuartzStatusUpdaterAndStarterService : ITransientDependency
             {
                 foreach (var scheduledjob in scheduledjobs) 
                 {
-                    if (scheduledjob.Status == JobStatus.Inactive ||
+                    if (scheduledjob.Status == JobStatus.None ||
                         scheduledjob.Status == JobStatus.Paused ||
                         scheduledjob.Status == JobStatus.Completed)
                     {
@@ -56,7 +56,7 @@ public class QuartzStatusUpdaterAndStarterService : ITransientDependency
                 var _dbContext = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
                 var scheduledjobs = await _dbContext.ScheduledJobs
                     .Where(x => !(
-                    x.Status == JobStatus.Inactive ||
+                    x.Status == JobStatus.None ||
                     x.Status == JobStatus.Paused ||
                     x.Status == JobStatus.Completed))
                     .ToListAsync();
@@ -100,7 +100,7 @@ public class QuartzStatusUpdaterAndStarterService : ITransientDependency
             case TriggerState.Complete:
                 return JobStatus.Completed;
             case TriggerState.Error:
-                return JobStatus.Failed;
+                return JobStatus.Error;
             case TriggerState.Blocked:
                 return JobStatus.Blocked;
             case TriggerState.None:

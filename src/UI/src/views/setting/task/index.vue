@@ -16,17 +16,16 @@
 					</ul>
 					<div class="bottom">
 						<div class="state">
-							<el-tag v-if="item.status=='Pending'" size="small" type="warning">等待执行</el-tag>
-							<el-tag v-if="item.status=='Inactive'" size="small" type="info">停用</el-tag>
-							<el-tag v-if="item.status=='Active'" size="small">正在执行</el-tag>
+							<el-tag v-if="item.status=='Normal'" size="small" >正在执行</el-tag>
+							<el-tag v-if="item.status=='Paused'" size="small" type="danger">暂停</el-tag>
 							<el-tag v-if="item.status=='Completed'" size="small" type="success">完成</el-tag>
-							<el-tag v-if="item.status=='Failed'" size="small" type="danger">失败</el-tag>
-							<el-tag v-if="item.status=='Normal'" size="small">正在执行</el-tag>
-							<el-tag v-if="item.status=='None'" size="small" type="info">停用</el-tag>
+							<el-tag v-if="item.status=='Error'" size="small" type="danger">执行失败</el-tag>
+							<el-tag v-if="item.status=='Blocked'" size="small" type="info">阻塞</el-tag>
+							<el-tag v-if="item.status=='None'" size="small" type="info">无此任务</el-tag>
 						</div>
 						<div class="handler">
-							<el-popconfirm title="确定立即执行吗？" @confirm="run(item)">
-								<template #reference>
+							<el-popconfirm :title="item.status=='Normal'?'确定要暂停正在执行的任务吗？':'确定立即执行吗？'" @confirm="run(item)">
+								<template #reference>						
 									<el-button type="primary" icon="el-icon-caret-right" circle></el-button>
 								</template>
 							</el-popconfirm>
@@ -81,7 +80,8 @@
 					save: false,
 					logsVisible: false
 				},
-				list: []
+				list: [],
+				icon:"el-icon-video-pause" //el-icon-caret-right
 			}
 		},
 		mounted() {
@@ -107,7 +107,7 @@
 				})
 			},
 			del(task){
-				this.$confirm(`确认删除 ${task.title} 计划任务吗？`,'提示', {
+				this.$confirm(`确认删除 ${task.jobName} 计划任务吗？`,'提示', {
 					type: 'warning',
 					confirmButtonText: '删除',
 					confirmButtonClass: 'el-button--danger'
@@ -115,6 +115,7 @@
 			  		var response = await this.$API.system.tasks.delete.delete({scheduledJobIds:[task.scheduledJobId]});
 			        if (response?.succeeded) {
 				        this.JobGroupOptions=response.data
+						this.query();
 			        } 
 					this.list.splice(this.list.findIndex(item => item.id === task.id), 1)
 				}).catch(() => {
@@ -125,7 +126,12 @@
 				this.dialog.logsVisible = true
 			},
 			async run(task){
-				
+				if (task.status === 'Normal') {
+					task.status ='Paused';
+				}
+				else{
+					task.status ='Normal';
+				}
 				var response = await this.$API.system.tasks.updateJobStatus.put(
 				{
 					scheduledJobId:task.scheduledJobId,
@@ -134,7 +140,11 @@
 				});
 			    if (response?.succeeded) {
 					this.query();
-				    this.$message.success(`已成功执行计划任务：${task.title}`)
+					if (task.status === 'Normal') {
+						this.$message.success(`已成功执行计划任务：${task.jobName}`)
+					} else {
+						this.$message.success(`已成功暂停计划任务：${task.jobName}`)
+					}	 
 			    } else{
 					this.$message.error(`执行失败：${response.message}`)
 				}

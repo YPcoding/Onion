@@ -21,7 +21,7 @@
 				<sc-cron v-model="form.cronExpression" placeholder="请输入Cron定时规则" clearable :shortcuts="shortcuts"></sc-cron>
 			</el-form-item>
 			<el-form-item label="是否启用" prop="status">
-				<el-switch v-model="form.status" active-value="Pending" inactive-value="Inactive"></el-switch>
+				<el-switch v-model="form.status" active-value="Normal" inactive-value="Paused"></el-switch>
 			</el-form-item>
 		</el-form>
 		<template #footer>

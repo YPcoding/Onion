@@ -73,30 +73,31 @@ public class AddScheduledJobCommandHandler : IRequestHandler<AddScheduledJobComm
     public async Task<Result<long>> Handle(AddScheduledJobCommand request, CancellationToken cancellationToken)
     {
         var scheduledjob = _mapper.Map<ScheduledJob>(request);
-        scheduledjob.TriggerName = request.JobName;
-        scheduledjob.TriggerGroup = request.JobGroup;
+        scheduledjob.TriggerName = scheduledjob.JobName;
+        scheduledjob.TriggerGroup = scheduledjob.JobGroup;
 
         await _context.ScheduledJobs.AddAsync(scheduledjob);
         var isSuccess = await _context.SaveChangesAsync(cancellationToken) > 0;
         if (isSuccess)
-        {
-            var trigger = TriggerBuilder.Create()
-                .WithIdentity(scheduledjob.TriggerName!, scheduledjob.TriggerGroup!)
-                .WithCronSchedule(scheduledjob.CronExpression!)
-            .Build();
-
-            Assembly assembly = Assembly.Load(scheduledjob.JobGroup!.Split('.')[0].ToString());
-            var type = assembly.GetType(scheduledjob.JobGroup)!;
-            var job = JobBuilder.Create(type)
-                .WithIdentity(scheduledjob.JobName!, scheduledjob.JobGroup)
-                .Build();
-
-            await _quartzService.AddJobAsync(job, trigger);
-            if (scheduledjob.Status.HasValue && scheduledjob.Status == JobStatus.Pending) 
+        {        
+            if (scheduledjob.Status.HasValue && scheduledjob.Status == JobStatus.Normal) 
             {
-                await _quartzService.StartAsync(cancellationToken);
+                var trigger = TriggerBuilder.Create()
+                    .WithIdentity(scheduledjob.TriggerName!, scheduledjob.TriggerGroup!)
+                    .WithCronSchedule(scheduledjob.CronExpression!)
+                    .Build();
+
+                Assembly assembly = Assembly.Load(scheduledjob.JobGroup!.Split('.')[0].ToString());
+                var type = assembly.GetType(scheduledjob.JobGroup)!;
+                var job = JobBuilder.Create(type)
+                    .WithIdentity(scheduledjob.JobName!, scheduledjob.JobGroup)
+                    .Build();
+
+                await _quartzService.AddJobAsync(job, trigger);
             }
+
+            return await Result<long>.SuccessAsync(scheduledjob.Id);
         }
-        return await Result<long>.SuccessOrFailureAsync(scheduledjob.Id, isSuccess, new string[] { "操作失败" });
+        return await Result<long>.FailureAsync(new string[] { "操作失败" });
     }
 }
