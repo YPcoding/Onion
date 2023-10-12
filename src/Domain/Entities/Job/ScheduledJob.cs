@@ -53,7 +53,7 @@ namespace Domain.Entities.Job
         /// <summary>
         /// 最后执行时间。
         /// </summary>
-        [Description("最后执行时间")]
+        [Description("上次执行时间")]
         public virtual DateTimeOffset? LastExecutionTime { get; set; }
 
         /// <summary>

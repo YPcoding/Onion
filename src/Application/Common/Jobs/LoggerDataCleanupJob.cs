@@ -13,11 +13,14 @@ public class LoggerDataCleanupJob : IJob, ITransientDependency, IDisposable
     }
 
     private readonly IServiceProvider _serviceProvider;
+    private readonly ILogger<ExampleJob> _logger;
 
     public LoggerDataCleanupJob(
-        IServiceProvider serviceProvider)
+        IServiceProvider serviceProvider, 
+        ILogger<ExampleJob> logger)
     {
         _serviceProvider = serviceProvider;
+        _logger = logger;
     }
 
     /// <summary>
@@ -27,16 +30,24 @@ public class LoggerDataCleanupJob : IJob, ITransientDependency, IDisposable
     /// <returns></returns>
     public async Task Execute(IJobExecutionContext context)
     {
-        using (var scope = _serviceProvider.CreateScope())
+        try
         {
-            //var _dbContext = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
-            //var logsToDelete = await _dbContext.Loggers.ToListAsync();
+            using (var scope = _serviceProvider.CreateScope())
+            {
+                var _dbContext = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
+                var logsToDelete = await _dbContext.Loggers.ToListAsync();
 
-            //if (logsToDelete.Any())
-            //{
-            //    _dbContext.Loggers.RemoveRange(logsToDelete);
-            //    await _dbContext.SaveChangesAsync();
-            //}
+                if (logsToDelete.Any())
+                {
+                    _dbContext.Loggers.RemoveRange(logsToDelete);
+                    await _dbContext.SaveChangesAsync();
+                }
+            }
+            JobLogger.Log(_logger, context);
+        }
+        catch (Exception ex)
+        {
+            JobLogger.Log(_logger, context, ex);
         }
     }
 

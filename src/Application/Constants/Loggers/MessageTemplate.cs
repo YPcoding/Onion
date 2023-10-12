@@ -3,5 +3,5 @@
 public static class MessageTemplate
 {
     public const string ActivityHistoryLog = "{ID},{LoggerName},{UserAgent},{ResponseData},{RequestParams},{RequestPath},{RequestName},{RequestMethod},{UserName},{ClientIP},{ResponseStatusCode},{Message},{LoggerTime},{ElapsedMilliseconds}";
-    public const string ScheduledJobLog = "{}";
+    public const string ScheduledJobLog = "{JobDetail},{LastExecutionTime},{NextExecutionTime},{LastExecutionMessage},{LastExecutionStatus}";
 }

@@ -4,6 +4,7 @@ using Application.Features.ScheduledJobs.DTOs;
 using Application.Features.ScheduledJobs.Specifications;
 using System.Text.RegularExpressions;
 using System.Reflection;
+using Quartz;
 
 namespace Application.Features.ScheduledJobs.Queries.Pagination;
 
@@ -109,6 +110,9 @@ public class ScheduledJobsWithPaginationQueryHandler :
             jobGroup.Value = ($"{namespaceName}.{className}");
             Assembly assembly = Assembly.Load(jobGroup.Value.Split('.')[0].ToString());
             var type =  assembly.GetType(jobGroup.Value)!;
+
+            if (!typeof(IJob).IsAssignableFrom(type)) continue;
+
             jobGroup.Label = type.CustomAttributes
                 .Where(x => x.AttributeType.Name == "DescriptionAttribute")
                 ?.FirstOrDefault()?.ConstructorArguments?

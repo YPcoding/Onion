@@ -2,6 +2,7 @@
 using Serilog.Core;
 using Serilog.Events;
 using Serilog;
+using Common.Quartzs;
 
 namespace Infrastructure.Extensions;
 

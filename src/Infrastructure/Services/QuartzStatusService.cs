@@ -2,6 +2,7 @@
 using Domain.Enums;
 using System.Reflection;
 using Common.Quartzs;
+using Domain.Entities.Job;
 
 namespace Infrastructure.Services;
 
@@ -30,6 +31,7 @@ public class QuartzStatusUpdaterAndStarterService : ITransientDependency
             var scheduledjobs = await _dbContext.ScheduledJobs.ToListAsync();
             if (scheduledjobs.Any())
             {
+                List<ScheduledJob> scheduledJobToUpdateStatus = new List<ScheduledJob>();
                 foreach (var scheduledjob in scheduledjobs) 
                 {
                     if (scheduledjob.Status == JobStatus.None ||
@@ -38,9 +40,14 @@ public class QuartzStatusUpdaterAndStarterService : ITransientDependency
                     {
                         continue;
                     }
-                    scheduledjob.Status = MapToCustomStatus(await scheduler.GetTriggerState(new TriggerKey(scheduledjob.TriggerName!, scheduledjob.TriggerGroup!)));
+                    var status = MapToCustomStatus(await scheduler.GetTriggerState(new TriggerKey(scheduledjob.TriggerName!, scheduledjob.TriggerGroup!)));
+                    if (scheduledjob.Status != status) 
+                    {
+                        scheduledjob.Status = status;
+                        scheduledJobToUpdateStatus.Add(scheduledjob);
+                    }
                 }
-                _dbContext.ScheduledJobs.UpdateRange(scheduledjobs);
+                _dbContext.ScheduledJobs.UpdateRange(scheduledJobToUpdateStatus);
                 await _dbContext.SaveChangesAsync();
             }
         }

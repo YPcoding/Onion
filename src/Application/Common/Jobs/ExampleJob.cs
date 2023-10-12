@@ -4,7 +4,7 @@ namespace Application.Common.Jobs;
 
 [Description("定时任务示例")]
 [DisallowConcurrentExecution]
-public class ExampleJob : IJob, ITransientDependency,IDisposable
+public class ExampleJob : IJob, ITransientDependency, IDisposable
 {
     // 这里可以定义需要清理的资源或状态
     private bool disposed = false;
@@ -16,11 +16,14 @@ public class ExampleJob : IJob, ITransientDependency,IDisposable
     }
 
     private readonly IServiceProvider _serviceProvider;
+    private readonly ILogger<ExampleJob> _logger;
 
     public ExampleJob(
-        IServiceProvider serviceProvider)
+        IServiceProvider serviceProvider,
+        ILogger<ExampleJob> logger)
     {
         _serviceProvider = serviceProvider;
+        _logger = logger;
     }
 
     /// <summary>
@@ -28,10 +31,17 @@ public class ExampleJob : IJob, ITransientDependency,IDisposable
     /// </summary>
     /// <param name="context"></param>
     /// <returns></returns>
-    public Task Execute(IJobExecutionContext context)
+    public async Task Execute(IJobExecutionContext context)
     {
-        Console.WriteLine(context.ToReadableJson());
-        return Task.CompletedTask;
+        try
+        {
+            Console.WriteLine("我是定时任务示例，业务逻辑写在这里");
+            JobLogger.Log(_logger, context);//日志记录器
+        }
+        catch (Exception ex)
+        {
+            JobLogger.Log(_logger, context, ex);//日志记录器
+        }
     }
 
     public void Dispose()
