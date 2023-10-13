@@ -344,15 +344,17 @@ public static class StringExtensions
     /// <returns>转换后的对象。</returns>
     public static T FromJson<T>(this string json)
     {
-        if (string.IsNullOrEmpty(json))
+        try
         {
-            throw new ArgumentNullException(nameof(json), "JSON 字符串不能为空。");
+            return JsonSerializer.Deserialize<T>(json, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            })!;
         }
-
-        return JsonSerializer.Deserialize<T>(json, new JsonSerializerOptions
+        catch (JsonException ex)
         {
-            PropertyNameCaseInsensitive = true // 如果需要，可以忽略属性名称的大小写
-        })!;
+            throw new ArgumentException($"JSON 解析失败：{ex.Message}", nameof(json));
+        }
     }
 
     /// <summary>

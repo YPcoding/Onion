@@ -1,10 +1,8 @@
 ﻿using System.Collections;
 using System.Runtime.InteropServices;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
-using System.Xml;
 
 namespace Common.Extensions;
 
@@ -325,7 +323,8 @@ public static class ObjectExtensions
         // 创建 JsonSerializerOptions，设置 WriteIndented 为 true
         var options = new JsonSerializerOptions
         {
-            WriteIndented = true
+            WriteIndented = true,
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
         };
 
         // 使用 System.Text.Json 进行序列化

@@ -127,7 +127,7 @@ public class UpdateScheduledJobCommandHandler :
         var oldTriggerKey = new TriggerKey(scheduledjob.TriggerName!, scheduledjob.TriggerGroup!);
 
         scheduledjob = _mapper.Map(request, scheduledjob);
-        scheduledjob.TriggerName = scheduledjob.JobName; 
+        scheduledjob.TriggerName = scheduledjob.JobName;
         scheduledjob.TriggerGroup = scheduledjob.JobGroup;
 
         Assembly assembly = Assembly.Load(request.JobGroup.Split('.')[0].ToString());
@@ -137,7 +137,13 @@ public class UpdateScheduledJobCommandHandler :
             return await Result<long>.SuccessOrFailureAsync(scheduledjob.Id, false, new string[] { "操作失败，执行类不存在" });
         }
 
-        _context.ScheduledJobs.Update(scheduledjob);
+        _context.ScheduledJobs.Attach(scheduledjob);
+        _context.Entry(scheduledjob).Property("JobName").IsModified = true;
+        _context.Entry(scheduledjob).Property("JobGroup").IsModified = true;
+        _context.Entry(scheduledjob).Property("CronExpression").IsModified = true;
+        _context.Entry(scheduledjob).Property("Data").IsModified = true;
+        _context.Entry(scheduledjob).Property("Status").IsModified = true;
+
         var isSuccess = await _context.SaveChangesAsync(cancellationToken) > 0;
         if (isSuccess) 
         {
@@ -165,6 +171,7 @@ public class UpdateScheduledJobCommandHandler :
                 var type = assembly.GetType(scheduledjob.JobGroup!)!;
                 var job = JobBuilder.Create(type)
                     .WithIdentity(scheduledjob.JobName!, scheduledjob.JobGroup!)
+                    .UsingJobData("parameter", request.Data)
                     .Build();
 
                 await _quartzService.AddJobAsync(job, trigger);
@@ -197,7 +204,8 @@ public class UpdateScheduledJobCommandHandler :
             return await Result<long>.SuccessOrFailureAsync(scheduledjob.Id, false, new string[] { "操作失败，执行类不存在" });
         }
 
-        _context.ScheduledJobs.Update(scheduledjob);
+        _context.ScheduledJobs.Attach(scheduledjob);
+        _context.Entry(scheduledjob).Property("Status").IsModified = true;
         var isSuccess = await _context.SaveChangesAsync(cancellationToken) > 0;
         if (isSuccess)
         {
@@ -220,6 +228,7 @@ public class UpdateScheduledJobCommandHandler :
                         var type = assembly.GetType(scheduledjob.JobGroup)!;
                         var job = JobBuilder.Create(type)
                             .WithIdentity(jobKey)
+                            .UsingJobData("parameter", scheduledjob.Data)
                             .Build();
 
                         await _quartzService.AddJobAsync(job, trigger);
@@ -238,6 +247,7 @@ public class UpdateScheduledJobCommandHandler :
                     var type = assembly.GetType(scheduledjob.JobGroup)!;
                     var job = JobBuilder.Create(type)
                         .WithIdentity(jobKey)
+                        .UsingJobData("parameter", scheduledjob.Data)
                         .Build();
 
                     await _quartzService.AddJobAsync(job, trigger);

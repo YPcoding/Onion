@@ -1,4 +1,5 @@
-﻿using Domain.Enums;
+﻿using Domain.Entities.Job;
+using Domain.Enums;
 using Serilog.Core;
 using Serilog.Events;
 
@@ -112,11 +113,11 @@ public class CustomDatabaseLogSink : ILogEventSink
             var jop = _dbContext.ScheduledJobs.FirstOrDefault(x => x.JobName == jobName && x.JobGroup == jobGourp);
             if (jop != null)
             {
-                jop.LastExecutionTime = lastExecutionTime;
-                jop.NextExecutionTime = nextExecutionTime;
-                jop.LastExecutionMessage = lastExecutionMessage;
-                jop.LastExecutionStatus = lastExecutionStatus;
-                _dbContext.ScheduledJobs.Update(jop);
+                _dbContext.ScheduledJobs.Attach(jop);
+                _dbContext.Entry(jop).Property("LastExecutionTime").IsModified = true;
+                _dbContext.Entry(jop).Property("NextExecutionTime").IsModified = true;
+                _dbContext.Entry(jop).Property("LastExecutionMessage").IsModified = true;
+                _dbContext.Entry(jop).Property("LastExecutionStatus").IsModified = true;
                 _dbContext.SaveChanges();
             }
         }

@@ -5,6 +5,7 @@ using Application.Features.ScheduledJobs.Specifications;
 using System.Text.RegularExpressions;
 using System.Reflection;
 using Quartz;
+using Application.Common.Jobs;
 
 namespace Application.Features.ScheduledJobs.Queries.Pagination;
 
@@ -112,6 +113,30 @@ public class ScheduledJobsWithPaginationQueryHandler :
             var type =  assembly.GetType(jobGroup.Value)!;
 
             if (!typeof(IJob).IsAssignableFrom(type)) continue;
+
+            //获取参数，转Json字符串
+            Type baseType = type.BaseType!;
+            if (baseType.IsGenericType && baseType.GetGenericTypeDefinition() == typeof(JobParameterAbstractBase<>))
+            {
+                Type parameterType = baseType?.GetGenericArguments()[0]!;
+                if (parameterType != null)
+                {
+                    object parameterInstance = Activator.CreateInstance(parameterType)!;
+                    string parameterJson = parameterInstance.ToReadableJson();
+                    jobGroup.ParameterJson = parameterJson;
+
+                    PropertyInfo[] properties = parameterType.GetProperties();
+                    foreach (PropertyInfo property in properties)
+                    {
+                        string propertyName = property.Name;
+                        object? propertyValue = property.GetValue(parameterInstance);
+
+                        var descriptionAttribute = (DescriptionAttribute)property?.GetCustomAttribute(typeof(DescriptionAttribute))!;
+                        string? propertyDescription = descriptionAttribute?.Description;
+                        jobGroup.Description += $"*{propertyName}:{propertyDescription}\r\n";
+                    }
+                }
+            }
 
             jobGroup.Label = type.CustomAttributes
                 .Where(x => x.AttributeType.Name == "DescriptionAttribute")

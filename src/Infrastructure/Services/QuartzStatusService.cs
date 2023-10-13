@@ -4,7 +4,6 @@ using System.Reflection;
 using Common.Quartzs;
 using Domain.Entities.Job;
 using Microsoft.AspNetCore.SignalR;
-using Common.Extensions;
 
 namespace Infrastructure.Services;
 
@@ -48,13 +47,15 @@ public class QuartzStatusUpdaterAndStarterService : ITransientDependency
                     if (scheduledjob.Status != status) 
                     {
                         scheduledjob.Status = status;
-                        scheduledJobToUpdateStatus.Add(scheduledjob);
+                        _dbContext.ScheduledJobs.Attach(scheduledjob);
+                        _dbContext.Entry(scheduledjob).Property("Status").IsModified = true;
                     }
                 }
                 _dbContext.ScheduledJobs.UpdateRange(scheduledJobToUpdateStatus);
-                await _dbContext.SaveChangesAsync();
-
-               await _hubContext.Clients.All.SendAsync("ReceivePublicMessage","定时任务数据", scheduledjobs.ToReadableJson());
+                if ((await _dbContext.SaveChangesAsync()) > 0)
+                {
+                    await _hubContext.Clients.All.SendAsync("ReceivePublicMessage", "定时任务数据", scheduledjobs.ToReadableJson());
+                }
             }
         }
     }
@@ -89,6 +90,7 @@ public class QuartzStatusUpdaterAndStarterService : ITransientDependency
                             var type = assembly.GetType(scheduledjob.JobGroup)!;
                             var job = JobBuilder.Create(type)
                                 .WithIdentity(scheduledjob.JobName!, scheduledjob.JobGroup)
+                                .UsingJobData("parameter", scheduledjob.Data)
                                 .Build();
 
                             await _quartzService.AddJobAsync(job, trigger);

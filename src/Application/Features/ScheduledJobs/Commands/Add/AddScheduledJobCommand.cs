@@ -91,6 +91,7 @@ public class AddScheduledJobCommandHandler : IRequestHandler<AddScheduledJobComm
                 var type = assembly.GetType(scheduledjob.JobGroup)!;
                 var job = JobBuilder.Create(type)
                     .WithIdentity(scheduledjob.JobName!, scheduledjob.JobGroup)
+                    .UsingJobData("parameter", request.Data)
                     .Build();
 
                 await _quartzService.AddJobAsync(job, trigger);

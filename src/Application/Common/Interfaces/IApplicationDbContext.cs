@@ -27,4 +27,5 @@ public  interface IApplicationDbContext
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     int SaveChanges();
     DatabaseFacade Database { get; }
+    EntityEntry Entry(object entity);
 }

@@ -16,7 +16,7 @@ public class QuartzStatusBackgroundService : BackgroundService
         while (!stoppingToken.IsCancellationRequested)
         {
             await _quartzStatusService.UpdateTaskStatusInDatabase();
-            await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken); // 10秒更新一次
+            await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken); // 1秒更新一次
         }
     }
 }
