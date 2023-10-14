@@ -94,10 +94,16 @@
 			}
 		},
 		mounted() {
-
 		},
 		methods: {
-			show(){
+			async query(){
+				var response = await this.$API.system.tasks.logList.post({});
+			    if (response?.succeeded) {
+					this.list=response.data.items
+			    } 
+			},
+			show(task){
+				console.log("任务", task)
 				this.logsVisible = true;
 			}
 		}

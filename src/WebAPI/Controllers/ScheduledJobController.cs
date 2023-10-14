@@ -24,6 +24,17 @@ public class ScheduledJobController : ApiControllerBase
     }
 
     /// <summary>
+    /// 任务日志分页查询
+    /// </summary>
+    /// <returns></returns>
+    [HttpPost("Log/PaginationQuery")]
+
+    public async Task<Result<PaginatedData<ScheduledJobLogDto>>> LogPaginationQuery(ScheduledJobLogsWithPaginationQuery query)
+    {
+        return await Mediator.Send(query);
+    }
+
+    /// <summary>
     /// 获取执行任务分组类名称
     /// </summary>
     /// <returns></returns>

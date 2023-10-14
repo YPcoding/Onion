@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using System.Reflection;
 using Quartz;
 using Application.Common.Jobs;
+using Domain.Entities.Loggers;
 
 namespace Application.Features.ScheduledJobs.Queries.Pagination;
 
@@ -20,7 +21,17 @@ public class ScheduledJobsWithPaginationQuery : ScheduledJobAdvancedFilter, IReq
 }
 
 /// <summary>
-/// 定时任务分页查询
+/// 计划任务日志分页查询
+/// </summary>
+[Description("计划任务日志分页查询")]
+public class ScheduledJobLogsWithPaginationQuery : ScheduledJobLogAdvancedFilter, IRequest<Result<PaginatedData<ScheduledJobLogDto>>>
+{
+    [JsonIgnore]
+    public ScheduledJobLogAdvancedPaginationSpec Specification => new ScheduledJobLogAdvancedPaginationSpec(this);
+}
+
+/// <summary>
+/// 计划任务分组列表查询
 /// </summary>
 [Description("计划任务分组列表查询")]
 public class ScheduledJobGroupQuery:IRequest<Result<IEnumerable<JobGroupDto>>>
@@ -32,7 +43,8 @@ public class ScheduledJobGroupQuery:IRequest<Result<IEnumerable<JobGroupDto>>>
 /// </summary>
 public class ScheduledJobsWithPaginationQueryHandler :
     IRequestHandler<ScheduledJobsWithPaginationQuery, Result<PaginatedData<ScheduledJobDto>>>,
-    IRequestHandler<ScheduledJobGroupQuery, Result<IEnumerable<JobGroupDto>>>
+    IRequestHandler<ScheduledJobGroupQuery, Result<IEnumerable<JobGroupDto>>>,
+    IRequestHandler<ScheduledJobLogsWithPaginationQuery, Result<PaginatedData<ScheduledJobLogDto>>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
@@ -147,5 +159,19 @@ public class ScheduledJobsWithPaginationQueryHandler :
         }
 
         return await Result<IEnumerable<JobGroupDto>>.SuccessAsync(jobGroups);
+    }
+
+    public async Task<Result<PaginatedData<ScheduledJobLogDto>>> Handle(ScheduledJobLogsWithPaginationQuery request, CancellationToken cancellationToken)
+    {
+        var loggers = await _context.Loggers
+         .OrderBy($"{request.OrderBy} {request.SortDirection}")
+         .ProjectToPaginatedDataAsync<Logger, ScheduledJobLogDto>(
+         request.Specification,
+         request.PageNumber,
+         request.PageSize,
+         _mapper.ConfigurationProvider,
+         cancellationToken);
+
+        return await Result<PaginatedData<ScheduledJobLogDto>>.SuccessAsync(loggers);
     }
 }

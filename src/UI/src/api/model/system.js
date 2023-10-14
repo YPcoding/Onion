@@ -280,7 +280,14 @@ export default {
 	tasks: {
 		list: {
 			url: `${config.API_URL}/ScheduledJob/PaginationQuery`,
-			name: "系统任务管理",
+			name: "计划任务管理",
+			post: async function (params) {
+				return await http.post(this.url, params)
+			}
+		},
+		logList: {
+			url: `${config.API_URL}/ScheduledJob/Log/PaginationQuery`,
+			name: "任务日志分页查询",
 			post: async function (params) {
 				return await http.post(this.url, params)
 			}

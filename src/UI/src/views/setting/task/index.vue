@@ -128,7 +128,30 @@
 					//取消
 				})
 			},
-			logs(){
+			async logs(task){
+				console.log(task)
+				var response = await this.$API.system.tasks.logList.post({
+					pageNumber:1,
+					pageSize:10,
+					orderBy: "Id",
+					sortDirection: "Descending",
+					jobGroup:task.jobGroup,
+					jobName:task.jobName,
+				});
+			    if (response?.succeeded) {
+					// const logList = [];
+				    // for (const item of response.data.items) 
+				    // {
+					// 	let data = JSON.parse(item.properties);
+					//     data.level = item.level
+					//     data.exception = item.exception
+					//     logList.push(data);
+				    // }
+				    // this.$refs.table.total = response.data.totalItems;
+				    // this.dataList = logList
+					// this.list = response.data.items
+			    } 
+				
 				this.dialog.logsVisible = true
 			},
 			async run(task){

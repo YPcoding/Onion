@@ -1,4 +1,5 @@
 ﻿using Domain.Entities.Job;
+using Domain.Entities.Loggers;
 
 namespace Application.Features.ScheduledJobs.DTOs;
 
@@ -102,4 +103,17 @@ public class JobGroupDto
     public string Value { get; set; }
     public string? ParameterJson { get; set; }
     public string? Description { get; set; }
+}
+
+[Map(typeof(Logger))]
+public class ScheduledJobLogDto 
+{
+    public long Id { get; set; }
+    public DateTimeOffset? Timestamp { get; set; }
+    public long? TimestampLong { get; set; }
+    public string? Level { get; set; }
+    public string? MessageTemplate { get; set; }
+    public string? Message { get; set; }
+    public string? Exception { get; set; }
+    public string? Properties { get; set; }
 }
