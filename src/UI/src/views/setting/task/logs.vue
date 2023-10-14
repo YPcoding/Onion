@@ -60,8 +60,8 @@
 			},
 			async query(){
 				var response = await this.$API.system.tasks.logList.post({
-					pageNumber:1,
-					pageSize:10,
+					pageNumber:this.currentPage,
+					pageSize:this.pageSize,
 					orderBy: "Id",
 					sortDirection: "Descending",
 					jobGroup:this.jobGroup,
