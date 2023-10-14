@@ -46,6 +46,7 @@ export default {
 		app.config.globalProperties.$ROLE = rolePermission
 		app.config.globalProperties.$SubscribeToReceiveMessage = signalR.subscribeToReceiveMessage
 		app.config.globalProperties.$SendMessage = signalR.sendMessage
+		app.config.globalProperties.$UnSubscribeFromMessage = signalR.unsubscribeFromMessage
 
 		//注册全局组件
 		app.component('scTable', scTable)

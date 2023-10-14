@@ -58,7 +58,12 @@ const sendMessage = (methodName, ...args) => {
         })
 }
 
+// 取消订阅
+const unsubscribeFromMessage = (methodName, callback) => {
+    hubConnection.off(methodName, callback)
+}
+
 // 创建 SignalR 连接
 const hubConnection = createSignalRConnection(signalRConfig)
 
-export { hubConnection, startSignalRConnection, subscribeToReceiveMessage, sendMessage }
+export { hubConnection, startSignalRConnection, subscribeToReceiveMessage, sendMessage, unsubscribeFromMessage }
