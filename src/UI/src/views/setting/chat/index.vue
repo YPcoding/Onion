@@ -27,7 +27,7 @@
             <el-main class="nopadding" style="overflow-y: auto; padding: 10px;">
                 <div v-for="(message, index) in messages" :key="index">
                     <div class="message incoming" v-if="message.type === 'incoming'">
-                        <div class="message-content" style="background-color: hsl(198, 100%, 50%);">
+                        <div class="message-content">
                             <p>{{ message.content }}</p>
                             <p class="message-timestamp-left">{{ message.timestamp }}</p>
                         </div>
@@ -41,7 +41,8 @@
                 </div>
             </el-main>
             <el-footer>
-                <el-input v-model="messageInput" placeholder="输入消息..." clearable>
+                <el-input v-model="messageInput" placeholder="输入消息..." clearable @keyup.enter="addOutgoingMessage"
+                    class="custom-input">
                     <template v-slot:append>
                         <!-- 使用 el-button 组件来实现按钮 -->
                         <el-button class="custom-button" icon="el-icon-position" @click="addOutgoingMessage"></el-button>
@@ -83,11 +84,26 @@ export default {
             if (this.messageInput.trim() !== '') {
                 this.messages.push({
                     type: 'incoming', // 消息类型，可以根据需要自定义
+                    //type: 'outgoing', // 消息类型，可以根据需要自定义
+                    content: this.messageInput,
+                    timestamp: "2023-10-15 02:47:56.000"
+                })
+                this.messages.push({
+                    //type: 'incoming', // 消息类型，可以根据需要自定义
+                    type: 'outgoing', // 消息类型，可以根据需要自定义
                     content: this.messageInput,
                     timestamp: "2023-10-15 02:47:56.000"
                 })
                 this.messageInput = '' // 清空输入框
+                // 滚动到底部
+                this.scrollMessageContainerToBottom()
             }
+        },
+        scrollMessageContainerToBottom () {
+            this.$nextTick(() => {
+                const container = document.querySelector('.nopadding')
+                container.scrollTop = container.scrollHeight
+            })
         },
     },
 }
@@ -106,18 +122,37 @@ export default {
     margin-bottom: 10px;
 }
 
-/* 消息内容样式 */
+
+/* 共享的样式 */
 .message-content {
-    background-color: #e0e0e0;
     padding: 10px;
     border-radius: 10px;
     display: inline-block;
     max-width: 70%;
-    /* 根据需要调整宽度 */
     word-wrap: break-word;
-    /* 自动换行 */
     text-align: left;
-    /* 左对齐 */
+    font-size: 16px;
+    /* 调整字体大小 */
+    color: #333;
+    /* 调整字体颜色 */
+}
+
+/* 左边聊天内容的背景色 */
+.message.incoming .message-content {
+    background-color: #E6F7FF;
+    font-size: 16px;
+    /* 调整字体大小 */
+    color: #000;
+    /* 调整字体颜色 */
+}
+
+/* 右边聊天内容的背景色 */
+.message.outgoing .message-content {
+    background-color: #e0e0e0;
+    font-size: 16px;
+    /* 调整字体大小 */
+    color: #000;
+    /* 调整字体颜色 */
 }
 
 /* 消息时间戳样式 */
@@ -144,5 +179,13 @@ export default {
 .user-profile {
     display: flex;
     align-items: center;
+}
+
+.custom-input input {
+    font-size: 16px;
+    /* 设置文字大小 */
+    color: #333;
+    /* 设置文字颜色 */
+    /* 其他样式，如字体、边框、背景色等，可以根据需要自定义 */
 }
 </style>
