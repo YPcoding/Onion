@@ -1,6 +1,4 @@
-﻿using Domain.Entities.Job;
-using Domain.Enums;
-using Serilog.Core;
+﻿using Serilog.Core;
 using Serilog.Events;
 
 namespace Infrastructure.Extensions;
@@ -61,66 +59,73 @@ public class CustomDatabaseLogSink : ILogEventSink
 
     public void SaveJobLogger(LogEvent logEvent)
     {
-        var jobDetail = "";
-        DateTimeOffset? lastExecutionTime = null;
-        DateTimeOffset? nextExecutionTime = null;
-        var lastExecutionMessage = "";
-        ExecutionStatus lastExecutionStatus = ExecutionStatus.Success;
-        var jobGourp = "";
-        var jobName = "";
-
-        var propertiesDictionary = new Dictionary<string, string>();
-        foreach (var property in logEvent.Properties)
-        {
-            if (property.Value == null) continue;
-            if (property.Value.ToString() == "null") continue;
-
-            if (property.Key == "JobDetail")
-            {
-                jobDetail = property.Value.ToString();
-            }
-            if (property.Key == "LastExecutionTime")
-            {
-                lastExecutionTime = DateTimeOffset.Parse(property.Value.ToString());
-            }
-            if (property.Key == "NextExecutionTime")
-            {
-                nextExecutionTime = DateTimeOffset.Parse(property.Value.ToString());
-            }
-            if (property.Key == "LastExecutionMessage")
-            {
-                lastExecutionMessage = property.Value.ToString();
-            }
-            if (property.Key == "LastExecutionStatus")
-            {
-                if (property.Value.ToString() == "Success")
-                {
-                    lastExecutionStatus = ExecutionStatus.Success;
-                }
-                else
-                {
-                    lastExecutionStatus = ExecutionStatus.Failure;
-                }
-            }
-        }
-
-        string? fullString = jobDetail.Replace("\"", "");
-        int index = fullString?.LastIndexOf('.') ?? -1;
-        if (index >= 0)
-        {
-            jobGourp = fullString!.Substring(0, index);
-            jobName = fullString!.Substring(index + 1);
-            var jop = _dbContext.ScheduledJobs.FirstOrDefault(x => x.JobName == jobName && x.JobGroup == jobGourp);
-            if (jop != null)
-            {
-                _dbContext.ScheduledJobs.Attach(jop);
-                _dbContext.Entry(jop).Property("LastExecutionTime").IsModified = true;
-                _dbContext.Entry(jop).Property("NextExecutionTime").IsModified = true;
-                _dbContext.Entry(jop).Property("LastExecutionMessage").IsModified = true;
-                _dbContext.Entry(jop).Property("LastExecutionStatus").IsModified = true;
-                _dbContext.SaveChanges();
-            }
-        }
         SaveLogger(logEvent);
+
+        //var jobDetail = "";
+        //DateTimeOffset? lastExecutionTime = null;
+        //DateTimeOffset? nextExecutionTime = null;
+        //var lastExecutionMessage = "";
+        //ExecutionStatus lastExecutionStatus = ExecutionStatus.Success;
+        //var jobGourp = "";
+        //var jobName = "";
+
+        //var propertiesDictionary = new Dictionary<string, string>();
+        //foreach (var property in logEvent.Properties)
+        //{
+        //    if (property.Value == null) continue;
+        //    if (property.Value.ToString() == "null") continue;
+
+        //    if (property.Key == "JobDetail")
+        //    {
+        //        jobDetail = property.Value.ToString();
+        //    }
+        //    if (property.Key == "LastExecutionTime")
+        //    {
+        //        lastExecutionTime = DateTimeOffset.Parse(property.Value.ToString());
+        //    }
+        //    if (property.Key == "NextExecutionTime")
+        //    {
+        //        nextExecutionTime = DateTimeOffset.Parse(property.Value.ToString());
+        //    }
+        //    if (property.Key == "LastExecutionMessage")
+        //    {
+        //        lastExecutionMessage = property.Value.ToString();
+        //    }
+        //    if (property.Key == "LastExecutionStatus")
+        //    {
+        //        if (property.Value.ToString() == "Success")
+        //        {
+        //            lastExecutionStatus = ExecutionStatus.Success;
+        //        }
+        //        else
+        //        {
+        //            lastExecutionStatus = ExecutionStatus.Failure;
+        //        }
+        //    }
+        //}
+
+        //string? fullString = jobDetail.Replace("\"", "");
+        //int index = fullString?.LastIndexOf('.') ?? -1;
+        //if (index >= 0)
+        //{
+        //    jobGourp = fullString!.Substring(0, index);
+        //    jobName = fullString!.Substring(index + 1);
+        //    var jop = _dbContext.ScheduledJobs.FirstOrDefault(x => x.JobName == jobName && x.JobGroup == jobGourp);
+        //    if (jop != null)
+        //    {
+        //        jop.LastExecutionTime = lastExecutionTime;
+        //        jop.NextExecutionTime = nextExecutionTime;
+        //        jop.LastExecutionMessage = lastExecutionMessage;
+        //        jop.LastExecutionStatus = lastExecutionStatus;
+
+        //        _dbContext.ScheduledJobs.Attach(jop);
+        //        _dbContext.Entry(jop).Property("LastExecutionTime").IsModified = true;
+        //        _dbContext.Entry(jop).Property("NextExecutionTime").IsModified = true;
+        //        _dbContext.Entry(jop).Property("LastExecutionMessage").IsModified = true;
+        //        _dbContext.Entry(jop).Property("LastExecutionStatus").IsModified = true;
+        //        _dbContext.SaveChanges();
+        //    }
+        //}
+        //SaveLogger(logEvent);
     }
 }

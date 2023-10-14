@@ -68,11 +68,11 @@ public class ExampleJob : JobParameterAbstractBase<ExampleJob.Parameter>, IJob, 
             }
             Console.WriteLine("我是定时任务示例，业务逻辑写在这里");
 
-            JobLogger.Log(_logger, context);//日志记录器
+           await JobLogger.Log(_logger, context, _serviceProvider,null,"执行成功");//日志记录器
         }
         catch (Exception ex)
         {
-            JobLogger.Log(_logger, context, ex);//日志记录器
+            await JobLogger.Log(_logger, context, _serviceProvider, ex);//日志记录器
         }
     }
 

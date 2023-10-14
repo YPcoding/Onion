@@ -13,7 +13,6 @@ public abstract class JobParameterAbstractBase<T> where T : class
         {
             return null;
         }
-
         var parameter = context.JobDetail.JobDataMap.GetString("parameter");
         if (parameter == null) return null;
 

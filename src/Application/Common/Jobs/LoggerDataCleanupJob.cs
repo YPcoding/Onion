@@ -4,7 +4,7 @@ namespace Application.Common.Jobs;
 
 [Description("清理过期日志数据")]
 [DisallowConcurrentExecution]
-public class LoggerDataCleanupJob : IJob, ITransientDependency, IDisposable
+public class LoggerDataCleanupJob : JobParameterAbstractBase<LoggerDataCleanupJob.Parameter>, IJob, ITransientDependency, IDisposable
 {
     private bool disposed = false;
     public LoggerDataCleanupJob()
@@ -13,14 +13,23 @@ public class LoggerDataCleanupJob : IJob, ITransientDependency, IDisposable
     }
 
     private readonly IServiceProvider _serviceProvider;
-    private readonly ILogger<ExampleJob> _logger;
+    private readonly ILogger<LoggerDataCleanupJob> _logger;
 
     public LoggerDataCleanupJob(
-        IServiceProvider serviceProvider, 
-        ILogger<ExampleJob> logger)
+        IServiceProvider serviceProvider,
+        ILogger<LoggerDataCleanupJob> logger)
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
+    }
+
+    /// <summary>
+    /// 定时任务参数
+    /// </summary>
+    public class Parameter
+    {
+        [Description("保留几天")]
+        public int RetentionDays { get; set; } = 7;
     }
 
     /// <summary>
@@ -32,22 +41,33 @@ public class LoggerDataCleanupJob : IJob, ITransientDependency, IDisposable
     {
         try
         {
+            int deleteCount = 0;
             using (var scope = _serviceProvider.CreateScope())
             {
-                var _dbContext = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
-                var logsToDelete = await _dbContext.Loggers.ToListAsync();
-
-                if (logsToDelete.Any())
+                var parameters = GetParameters<Parameter>(context);
+                if (parameters != null)
                 {
-                    _dbContext.Loggers.RemoveRange(logsToDelete);
-                    await _dbContext.SaveChangesAsync();
+                    var retentionDays = parameters.RetentionDays;
+                    var timestamp = DateTimeOffset.Now.AddDays(-retentionDays).ToUnixTimestampMilliseconds();
+
+                    var _dbContext = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
+                    var logsToDelete = await _dbContext.Loggers
+                        .Where(x => x.TimestampLong < timestamp)
+                        .ToListAsync();
+
+                    deleteCount = logsToDelete.Count;
+                    if (deleteCount > 0)
+                    {
+                        _dbContext.Loggers.RemoveRange(logsToDelete);
+                        await _dbContext.SaveChangesAsync();
+                    }
                 }
             }
-            JobLogger.Log(_logger, context);
+            await JobLogger.Log(_logger, context, _serviceProvider, null, $"删除了{deleteCount}条日志");
         }
         catch (Exception ex)
         {
-            JobLogger.Log(_logger, context, ex);
+            await JobLogger.Log(_logger, context, _serviceProvider, ex);
         }
     }
 

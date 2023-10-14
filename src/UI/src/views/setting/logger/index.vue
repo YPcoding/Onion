@@ -149,8 +149,6 @@
 				const list = [];
 				for (const item of response.data.items) 
 				{
-
-
 					let data = JSON.parse(item.properties);
 					data.level = item.level
 					data.exception = item.exception

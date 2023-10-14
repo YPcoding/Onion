@@ -18,7 +18,7 @@
 				<el-input v-model="form.data" prop="data" placeholder="定时任务参数" clearable></el-input>
 			</el-form-item>
 			<el-form-item label="参数示例" v-if="form.parameterJson!=null">
-				<sc-code-editor ref="editor" v-model="form.parameterJson" mode="javascript" :height="200"></sc-code-editor>
+				<sc-code-editor ref="editor" v-model="form.parameterJson" mode="javascript" :width="300" :height="200"></sc-code-editor>
 				<div style="margin-top: 15px;">
 					<el-button type="primary" @click="getValue">复制Json到任务参数</el-button>
 				</div>
