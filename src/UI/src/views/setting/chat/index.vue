@@ -4,11 +4,11 @@
             <el-container>
                 <el-header>聊天列表</el-header>
                 <el-main style="padding: 10px; display: flex; flex-direction: column;">
-                    <div v-for="friend in friends" :key="friend.id"
+                    <div v-for="friend in friends" :key="friend.userId" @click="selectChatUser(friend)"
                         style="margin-bottom: 10px; cursor: pointer; text-align: center; display: flex; align-items: center;">
-                        <el-avatar :src="friend.avatar" style="margin-right: 10px;"></el-avatar>
+                        <el-avatar :src="friend.profilePictureDataUrl" style="margin-right: 10px;"></el-avatar>
                         <div>
-                            {{ friend.name }}
+                            {{ friend.userName }}
                         </div>
                     </div>
                 </el-main>
@@ -18,9 +18,9 @@
         <el-container>
             <el-header>
                 <div class="user-profile">
-                    <el-avatar :src="currentUser.avatar" style="margin-right: 10px;"></el-avatar>
+                    <el-avatar :src="currentChatUser.profilePictureDataUrl" style="margin-right: 10px;"></el-avatar>
                     <div>
-                        {{ currentUser.name }}
+                        {{ currentChatUser.userName }}
                     </div>
                 </div>
             </el-header>
@@ -65,37 +65,85 @@ export default {
     name: 'layoutLCR',
     data () {
         return {
+            chatHistories: {}, // 保存多个聊天记录
             friends: [
-                { id: 1, name: "Friend 1", avatar: "friend1.jpg" },
-                { id: 2, name: "Friend 2", avatar: "friend2.jpg" },
-                { id: 3, name: "Friend 3", avatar: "friend3.jpg" },
+                {
+                    id: null,
+                    userId: 0,
+                    userName: "",
+                    profilePictureDataUrl: "",
+                    isLive: true
+                }
                 // 添加更多好友信息
             ],
             messages: [], // 用于存储聊天消息的数组
             messageInput: '', // 用于输入消息的文本框
-            currentUser: {
-                avatar: "friend1.jpg",
-                name: "哈哈"
-            }
+            currentChatUser: {
+                profilePictureDataUrl: "",
+                userName: "",
+                userId: ""
+            },
+            message: {
+                type: "",           // 消息类型，例如 'incoming' 或 'outgoing'
+                content: "",        // 消息内容
+                contentType: "",    // 内容类型，例如 'text' 或 'image'
+                timestamp: new Date(),  // 消息时间戳
+                sender: {
+                    userId: "",        // 发送者用户ID
+                    userName: "",      // 发送者用户名
+                    profilePicture: ""  // 发送者头像
+                }
+            },
         }
+    }, async mounted () {
+        this.query()
+        this.$SubscribeToReceiveMessage("ReceivePrivateMessage", this.handleMessage)
     }, methods: {
+        // 添加消息到指定聊天
+        addMessageToChat (chatId, message) {
+            if (!this.chatHistories[chatId]) {
+                this.chatHistories[chatId] = [] // 如果聊天不存在，初始化一个空数组
+            }
+            this.chatHistories[chatId].push(message)
+        },
+        // 获取特定聊天的消息记录
+        getChatHistory (chatId) {
+            if (this.chatHistories[chatId]) {
+                return this.chatHistories[chatId]
+            }
+            return []
+        },
+        // 创建一个回调函数来处理接收到的消息
+        handleMessage (message) {
+            this.messages.push({
+                type: 'incoming',
+                content: message,
+                timestamp: new Date()
+            })
+            this.scrollMessageContainerToBottom()
+        },
+        async query () {
+            let response = await await this.$API.system.chats.list.post({
+                pageNumber: 1,
+                pageSize: 10,
+                orderBy: "Id",
+                sortDirection: "Descending"
+            })
+            this.friends = response.data.items
+            this.currentChatUser.profilePictureDataUrl = this.friends[0].profilePictureDataUrl
+            this.currentChatUser.userName = this.friends[0].userName
+            this.currentChatUser.userId = this.friends[0].userId
+        },
         // 添加发送的消息
         addOutgoingMessage () {
             if (this.messageInput.trim() !== '') {
                 this.messages.push({
-                    type: 'incoming', // 消息类型，可以根据需要自定义
-                    //type: 'outgoing', // 消息类型，可以根据需要自定义
-                    content: this.messageInput,
-                    timestamp: "2023-10-15 02:47:56.000"
-                })
-                this.messages.push({
-                    //type: 'incoming', // 消息类型，可以根据需要自定义
                     type: 'outgoing', // 消息类型，可以根据需要自定义
                     content: this.messageInput,
-                    timestamp: "2023-10-15 02:47:56.000"
+                    timestamp: new Date()
                 })
+                this.$SendMessage("SendPrivateMessageAsync", this.currentChatUser.userId, this.messageInput)
                 this.messageInput = '' // 清空输入框
-                // 滚动到底部
                 this.scrollMessageContainerToBottom()
             }
         },
@@ -104,6 +152,11 @@ export default {
                 const container = document.querySelector('.nopadding')
                 container.scrollTop = container.scrollHeight
             })
+        },
+        selectChatUser (row) {
+            this.currentChatUser.profilePictureDataUrl = row.profilePictureDataUrl
+            this.currentChatUser.userName = row.userName
+            this.currentChatUser.userId = row.userId
         },
     },
 }

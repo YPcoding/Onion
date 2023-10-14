@@ -17,15 +17,15 @@ public class CustomDatabaseLogSink : ILogEventSink
 
     public void Emit(LogEvent logEvent)
     {
-        if (logEvent == null) { return; }
-        if (logEvent.MessageTemplate.ToString() == (Application.Constants.Loggers.MessageTemplate.ActivityHistoryLog))
-        {
-            SaveLogger(logEvent);
-        }
-        if (logEvent.MessageTemplate.ToString() == (Application.Constants.Loggers.MessageTemplate.ScheduledJobLog))
-        {
-            SaveJobLogger(logEvent);
-        }
+        //if (logEvent == null) { return; }
+        //if (logEvent.MessageTemplate.ToString() == (Application.Constants.Loggers.MessageTemplate.ActivityHistoryLog))
+        //{
+        //    SaveLogger(logEvent);
+        //}
+        //if (logEvent.MessageTemplate.ToString() == (Application.Constants.Loggers.MessageTemplate.ScheduledJobLog))
+        //{
+        //    SaveJobLogger(logEvent);
+        //}
     }
 
     public void SaveLogger(LogEvent logEvent) 

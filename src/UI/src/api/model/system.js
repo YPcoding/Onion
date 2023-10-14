@@ -327,5 +327,14 @@ export default {
 				return await http.delete(this.url, params)
 			}
 		}
+	},
+	chats: {
+		list: {
+			url: `${config.API_URL}/Chat/PaginationQuery`,
+			name: "聊天中心用户列表",
+			post: async function (params) {
+				return await http.post(this.url, params)
+			}
+		},
 	}
 }
