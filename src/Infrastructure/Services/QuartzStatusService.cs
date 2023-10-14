@@ -51,6 +51,7 @@ public class QuartzStatusUpdaterAndStarterService : ITransientDependency
                         _dbContext.Entry(scheduledjob).Property("Status").IsModified = true;
                     }
                 }
+                await _hubContext.Clients.All.SendAsync("ReceiveUpdateTaskStatusMessage");
                 _dbContext.ScheduledJobs.UpdateRange(scheduledJobToUpdateStatus);
                 if ((await _dbContext.SaveChangesAsync()) > 0)
                 {
