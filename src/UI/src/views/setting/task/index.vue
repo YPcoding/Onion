@@ -88,8 +88,8 @@
 		},
 		mounted() {
 			this.query();
-			hubConnection.on("ReceivePublicMessage", (user, message) => {
-                console.log(`Received message from ${user}: ${message}`);
+			hubConnection.on("ReceiveUpdateTaskStatusMessage", () => {
+                console.log(`Received message from`);
 				this.query();
             });
 		},
