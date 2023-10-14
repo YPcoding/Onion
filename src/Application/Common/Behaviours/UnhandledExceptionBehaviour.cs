@@ -32,7 +32,10 @@ public class UnhandledExceptionBehaviour<TRequest, TResponse> : IPipelineBehavio
         TResponse response = default!;
         try
         {
+            _timer.Start();
             response = await next().ConfigureAwait(false);
+            _timer.Stop();
+
             return response;
         }
         catch (Exception ex)

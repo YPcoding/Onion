@@ -17,9 +17,12 @@
 			</el-collapse-item>
 			<el-collapse-item title="详细" name="2">
 				<div class="code">
-					{UserAgent:{{data.UserAgent}},	
-					Request: {{data.RequestParams}},					
-					Response: {{data.ResponseData}}}
+					{
+						UserAgent:{{data.UserAgent}},
+					    Request: {{data.RequestParams}},					
+					    Response: {{data.ResponseData}},
+						Eception: {{data.exception}},
+				    }
 				</div>
 			</el-collapse-item>
 		</el-collapse>
