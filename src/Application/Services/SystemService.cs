@@ -26,6 +26,10 @@ public class SystemService : IScopedDependency
         string pattern = @"/\{[^}]+\}";
         foreach (var menu in menus)
         {
+            if (menu.Meta.Title =="计划任务") 
+            {
+                string a = "";
+            }
             var api = apis.FirstOrDefault(x => x.ControllerDescription == menu.Meta.Title);
             if (api == null) continue;
 

@@ -4,12 +4,14 @@ using Application.Features.ScheduledJobs.Commands.Delete;
 using Application.Features.ScheduledJobs.Commands.Update;
 using Application.Features.ScheduledJobs.Queries.Pagination;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel;
 
 namespace WebAPI.Controllers;
 
 /// <summary>
-/// 定时任务
+/// 计划任务
 /// </summary>
+[Description("计划任务")]
 public class ScheduledJobController : ApiControllerBase
 {
     /// <summary>
@@ -17,7 +19,6 @@ public class ScheduledJobController : ApiControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpPost("PaginationQuery")]
-
     public async Task<Result<PaginatedData<ScheduledJobDto>>> PaginationQuery(ScheduledJobsWithPaginationQuery query)
     {
         return await Mediator.Send(query);
@@ -57,7 +58,7 @@ public class ScheduledJobController : ApiControllerBase
     }
 
     /// <summary>
-    /// 修改定时任务
+    /// 修改任务状态
     /// </summary>
     /// <returns></returns>
     [HttpPut("Update/JobStatus")]

@@ -16,7 +16,6 @@ public class LoggerController : ApiControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpPost("PaginationQuery")]
-
     public async Task<Result<PaginatedData<LoggerDto>>> PaginationQuery(SystemLoggersWithPaginationQuery query)
     {
         return await Mediator.Send(query);
@@ -27,7 +26,6 @@ public class LoggerController : ApiControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpGet("Count/Daily")]
-
     public async Task<Result<CountDailyDto>> CountDailyQuery()
     {
         return await Mediator.Send(new SystemLoggersCountDailyQuery());

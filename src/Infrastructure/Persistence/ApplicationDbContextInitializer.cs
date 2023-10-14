@@ -224,9 +224,7 @@ public class ApplicationDbContextInitializer
                 if (child.Meta.Title == "系统设置" ||
                       child.Meta.Title == "字典管理" ||
                       child.Meta.Title == "表格列管理" ||
-                      child.Meta.Title == "计划任务" ||
-                      child.Meta.Title == "应用管理" ||
-                      child.Meta.Title == "系统日志"
+                      child.Meta.Title == "应用管理" 
                     ) continue;
 
                 await _context.RoleMenus.AddAsync(new RoleMenu()
