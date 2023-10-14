@@ -3,13 +3,14 @@ using Domain.Entities.Loggers;
 using Application.Features.Loggers.DTOs;
 using Application.Features.Loggers.Specifications;
 using Microsoft.VisualBasic;
+using Application.Constants.Loggers;
 
 namespace Application.Features.Loggers.Queries.Pagination;
 
 /// <summary>
 /// 日志分页查询
 /// </summary>
-[Description("分页查询日志数据")]
+[Description("日志分页查询")]
 public class LoggersWithPaginationQuery : LoggerAdvancedFilter, IRequest<Result<PaginatedData<LoggerDto>>>
 {
     [JsonIgnore]
@@ -19,7 +20,7 @@ public class LoggersWithPaginationQuery : LoggerAdvancedFilter, IRequest<Result<
 /// <summary>
 /// 系统日志分页查询
 /// </summary>
-[Description("分页查询系统日志数据")]
+[Description("系统日志分页查询")]
 public class SystemLoggersWithPaginationQuery : SystemLoggerAdvancedFilter, IRequest<Result<PaginatedData<LoggerDto>>>
 {
     [JsonIgnore]
@@ -115,7 +116,7 @@ public class LoggersWithPaginationQueryHandler :
         long startDateTime = DateTime.Parse(countDailyDto.XAxis[0]).ToUnixTimestampMilliseconds();
         long endDateTime = DateTime.Parse(countDailyDto.XAxis[days]).AddDays(1).ToUnixTimestampMilliseconds();
         var loggers = await _context.Loggers
-            .Where(x => x.TimestampLong >= startDateTime && x.TimestampLong < endDateTime)
+            .Where(x => x.TimestampLong >= startDateTime && x.TimestampLong < endDateTime && x.MessageTemplate == MessageTemplate.ActivityHistoryLog)
             .ToListAsync();
 
         if (loggers.Any())

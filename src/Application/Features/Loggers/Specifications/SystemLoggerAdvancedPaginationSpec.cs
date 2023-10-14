@@ -1,4 +1,5 @@
-﻿using Ardalis.Specification;
+﻿using Application.Constants.Loggers;
+using Ardalis.Specification;
 using Domain.Entities.Loggers;
 
 
@@ -20,8 +21,10 @@ public class SystemLoggerAdvancedPaginationSpec : Specification<Logger>
              endDateTime = filter.EndDateTime.Value.ToUnixTimestampMilliseconds();
         }
         Query
+            .Where(x=> x.MessageTemplate== MessageTemplate.ActivityHistoryLog)
             .Where(x => x.Level == filter.Level, !filter.Level!.IsNullOrEmpty())
             .Where(x => x.TimestampLong >= startDateTime && x.TimestampLong <= endDateTime, filter.StartDateTime.HasValue && filter.EndDateTime.HasValue)
+            .AsNoTracking()
         ;
     }
 }
