@@ -23,7 +23,7 @@ public static class SerilogExtensions
                     wt.Console(
                         outputTemplate:
                         "[{Timestamp:HH:mm:ss} {Level:u3} {ClientIp}] {Message:lj}{NewLine}{Exception}"))
-                .WriteTo.Sink(new CustomDatabaseLogSink(builder.Services.BuildServiceProvider().GetRequiredService<IApplicationDbContext>(),
+                .WriteTo.Sink(new CustomDatabaseLogSink(builder.Services.BuildServiceProvider().GetRequiredService<IServiceProvider>(),
                                                         builder.Services.BuildServiceProvider().GetRequiredService<ICurrentUserService>()))
         );
     }
