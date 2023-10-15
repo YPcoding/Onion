@@ -76,7 +76,6 @@ export default {
                 }
                 // 添加更多好友信息
             ],
-            messages: [], // 用于存储聊天消息的数组
             messageInput: '', // 用于输入消息的文本框
             currentChatUser: {
                 profilePictureDataUrl: "",
@@ -147,21 +146,35 @@ export default {
         },
         // 添加发送的消息
         addOutgoingMessage () {
-            if (this.messageInput.trim() !== '') {
-                var date = new Date()
-                var formattedDate = date.toLocaleString()
-                this.message = {
-                    type: "outgoing",           // 消息类型，例如 'incoming' 或 'outgoing'
-                    content: this.messageInput,   // 消息内容
-                    contentType: "text",    // 内容类型，例如 'text' 或 'image'
-                    timestamp: formattedDate  // 消息时间戳
-                }
-                // 使用 Date 构造函数解析日期时间字符串
-                this.addMessageToChat(this.currentChatUser.userId, this.message)
-                this.$SendMessage("SendPrivateMessageAsync", this.currentChatUser.userId, JSON.stringify(this.message))
-                this.messageInput = '' // 清空输入框
-                this.scrollMessageContainerToBottom()
+            if (this.messageInput.trim() === '') {
+                return // 什么都不做，因为输入是空的
             }
+
+            const message = this.createOutgoingMessage(this.messageInput)
+            this.addMessageToChat(this.currentChatUser.userId, message)
+            this.sendMessageToServer(message)
+
+            this.messageInput = '' // 清空输入框
+            this.scrollMessageContainerToBottom()
+        },
+        //创建发送消息
+        createOutgoingMessage (content) {
+            const date = new Date()
+            return {
+                type: 'outgoing',
+                content: content,
+                contentType: 'text',
+                timestamp: this.formatDate(date),
+            }
+        },
+        //发送消息到服务器
+        sendMessageToServer (message) {
+            const messageJson = JSON.stringify(message)
+            this.$SendMessage('SendPrivateMessageAsync', this.currentChatUser.userId, messageJson)
+        },
+        //格式化时间
+        formatDate (date) {
+            return date.toLocaleString()
         },
         //聊天内容滚动到底部
         scrollMessageContainerToBottom () {
