@@ -188,6 +188,7 @@ export default {
             this.currentChatUser.profilePictureDataUrl = row.profilePictureDataUrl
             this.currentChatUser.userName = row.userName
             this.currentChatUser.userId = row.userId
+            this.scrollMessageContainerToBottom()
         },
     },
 }
