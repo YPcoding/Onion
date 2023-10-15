@@ -100,6 +100,10 @@ export default {
     }, methods: {
         // 添加消息到指定聊天
         addMessageToChat (chatId, message) {
+            if (this.chatHistories == null) {
+                this.chatHistories = []
+                this.chatHistories[chatId] = [] // 如果聊天不存在，初始化一个空数组
+            }
             if (!this.chatHistories[chatId]) {
                 this.chatHistories[chatId] = [] // 如果聊天不存在，初始化一个空数组
             }
@@ -109,6 +113,9 @@ export default {
         // 获取特定聊天的消息记录
         getChatHistory (chatId) {
             this.chatHistories = this.$TOOL.data.get("CHAT_HISTORIES")
+            if (this.chatHistories == null) {
+                return []
+            }
             if (this.chatHistories[chatId]) {
                 return this.chatHistories[chatId]
             }
