@@ -30,13 +30,11 @@ public class CustomDatabaseLogSink : ILogEventSink
 
     public void SaveLogger(LogEvent logEvent) 
     {
-        var properties = new List<string>();
+        var properties = new Dictionary<string, object>();
         foreach (var property in logEvent.Properties)
         {
-            properties.Add($@"""{property.Key}"":""{property.Value}""");
+            properties[property.Key] = property.Value?.ToString()!; // 将属性值转换为字符串
         }
-        var jsonProperties = $@"{{{properties.Join(",")}}}";
-        jsonProperties = jsonProperties.Replace(@"""""", @"""");
 
         Domain.Entities.Loggers.Logger logger = new Domain.Entities.Loggers.Logger()
         {
@@ -47,7 +45,7 @@ public class CustomDatabaseLogSink : ILogEventSink
             Exception = logEvent.Exception?.ToString(),
             Timestamp = logEvent.Timestamp,
             TimestampLong = logEvent.Timestamp.ToUnixTimestampMilliseconds(),
-            Properties = jsonProperties,
+            Properties = properties.ToJson(),
         };
 
         using var scope = _serviceProvider.CreateScope();
