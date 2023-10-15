@@ -1,9 +1,9 @@
+using Application.Common;
 using Application.Common.Interfaces;
 using Common.Quartzs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
 
 namespace WebAPI.Controllers;
 

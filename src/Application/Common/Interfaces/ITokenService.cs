@@ -28,6 +28,7 @@ public interface ITokenService : IScopedDependency
     /// </summary>
     /// <param name="userId">用户唯一标识</param>
     /// <param name="userName">用户名</param>
+    /// <param name="profilePictureDataUrl">头像</param>
     /// <returns></returns>
-    Task<IEnumerable<Claim>> CreateClaimsAsync(long userId,string userName);
+    Task<IEnumerable<Claim>> CreateClaimsAsync(long userId, string userName, string? profilePictureDataUrl = null);
 }

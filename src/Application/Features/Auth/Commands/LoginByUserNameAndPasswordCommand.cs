@@ -92,7 +92,7 @@ public class LoginByUserNameAndPasswordCommandHandler : IRequestHandler<LoginByU
         user.AccessFailedCount = 0;
         await _userRepository.UpdateAsync(user);
 
-        var claims = await _tokenService.CreateClaimsAsync(user.Id, user.UserName!);
+        var claims = await _tokenService.CreateClaimsAsync(user.Id, user.UserName!, user.ProfilePictureDataUrl);
         string token = await _tokenService.BuildAsync(claims, _optJwtSettings.Value);
 
         var roles = await _roleRepository.GetUserRolesAsync(x => x.UserRoles.Any(ur => ur.UserId == user.Id));

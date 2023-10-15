@@ -12,7 +12,7 @@
                         </div>
                     </div>
                 </el-main>
-                <el-footer>Left Footer</el-footer>
+                <el-footer>左边底部</el-footer>
             </el-container>
         </el-aside>
         <el-container>
@@ -25,7 +25,7 @@
                 </div>
             </el-header>
             <el-main class="nopadding" style="overflow-y: auto; padding: 10px;">
-                <div v-for="(message, index) in messages" :key="index">
+                <div v-for="(message, index) in getChatHistory(currentChatUser.userId)" :key="index">
                     <div class="message incoming" v-if="message.type === 'incoming'">
                         <div class="message-content">
                             <p>{{ message.content }}</p>
@@ -52,9 +52,9 @@
         </el-container>
         <el-aside>
             <el-container>
-                <el-header>Right Header</el-header>
-                <el-main>Right Main</el-main>
-                <el-footer>Right Footer</el-footer>
+                <el-header>功能列表</el-header>
+                <el-main>功能区</el-main>
+                <el-footer>右边底部</el-footer>
             </el-container>
         </el-aside>
     </el-container>
@@ -91,13 +91,13 @@ export default {
                 sender: {
                     userId: "",        // 发送者用户ID
                     userName: "",      // 发送者用户名
-                    profilePicture: ""  // 发送者头像
+                    profilePictureDataUrl: ""  // 发送者头像
                 }
             },
         }
     }, async mounted () {
-        this.query()
-        this.$SubscribeToReceiveMessage("ReceivePrivateMessage", this.handleMessage)
+        this.queryChatList() //查询聊天列表
+        this.$SubscribeToReceiveMessage("ReceivePrivateMessage", this.handleMessage)//订阅私聊信息
     }, methods: {
         // 添加消息到指定聊天
         addMessageToChat (chatId, message) {
@@ -105,9 +105,11 @@ export default {
                 this.chatHistories[chatId] = [] // 如果聊天不存在，初始化一个空数组
             }
             this.chatHistories[chatId].push(message)
+            this.$TOOL.data.set("CHAT_HISTORIES", this.chatHistories)
         },
         // 获取特定聊天的消息记录
         getChatHistory (chatId) {
+            this.chatHistories = this.$TOOL.data.get("CHAT_HISTORIES")
             if (this.chatHistories[chatId]) {
                 return this.chatHistories[chatId]
             }
@@ -115,44 +117,60 @@ export default {
         },
         // 创建一个回调函数来处理接收到的消息
         handleMessage (message) {
-            this.messages.push({
-                type: 'incoming',
-                content: message,
-                timestamp: new Date()
-            })
+            let msg = JSON.parse(message)
+            let chatId = msg.sender.userId
+            if (this.currentChatUser.userId === "") {
+                this.currentChatUser.profilePictureDataUrl = msg.sender.profilePictureDataUrl
+                this.currentChatUser.userName = msg.sender.userName
+                this.currentChatUser.userId = msg.sender.userId
+            }
+
+            this.addMessageToChat(chatId, msg)
             this.scrollMessageContainerToBottom()
         },
-        async query () {
+        //查询聊天列表
+        async queryChatList () {
             let response = await await this.$API.system.chats.list.post({
                 pageNumber: 1,
                 pageSize: 10,
                 orderBy: "Id",
                 sortDirection: "Descending"
             })
-            this.friends = response.data.items
-            this.currentChatUser.profilePictureDataUrl = this.friends[0].profilePictureDataUrl
-            this.currentChatUser.userName = this.friends[0].userName
-            this.currentChatUser.userId = this.friends[0].userId
+            if (response.data.items) {
+                this.friends = response.data.items
+                if (response.data.items.length > 1) {
+                    this.currentChatUser.profilePictureDataUrl = this.friends[1].profilePictureDataUrl
+                    this.currentChatUser.userName = this.friends[1].userName
+                    this.currentChatUser.userId = this.friends[1].userId
+                }
+            }
         },
         // 添加发送的消息
         addOutgoingMessage () {
             if (this.messageInput.trim() !== '') {
-                this.messages.push({
-                    type: 'outgoing', // 消息类型，可以根据需要自定义
-                    content: this.messageInput,
-                    timestamp: new Date()
-                })
-                this.$SendMessage("SendPrivateMessageAsync", this.currentChatUser.userId, this.messageInput)
+                var date = new Date()
+                var formattedDate = date.toLocaleString()
+                this.message = {
+                    type: "outgoing",           // 消息类型，例如 'incoming' 或 'outgoing'
+                    content: this.messageInput,   // 消息内容
+                    contentType: "text",    // 内容类型，例如 'text' 或 'image'
+                    timestamp: formattedDate  // 消息时间戳
+                }
+                // 使用 Date 构造函数解析日期时间字符串
+                this.addMessageToChat(this.currentChatUser.userId, this.message)
+                this.$SendMessage("SendPrivateMessageAsync", this.currentChatUser.userId, JSON.stringify(this.message))
                 this.messageInput = '' // 清空输入框
                 this.scrollMessageContainerToBottom()
             }
         },
+        //聊天内容滚动到底部
         scrollMessageContainerToBottom () {
             this.$nextTick(() => {
                 const container = document.querySelector('.nopadding')
                 container.scrollTop = container.scrollHeight
             })
         },
+        //选择聊天用户
         selectChatUser (row) {
             this.currentChatUser.profilePictureDataUrl = row.profilePictureDataUrl
             this.currentChatUser.userName = row.userName

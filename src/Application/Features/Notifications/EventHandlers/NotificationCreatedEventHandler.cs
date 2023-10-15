@@ -1,4 +1,5 @@
-﻿using Domain.Entities.Notifications;
+﻿using Application.Common;
+using Domain.Entities.Notifications;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Application.Features.Notifications.EventHandlers;

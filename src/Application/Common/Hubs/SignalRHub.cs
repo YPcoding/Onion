@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using Application.Hubs;
+using Microsoft.AspNetCore.SignalR;
 using System.Collections.Concurrent;
 
-namespace Application.Common.Interfaces;
+namespace Application.Common;
 
 /// <summary>
 /// SignalR Hub 用于处理聊天相关操作。
@@ -28,8 +29,9 @@ public class SignalRHub : Hub
     /// <param name="message">要发送的消息</param>
     public async Task SendPrivateMessageAsync(string userId, string message)
     {
+        var sendMessage = new BuildSendMessage(Context, message);
         // 向指定用户发送消息
-        await Clients.User(userId).SendAsync("ReceivePrivateMessage", message);
+        await Clients.User(userId).SendAsync("ReceivePrivateMessage", sendMessage.Message.ToJson(true));
     }
 
     /// <summary>

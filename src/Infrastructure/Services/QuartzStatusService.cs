@@ -4,6 +4,7 @@ using System.Reflection;
 using Common.Quartzs;
 using Domain.Entities.Job;
 using Microsoft.AspNetCore.SignalR;
+using Application.Common;
 
 namespace Infrastructure.Services;
 

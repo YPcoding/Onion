@@ -35,13 +35,25 @@ public static class ObjectExtensions
     /// <summary>
     /// 使用 System.Text.Json 将对象序列化为 JSON 字符串
     /// </summary>
-    public static string ToJson(this object obj)
+    public static string ToJson(this object obj, bool isCamelCase = false)
     {
-        var options = new JsonSerializerOptions
+        if (!isCamelCase)
         {
-            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-        };
-        return JsonSerializer.Serialize(obj, options);
+            var options = new JsonSerializerOptions
+            {
+                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+            };
+            return JsonSerializer.Serialize(obj, options);
+        }
+        else
+        {
+            var options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+            };
+            return JsonSerializer.Serialize(obj, options);
+        }
     }
 
     /// <summary>

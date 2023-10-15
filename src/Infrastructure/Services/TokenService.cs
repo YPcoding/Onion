@@ -30,14 +30,15 @@ namespace Infrastructure.Services
             });
         }
 
-        public async Task<IEnumerable<Claim>> CreateClaimsAsync(long userId, string userName)
+        public async Task<IEnumerable<Claim>> CreateClaimsAsync(long userId, string userName, string? profilePictureDataUrl = null)
         {
             return await Task.Run(() =>
             {
                 List<Claim> claims = new()
                 {
                   new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
-                  new Claim(ClaimTypes.Name,userName)
+                  new Claim(ClaimTypes.Name,userName),
+                  new Claim(ApplicationClaimTypes.ProfilePictureDataUrl, profilePictureDataUrl??"")
                  };
                 return claims;
             });

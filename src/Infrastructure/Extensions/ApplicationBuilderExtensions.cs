@@ -1,4 +1,5 @@
-﻿using IGeekFan.AspNetCore.Knife4jUI;
+﻿using Application.Common;
+using IGeekFan.AspNetCore.Knife4jUI;
 using Infrastructure.Services;
 using Microsoft.Extensions.FileProviders;
 using Serilog;
