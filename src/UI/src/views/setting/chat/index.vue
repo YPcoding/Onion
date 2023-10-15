@@ -1,23 +1,27 @@
 <template>
     <el-container>
-        <el-aside>
+        <el-aside style="width:6%;background-color: #FFFFFF;">
+            <el-container>
+                <el-main>功能区</el-main>
+            </el-container>
+        </el-aside>
+        <el-aside style="width: 20%; background-color: #FFFFFF;">
             <el-container>
                 <el-header>聊天列表</el-header>
                 <el-main style="padding: 10px; display: flex; flex-direction: column;">
                     <div v-for="friend in friends" :key="friend.userId" @click="selectChatUser(friend)"
-                        style="margin-bottom: 10px; cursor: pointer; text-align: center; display: flex; align-items: center;">
+                        style="cursor: pointer; text-align: center; display: flex; align-items: center; height: 60px;">
                         <el-avatar :src="friend.profilePictureDataUrl" style="margin-right: 10px;"></el-avatar>
                         <div>
                             {{ friend.userName }}
                         </div>
                     </div>
                 </el-main>
-                <el-footer>左边底部</el-footer>
             </el-container>
         </el-aside>
         <el-container>
             <el-header>
-                <div class="user-profile">
+                <div class="user-profile" style="font-size: 16px; font-weight: 600;">
                     <el-avatar :src="currentChatUser.profilePictureDataUrl" style="margin-right: 10px;"></el-avatar>
                     <div>
                         {{ currentChatUser.userName }}
@@ -29,18 +33,18 @@
                     <div class="message incoming" v-if="message.type === 'incoming'">
                         <div class="message-content">
                             <p>{{ message.content }}</p>
-                            <p class="message-timestamp-left">{{ message.timestamp }}</p>
+                            <p class="message-timestamp-left">时间：{{ message.timestamp }}</p>
                         </div>
                     </div>
                     <div class="message outgoing" v-else-if="message.type === 'outgoing'">
                         <div class="message-content">
                             <p>{{ message.content }}</p>
-                            <p class="message-timestamp-right">{{ message.timestamp }}</p>
+                            <p class="message-timestamp-right">时间：{{ message.timestamp }}</p>
                         </div>
                     </div>
                 </div>
             </el-main>
-            <el-footer>
+            <el-footer style="height: 100px;">
                 <el-input v-model="messageInput" placeholder="输入消息..." clearable @keyup.enter="addOutgoingMessage"
                     class="custom-input">
                     <template v-slot:append>
@@ -50,13 +54,6 @@
                 </el-input>
             </el-footer>
         </el-container>
-        <el-aside>
-            <el-container>
-                <el-header>功能列表</el-header>
-                <el-main>功能区</el-main>
-                <el-footer>右边底部</el-footer>
-            </el-container>
-        </el-aside>
     </el-container>
 </template>
 
@@ -231,8 +228,8 @@ export default {
 
 /* 左边聊天内容的背景色 */
 .message.incoming .message-content {
-    background-color: #E6F7FF;
-    font-size: 16px;
+    background-color: #ebebeb;
+    font-size: 14px;
     /* 调整字体大小 */
     color: #000;
     /* 调整字体颜色 */
@@ -240,31 +237,33 @@ export default {
 
 /* 右边聊天内容的背景色 */
 .message.outgoing .message-content {
-    background-color: #e0e0e0;
-    font-size: 16px;
+    background-color: #0a80ff;
+    font-size: 14px;
     /* 调整字体大小 */
-    color: #000;
+    color: #fff;
     /* 调整字体颜色 */
 }
 
 /* 消息时间戳样式 */
 .message-timestamp-left {
-    font-size: 12px;
+    font-size: 6px;
     /* 调整时间戳的字体大小 */
-    color: #888;
+    color: #000;
     /* 根据需要设置时间戳的颜色 */
     text-align: left;
     /* 左对齐 */
+    font-style: italic;
 }
 
 /* 消息时间戳样式 */
 .message-timestamp-right {
-    font-size: 12px;
+    font-size: 6px;
     /* 调整时间戳的字体大小 */
-    color: #888;
+    color: #fff;
     /* 根据需要设置时间戳的颜色 */
     text-align: right;
     /* 左对齐 */
+    font-style: italic;
 }
 
 /* 用户头像和昵称样式 */
