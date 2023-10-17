@@ -47,6 +47,7 @@ export default {
 		app.config.globalProperties.$SubscribeToReceiveMessage = signalR.subscribeToReceiveMessage
 		app.config.globalProperties.$SendMessage = signalR.sendMessage
 		app.config.globalProperties.$UnSubscribeFromMessage = signalR.unsubscribeFromMessage
+		app.config.globalProperties.$DisconnectSignalR = signalR.disconnectSignalR
 
 		//注册全局组件
 		app.component('scTable', scTable)

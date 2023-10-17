@@ -63,7 +63,18 @@ const unsubscribeFromMessage = (methodName, callback) => {
     hubConnection.off(methodName, callback)
 }
 
+// 主动断开连接
+function disconnectSignalR () {
+    hubConnection.stop()
+        .then(() => {
+            console.log("SignalR Hub disconnected.")
+        })
+        .catch((error) => {
+            console.error(`SignalR Hub disconnection error: ${error}`)
+        })
+}
+
 // 创建 SignalR 连接
 const hubConnection = createSignalRConnection(signalRConfig)
 
-export { hubConnection, startSignalRConnection, subscribeToReceiveMessage, sendMessage, unsubscribeFromMessage }
+export { hubConnection, startSignalRConnection, subscribeToReceiveMessage, sendMessage, unsubscribeFromMessage, disconnectSignalR }
