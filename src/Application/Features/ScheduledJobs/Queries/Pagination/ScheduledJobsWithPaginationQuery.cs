@@ -7,6 +7,7 @@ using System.Reflection;
 using Quartz;
 using Application.Common.Jobs;
 using Domain.Entities.Loggers;
+using System.Security.AccessControl;
 
 namespace Application.Features.ScheduledJobs.Queries.Pagination;
 
@@ -88,46 +89,30 @@ public class ScheduledJobsWithPaginationQueryHandler :
     public async Task<Result<IEnumerable<JobGroupDto>>> Handle(ScheduledJobGroupQuery request, CancellationToken cancellationToken)
     {
         var jobGroups = new List<JobGroupDto>();
-        string currentDirectory = Directory.GetCurrentDirectory();
-        string parentDirectory = Path.GetDirectoryName(currentDirectory)!;
 
-        string entitiesPath = $"{parentDirectory}\\Application\\Common\\Jobs";
+        var baseQuartzType = typeof(IJob);
+        var path = AppDomain.CurrentDomain.RelativeSearchPath ?? AppDomain.CurrentDomain.BaseDirectory;
+        var getFiles = Directory.GetFiles(path, "Application.dll");
+        var referencedAssemblies = getFiles.Select(Assembly.LoadFrom).ToList();
 
-        // 获取文件夹内的所有文件
-        string[] files = Directory.GetFiles(entitiesPath, "*.cs", SearchOption.AllDirectories);
-
+        var types = referencedAssemblies
+           .SelectMany(a => a.DefinedTypes)
+           .Select(type => type.AsType())
+           .Where(x => baseQuartzType.IsAssignableFrom(x)
+           && (x != baseQuartzType)
+           && !(x == typeof(IJob)))
+           .ToList();
 
         // 遍历每个文件
-        foreach (string filePath in files)
+        foreach (var type in types)
         {
-            // 读取文件内容
-            string fileContent = File.ReadAllText(filePath);
-            string namespaceName = string.Empty;
-            string className = string.Empty;
-
-            // 使用正则表达式查找命名空间
-            Match namespaceMatch = Regex.Match(fileContent, @"namespace\s+([\w.]+)");
-            if (namespaceMatch.Success)
+            var jobGroup = new JobGroupDto
             {
-                namespaceName = namespaceMatch.Groups[1].Value;
-            }
-
-            // 使用正则表达式查找当前类名称
-            Match classMatch = Regex.Match(fileContent, @"class\s+([\w.]+)");
-            if (classMatch.Success)
-            {
-                className = classMatch.Groups[1].Value;
-            }
-
-            var jobGroup = new JobGroupDto();
-            jobGroup.Value = ($"{namespaceName}.{className}");
-            Assembly assembly = Assembly.Load(jobGroup.Value.Split('.')[0].ToString());
-            var type =  assembly.GetType(jobGroup.Value)!;
-
-            if (!typeof(IJob).IsAssignableFrom(type)) continue;
+                Value = type?.FullName!
+            };
 
             //获取参数，转Json字符串
-            Type baseType = type.BaseType!;
+            Type baseType = type?.BaseType!;
             if (baseType.IsGenericType && baseType.GetGenericTypeDefinition() == typeof(JobParameterAbstractBase<>))
             {
                 Type parameterType = baseType?.GetGenericArguments()[0]!;

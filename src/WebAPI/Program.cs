@@ -13,14 +13,21 @@ var app = builder.Build();
 
 app.UseInfrastructure(builder.Configuration);
 
-if (app.Environment.IsDevelopment())
+//if (app.Environment.IsDevelopment())
+//{
+//    //初始化种子数据
+//    using (var scope = app.Services.CreateScope())
+//    {
+//        var initializer = scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitializer>();
+//        await initializer.InitialiseAsync();
+//        await initializer.SeedAsync();
+//    }
+//}
+//初始化种子数据
+using (var scope = app.Services.CreateScope())
 {
-    //初始化种子数据
-    using (var scope = app.Services.CreateScope())
-    {
-        var initializer = scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitializer>();
-        await initializer.InitialiseAsync();
-        await initializer.SeedAsync();
-    }
+    var initializer = scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitializer>();
+    await initializer.InitialiseAsync();
+    await initializer.SeedAsync();
 }
 await app.RunAsync();
