@@ -14,6 +14,7 @@ using Application.Features.Users.DTOs;
 using Application.Features.Users.Queries.GetById;
 using Application.Features.Loggers.DTOs;
 using Application.Features.Loggers.Queries.Pagination;
+using Application.Constants.Loggers;
 
 namespace WebAPI.Controllers;
 
@@ -38,7 +39,7 @@ public class UserProfileSettingController : ApiControllerBase
 
     public async Task<Result<PaginatedData<LoggerDto>>> LogPaginationQuery(LoggersWithPaginationQuery query)
     {
-        query.Template = "{ID},{LoggerName},{UserAgent},{ResponseData},{RequestParams},{RequestPath},{RequestName},{RequestMethod},{UserName},{ClientIP},{ResponseStatusCode},{Message},{LoggerTime},{ElapsedMilliseconds}";
+        query.Template = MessageTemplate.ActivityHistoryLog;
         query.Message = _currentUserService.UserName;
         return await Mediator.Send(query);
     }
