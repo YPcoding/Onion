@@ -33,7 +33,19 @@ public class CustomDatabaseLogSink : ILogEventSink
         var properties = new Dictionary<string, object>();
         foreach (var property in logEvent.Properties)
         {
-            properties[property.Key] = property.Value?.ToString()!; // 将属性值转换为字符串
+            var value = property.Value.ToString();
+            if (value is not null && value.StartsWith(@"""{")) 
+            {
+                properties[property.Key] = value;
+                continue;
+            }
+            if (value is not null && value.StartsWith(@""""))
+            {
+                value = value.Replace(@"""", "");
+                properties[property.Key] = value;
+                continue;
+            }
+            properties[property.Key] = value;
         }
 
         Domain.Entities.Loggers.Logger logger = new Domain.Entities.Loggers.Logger()
@@ -47,6 +59,7 @@ public class CustomDatabaseLogSink : ILogEventSink
             TimestampLong = logEvent.Timestamp.ToUnixTimestampMilliseconds(),
             Properties = properties.ToJson(),
         };
+
 
         using var scope = _serviceProvider.CreateScope();
         var _context = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
