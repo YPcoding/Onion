@@ -45,7 +45,7 @@
 							<el-table-column label="请求接口" prop="RequestPath" width="260"></el-table-column>
 							<el-table-column label="请求方法" prop="RequestMethod" width="70"></el-table-column>
 							<el-table-column label="用户" prop="UserName" width="150"></el-table-column>
-							<el-table-column label="客户端IP" prop="ClientIP" width="100"></el-table-column>
+							<el-table-column label="客户端IP" prop="ClientIP" width="150"></el-table-column>
 							<el-table-column label="日志时间" prop="LoggerTime" width="150"></el-table-column>
 						</scTable>
 					</el-main>

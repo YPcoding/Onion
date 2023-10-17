@@ -12,7 +12,7 @@
 		<el-main style="padding:0 20px;">
 			<scTable ref="table" :data="data" :page-size="pageSize" @pagination-change="handlePaginationChange"
 				@pagesize="pageSizeChange" stripe>
-				<el-table-column label="执行时间" prop="TimeStamp" width="200"></el-table-column>
+				<el-table-column label="执行时间" prop="LoggerTime" width="200"></el-table-column>
 				<el-table-column label="执行结果" prop="LastExecutionStatus" width="100">
 					<template #default="scope">
 						<span v-if="scope.row.LastExecutionStatus == 'Success'"

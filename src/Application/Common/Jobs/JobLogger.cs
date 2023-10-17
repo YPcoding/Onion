@@ -26,8 +26,8 @@ public static class JobLogger
         {
             logger.LogInformation(MessageTemplate.ScheduledJobLog,
                                 context?.JobDetail.Key.ToString(),
-                                context?.PreviousFireTimeUtc?.LocalDateTime,
-                                context?.NextFireTimeUtc?.LocalDateTime,
+                                context?.PreviousFireTimeUtc.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss"),
+                                context?.NextFireTimeUtc.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss"),
                                 message, executionStatus);
         }
         else
@@ -36,8 +36,8 @@ public static class JobLogger
             executionStatus = ExecutionStatus.Failure;
             logger.LogError(MessageTemplate.ScheduledJobLog,
                                 context?.JobDetail.Key.ToString(),
-                                context?.PreviousFireTimeUtc?.LocalDateTime,
-                                context?.NextFireTimeUtc?.LocalDateTime,
+                                context?.PreviousFireTimeUtc.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss"),
+                                context?.NextFireTimeUtc.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss"),
                                 message, executionStatus);
         }
         if (serviceProvider != null)
@@ -47,8 +47,8 @@ public static class JobLogger
             var job = await _dbContext.ScheduledJobs.FirstOrDefaultAsync(x => (x.JobGroup + "." + x.JobName) == context!.JobDetail.Key.ToString());
             if (job == null) return;
 
-            job.LastExecutionTime = context!.PreviousFireTimeUtc;
-            job.NextExecutionTime = context.NextFireTimeUtc;
+            job.LastExecutionTime = context.PreviousFireTimeUtc.Value.ToLocalTime();
+            job.NextExecutionTime = context.NextFireTimeUtc.Value.ToLocalTime();
             job.LastExecutionMessage = message;
             job.LastExecutionStatus = executionStatus;
             _dbContext.ScheduledJobs.Attach(job);

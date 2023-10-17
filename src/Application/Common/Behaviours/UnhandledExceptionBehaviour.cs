@@ -63,7 +63,7 @@ public class UnhandledExceptionBehaviour<TRequest, TResponse> : IPipelineBehavio
                 var userName = _currentUserService.UserName ?? "匿名访问";
                 var clientIP = httpContext.Connection.RemoteIpAddress?.ToString();
                 var statusCode = httpContext.Response.StatusCode;
-                var loggerTime = DateTime.Now.ToString("G");
+                var loggerTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                 var elapsedMilliseconds = _timer.ElapsedMilliseconds;
 
                 var message = "";
