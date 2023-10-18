@@ -69,7 +69,7 @@ public class UpdateRoleMenuCommandHandler : IRequestHandler<UpdateRoleMenuComman
         }
 
         var apiIds = await _context.Menus
-            .Where(x => request.MenuIds.Contains((long)x.ParentId))
+            .Where(x => request.MenuIds.Contains((long)x.ParentId!) && x.Meta.Type == MetaType.Api)
             .Select(s => s.Id)
             .ToListAsync(cancellationToken);
 
