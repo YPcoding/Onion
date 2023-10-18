@@ -17,12 +17,12 @@ public enum MetaType
     /// Iframe
     /// </summary>
     [Description("Iframe")]
-    Iframe = 1,
+    iframe = 1,
     /// <summary>
     /// 外链
     /// </summary>
     [Description("外链")]
-    Link = 2,
+    link = 2,
     /// <summary>
     /// 按钮
     /// </summary>

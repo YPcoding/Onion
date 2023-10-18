@@ -5,19 +5,20 @@
 		</el-col>
 		<template v-else>
 			<el-col :lg="12">
-				<h2>{{form.meta.title || "新增菜单"}}</h2>
+				<h2>{{ form.meta.title || "新增菜单" }}</h2>
 				<el-form :model="form" :rules="rules" ref="dialogForm" label-width="80px" label-position="left">
 					<el-form-item label="显示名称" prop="meta.title">
 						<el-input v-model="form.meta.title" clearable placeholder="菜单显示名字"></el-input>
 					</el-form-item>
 					<el-form-item label="上级菜单" prop="parentId">
-						<el-cascader v-model="form.parentId" :options="menuOptions" :props="menuProps" :show-all-levels="false" placeholder="顶级菜单" clearable disabled></el-cascader>
+						<el-cascader v-model="form.parentId" :options="menuOptions" :props="menuProps"
+							:show-all-levels="false" placeholder="顶级菜单" clearable disabled></el-cascader>
 					</el-form-item>
 					<el-form-item label="类型" prop="meta.type">
 						<el-radio-group v-model="form.meta.type">
 							<el-radio-button label="Menu">菜单</el-radio-button>
-							<el-radio-button label="Iframe">Iframe</el-radio-button>
-							<el-radio-button label="Link">外链</el-radio-button>
+							<el-radio-button label="iframe">Iframe</el-radio-button>
+							<el-radio-button label="link">外链</el-radio-button>
 							<el-radio-button label="Button">按钮</el-radio-button>
 						</el-radio-group>
 					</el-form-item>
@@ -82,113 +83,124 @@
 			</el-col>
 		</template>
 	</el-row>
-
 </template>
 
 <script>
-	import scIconSelect from '@/components/scIconSelect'
+import scIconSelect from '@/components/scIconSelect'
 
-	export default {
-		components: {
-			scIconSelect
-		},
-		props: {
-			menu: { type: Object, default: () => {} },
-		},
-		data(){
-			return {
-				form: {
-					id: null,
-					parentId: null,
-					name: "",
-					path: "",
-					component: "",
-					redirect: "",
-					meta:{
-						title: "",
-						icon: "",
-						active: "",
-						color: "",
-						type: "menu",
-						fullpage: false,
-						tag: "",
-					},
-					apiList: []
+export default {
+	components: {
+		scIconSelect
+	},
+	props: {
+		menu: { type: Object, default: () => { } },
+	},
+	data () {
+		return {
+			form: {
+				id: null,
+				parentId: null,
+				name: "",
+				path: "",
+				component: "",
+				redirect: "",
+				meta: {
+					title: "",
+					icon: "",
+					active: "",
+					color: "",
+					type: "menu",
+					fullpage: false,
+					tag: "",
 				},
-				menuOptions: [],
-				menuProps: {
-					value: 'id',
-					label: 'title',
-					checkStrictly: true
-				},
-				predefineColors: [
-					'#ff4500',
-					'#ff8c00',
-					'#ffd700',
-					'#67C23A',
-					'#00ced1',
-					'#409EFF',
-					'#c71585'
-				],
-				rules: [],
-				apiListAddTemplate: {
-					code: "",
-					url: ""
-				},
-				loading: false
-			}
-		},
-		watch: {
-			menu: {
-				handler(){
-					this.menuOptions = this.treeToMap(this.menu)
-				},
-				deep: true
-			}
-		},
-		mounted() {
-
-		},
-		methods: {
-			//简单化菜单
-			treeToMap(tree){
-				const map = []
-				tree.forEach(item => {
-					var obj = {
-						id: item.id,
-						parentId: item.parentId,
-						title: item.meta.title,
-						children: item.children&&item.children.length>0 ? this.treeToMap(item.children) : null
-					}
-					map.push(obj)
-				})
-				return map
+				apiList: []
 			},
-			//保存
-			async save(){
-				this.loading = true
-				var res = await this.$API.system.menu.save.post(this.form);
-				this.loading = false
-				if(res.code == 200){
-					this.$message.success("保存成功")
-				}else{
-					this.$message.warning(res.message)
+			menuOptions: [],
+			menuProps: {
+				value: 'id',
+				label: 'title',
+				checkStrictly: true
+			},
+			predefineColors: [
+				'#ff4500',
+				'#ff8c00',
+				'#ffd700',
+				'#67C23A',
+				'#00ced1',
+				'#409EFF',
+				'#c71585'
+			],
+			rules: [],
+			apiListAddTemplate: {
+				code: "",
+				url: ""
+			},
+			loading: false
+		}
+	},
+	watch: {
+		menu: {
+			handler () {
+				this.menuOptions = this.treeToMap(this.menu)
+			},
+			deep: true
+		}
+	},
+	mounted () {
+
+	},
+	methods: {
+		//简单化菜单
+		treeToMap (tree) {
+			const map = []
+			tree.forEach(item => {
+				var obj = {
+					id: item.id,
+					parentId: item.parentId,
+					title: item.meta.title,
+					children: item.children && item.children.length > 0 ? this.treeToMap(item.children) : null
 				}
-			},
-			//表单注入数据
-			setData(data, pid){
-				this.form = data
-				this.form.apiList = data.apiList || []
-				this.form.parentId = pid
+				map.push(obj)
+			})
+			return map
+		},
+		//保存
+		async save () {
+			this.loading = true
+			var res = await this.$API.system.menu.save.post(this.form)
+			this.loading = false
+			if (res.code == 200) {
+				this.$message.success("保存成功")
+			} else {
+				this.$message.warning(res.message)
 			}
+		},
+		//表单注入数据
+		setData (data, pid) {
+			this.form = data
+			this.form.apiList = data.apiList || []
+			this.form.parentId = pid
 		}
 	}
+}
 </script>
 
 <style scoped>
-	h2 {font-size: 17px;color: #3c4a54;padding:0 0 30px 0;}
-	.apilist {border-left: 1px solid #eee;}
+h2 {
+	font-size: 17px;
+	color: #3c4a54;
+	padding: 0 0 30px 0;
+}
 
-	[data-theme="dark"] h2 {color: #fff;}
-	[data-theme="dark"] .apilist {border-color: #434343;}
+.apilist {
+	border-left: 1px solid #eee;
+}
+
+[data-theme="dark"] h2 {
+	color: #fff;
+}
+
+[data-theme="dark"] .apilist {
+	border-color: #434343;
+}
 </style>

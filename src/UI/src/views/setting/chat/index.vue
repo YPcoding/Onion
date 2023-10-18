@@ -93,7 +93,6 @@ export default {
         }
     }, async mounted () {
         this.queryChatList() //查询聊天列表
-        this.$SubscribeToReceiveMessage("ReceivePrivateMessage", this.handleMessage)//订阅私聊信息
     }, methods: {
         // 添加消息到指定聊天
         addMessageToChat (chatId, message) {
@@ -105,11 +104,11 @@ export default {
                 this.chatHistories[chatId] = [] // 如果聊天不存在，初始化一个空数组
             }
             this.chatHistories[chatId].push(message)
-            this.$TOOL.data.set("CHAT_HISTORIES", this.chatHistories)
+            //this.$TOOL.data.set("CHAT_HISTORIES", this.chatHistories)
         },
         // 获取特定聊天的消息记录
         getChatHistory (chatId) {
-            this.chatHistories = this.$TOOL.data.get("CHAT_HISTORIES")
+            // this.chatHistories = this.$TOOL.data.get("CHAT_HISTORIES")
             if (this.chatHistories == null) {
                 return []
             }
@@ -146,6 +145,7 @@ export default {
                     this.currentChatUser.userName = this.friends[1].userName
                     this.currentChatUser.userId = this.friends[1].userId
                 }
+                this.$SubscribeToReceiveMessage("ReceivePrivateMessage", this.handleMessage)//订阅私聊信息
             }
         },
         // 添加发送的消息
@@ -246,7 +246,7 @@ export default {
 
 /* 消息时间戳样式 */
 .message-timestamp-left {
-    font-size: 6px;
+    font-size: 10px;
     /* 调整时间戳的字体大小 */
     color: #000;
     /* 根据需要设置时间戳的颜色 */
@@ -257,7 +257,7 @@ export default {
 
 /* 消息时间戳样式 */
 .message-timestamp-right {
-    font-size: 6px;
+    font-size: 10px;
     /* 调整时间戳的字体大小 */
     color: #fff;
     /* 根据需要设置时间戳的颜色 */
