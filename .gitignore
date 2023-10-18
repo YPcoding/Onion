@@ -359,3 +359,4 @@ MigrationBackup/
 **/Files/
 src/WebAPI/appsettings.development.json
 src/UI/node_modules
+/src/Commons/Common/Extensions
